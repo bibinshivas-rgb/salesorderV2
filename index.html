@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATI Motors — Sales Orders</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:   #f4f6f8;
+    --s1:   #ffffff;
+    --s2:   #f8f9fa;
+    --s3:   #edf0f3;
+    --bdr:  #e1e5ea;
+    --bdr2: #c8cdd5;
+    --acc:  #1a6cf0;
+    --acc2: #6366f1;
+    --grn:  #16a34a;
+    --ylw:  #b45309;
+    --red:  #dc2626;
+    --org:  #c2540a;
+    --txt:  #111827;
+    --txt2: #374151;
+    --mut:  #9ca3af;
+    --radius: 6px;
+  }
+  /* ── DARK THEME ── */
+  [data-theme="dark"] {
+    --bg:   #0f1117;
+    --s1:   #1a1d27;
+    --s2:   #20232f;
+    --s3:   #272b39;
+    --bdr:  #2e3347;
+    --bdr2: #3a4060;
+    --acc:  #4f8ef7;
+    --acc2: #818cf8;
+    --grn:  #22c55e;
+    --ylw:  #f59e0b;
+    --red:  #f43f5e;
+    --org:  #fb923c;
+    --txt:  #e2e8f0;
+    --txt2: #94a3b8;
+    --mut:  #4b5563;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    min-height: 100vh;
+  }
+  /* ── TOP HEADER ── */
+  .top-header {
+    background: var(--s1);
+    border-bottom: 1px solid var(--bdr);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-badge {
+    background: var(--acc);
+    color: #000;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    font-family: 'Space Mono', monospace;
+  }
+  .header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--txt);
+    letter-spacing: 0.3px;
+  }
+  .header-sub {
+    font-size: 11px;
+    color: var(--mut);
+    margin-left: auto;
+    font-family: 'Space Mono', monospace;
+  }
+  .last-updated {
+    font-size: 11px;
+    color: var(--mut);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* ── ACTIVE KPI PANEL ── */
+  .kpi-panel {
+    display: flex;
+    gap: 0;
+    background: var(--s1);
+    border-bottom: 1px solid var(--bdr);
+    min-height: 300px;
+  }
+  .kpi-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    min-width: 200px;
+    border-right: 1px solid var(--bdr);
+    justify-content: center;
+  }
+  .kpi-label-header {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--acc);
+    margin-bottom: 4px;
+  }
+  .kpi-card {
+    background: var(--s2);
+    border: 1px solid var(--bdr);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+  }
+  .kpi-num {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+    line-height: 1;
+    color: var(--acc);
+  }
+  .kpi-num.green  { color: var(--grn); }
+  .kpi-num.red    { color: var(--red); }
+  .kpi-num.yellow { color: var(--ylw); }
+  .kpi-sub {
+    font-size: 10px;
+    color: var(--mut);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 4px;
+  }
+  .kpi-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px 12px;
+    min-width: 0;
+  }
+  .kpi-chart-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .kpi-chart-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--txt2);
+    flex-shrink: 0;
+  }
+  /* AMR type filter pills */
+  .amr-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .amr-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px 3px 6px;
+    border-radius: 20px;
+    border: 1px solid var(--bdr);
+    background: var(--s2);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--txt2);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .amr-pill:hover { border-color: var(--txt2); }
+  .amr-pill.active { border-color: transparent; color: #000; }
+  .amr-pill.inactive { opacity: 0.38; }
+  .amr-pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .kpi-chart-wrap {
+    position: relative;
+    height: 260px;
+    width: 100%;
+    display: block;
+  }
+  /* ── AMR MULTI-SELECT DROPDOWN ── */
+  .amr-multiselect { position: relative; }
+  .amr-multi-btn {
+    background: var(--s3);
+    border: 1px solid var(--bdr);
+    border-radius: 6px;
+    color: var(--txt2);
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    padding: 4px 9px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .amr-multi-btn:hover { border-color: var(--acc); color: var(--txt); }
+  .amr-multi-btn.filtered { border-color: var(--acc); color: var(--acc); }
+  .amr-multi-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: var(--s2);
+    border: 1px solid var(--bdr2);
+    border-radius: var(--radius);
+    padding: 8px;
+    min-width: 190px;
+    z-index: 300;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .amr-multi-panel.open { display: block; }
+  .amr-multi-actions {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--bdr);
+  }
+  .amr-multi-actions button {
+    background: var(--s3);
+    border: 1px solid var(--bdr);
+    border-radius: 4px;
+    color: var(--txt2);
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .amr-multi-actions button:hover { border-color: var(--acc); color: var(--acc); }
+  .amr-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .amr-checkbox-item:hover { background: var(--s3); }
+  .amr-checkbox-item input[type="checkbox"] {
+    accent-color: var(--acc);
+    width: 13px; height: 13px;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .amr-checkbox-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .amr-checkbox-label { font-size: 11px; font-weight: 600; color: var(--txt2); flex: 1; }
+  .amr-checkbox-count { font-size: 10px; color: var(--mut); font-family: 'Space Mono', monospace; }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    padding: 12px 24px;
+    background: var(--s1);
+    border-bottom: 1px solid var(--bdr);
+    align-items: center;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 56px;
+    z-index: 99;
+  }
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-label {
+    font-size: 11px;
+    color: var(--mut);
+    white-space: nowrap;
+  }
+  .filter-bar input[type="text"],
+  .filter-bar select,
+  .filter-bar input[type="number"] {
+    background: var(--s2);
+    border: 1px solid var(--bdr);
+    border-radius: 6px;
+    color: var(--txt);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    padding: 6px 10px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .filter-bar input[type="text"] { width: 200px; }
+  .filter-bar select { width: 160px; }
+  .filter-bar input[type="number"] { width: 60px; text-align: center; }
+  .filter-bar input:focus,
+  .filter-bar select:focus { border-color: var(--acc); }
+  .filter-bar input::placeholder { color: var(--mut); }
+  .reset-btn {
+    background: transparent;
+    border: 1px solid var(--bdr);
+    border-radius: 6px;
+    color: var(--mut);
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { border-color: var(--txt2); color: var(--txt); }
+
+  /* ── MAIN CONTENT ── */
+  .main { padding: 20px 24px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 24px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--s2);
+    border: 1px solid var(--bdr);
+    border-radius: var(--radius) var(--radius) 0 0;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .section-header:hover { background: var(--s3); }
+  .section-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .section-count {
+    font-size: 11px;
+    color: var(--mut);
+    font-family: 'Space Mono', monospace;
+  }
+  .section-qty {
+    font-size: 11px;
+    color: var(--mut);
+    font-family: 'Space Mono', monospace;
+    margin-left: 4px;
+  }
+  .collapse-icon {
+    margin-left: auto;
+    color: var(--mut);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+  .section.collapsed .collapse-icon { transform: rotate(-90deg); }
+  .section.collapsed .table-wrap { display: none; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    border: 1px solid var(--bdr);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+  }
+  thead tr {
+    background: var(--s2);
+    border-bottom: 1px solid var(--bdr2);
+  }
+  th {
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    color: var(--mut);
+    white-space: nowrap;
+  }
+  th.right { text-align: right; }
+  tbody tr {
+    border-bottom: 1px solid var(--bdr);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--s2); }
+  tbody tr:nth-child(even) { background: var(--s2); }
+  tbody tr:nth-child(even):hover { background: var(--s3); }
+  td {
+    padding: 9px 12px;
+    vertical-align: top;
+  }
+
+  /* ── ORDER CELL ── */
+  .order-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--txt);
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+  .order-meta {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .order-key {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--acc);
+    font-weight: 700;
+  }
+  .order-location {
+    font-size: 10px;
+    color: var(--mut);
+  }
+  .order-priority {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── STATUS BADGES ── */
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .st-request        { background: #eff6ff; color: #1d4ed8; }
+  .st-approved       { background: #f0fdf4; color: #15803d; }
+  .st-procurement    { background: #fffbeb; color: #92400e; }
+  .st-iqc            { background: #fff7ed; color: #9a3412; }
+  .st-elec-assy      { background: #f5f3ff; color: #5b21b6; }
+  .st-mech-assy      { background: #eff6ff; color: #1e40af; }
+  .st-bringup        { background: #ecfeff; color: #0e7490; }
+  .st-validation     { background: #f0fdf4; color: #166534; }
+  .st-dispatch       { background: #e0f2fe; color: #0369a1; }
+  .st-commissioning  { background: #eef2ff; color: #4338ca; }
+  .st-handover       { background: #dcfce7; color: #14532d; }
+  .st-rejected       { background: #fef2f2; color: #991b1b; }
+  [data-theme="dark"] .st-request        { background: rgba(96,165,250,0.15);  color: #60a5fa; }
+  [data-theme="dark"] .st-approved       { background: rgba(52,211,153,0.15);  color: #34d399; }
+  [data-theme="dark"] .st-procurement    { background: rgba(245,197,24,0.15);  color: #f5c518; }
+  [data-theme="dark"] .st-iqc            { background: rgba(251,146,60,0.15);  color: #fb923c; }
+  [data-theme="dark"] .st-elec-assy      { background: rgba(167,139,250,0.15); color: #a78bfa; }
+  [data-theme="dark"] .st-mech-assy      { background: rgba(59,158,255,0.15);  color: #3b9eff; }
+  [data-theme="dark"] .st-bringup        { background: rgba(34,211,238,0.15);  color: #22d3ee; }
+  [data-theme="dark"] .st-validation     { background: rgba(134,239,172,0.15); color: #86efac; }
+  [data-theme="dark"] .st-dispatch       { background: rgba(79,142,247,0.15);  color: #4f8ef7; }
+  [data-theme="dark"] .st-commissioning  { background: rgba(129,140,248,0.15); color: #818cf8; }
+  [data-theme="dark"] .st-handover       { background: rgba(34,197,94,0.15);   color: #22c55e; }
+  [data-theme="dark"] .st-rejected       { background: rgba(244,63,94,0.15);   color: #f43f5e; }
+
+  /* ── PO BADGE ── */
+  .po-yes { color: var(--grn); font-weight: 700; font-size: 12px; }
+  .po-no  { color: var(--red); font-weight: 700; font-size: 12px; }
+  .po-num { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--txt2); margin-top: 2px; }
+
+  /* ── SOW BADGE ── */
+  /* ── EXCEPTIONS PANEL ── */
+  .exc-panel { background: var(--card); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 14px 18px 16px; margin-bottom: 18px; }
+  .exc-panel-head { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .exc-panel-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#ef4444; letter-spacing:.04em; }
+  .exc-panel-sub { font-size:11px; color:var(--mut); }
+  .exc-cards { display:flex; gap:10px; flex-wrap:wrap; }
+  .exc-card { flex:1; min-width:120px; border-radius:8px; padding:10px 14px; border:1px solid rgba(239,68,68,0.2); background:rgba(239,68,68,0.05); display:flex; flex-direction:column; gap:2px; }
+  .exc-card-ok { opacity:.35; border-color:var(--bdr); background:transparent; }
+  .exc-icon { font-size:15px; }
+  .exc-count { font-family:'Space Mono',monospace; font-size:22px; font-weight:700; color:#ef4444; line-height:1.1; }
+  .exc-card-ok .exc-count { color:var(--mut); }
+  .exc-lbl { font-size:10px; color:var(--mut); font-weight:600; letter-spacing:.03em; text-transform:uppercase; }
+  /* Exception cell highlight */
+  td.exc-cell { background: rgba(239,68,68,0.07) !important; }
+  td.exc-cell span { color: #dc2626 !important; font-weight:600; }
+  [data-theme="dark"] td.exc-cell { background: rgba(239,68,68,0.12) !important; }
+  [data-theme="dark"] td.exc-cell span { color: #f87171 !important; }
+
+  .sow-accepted   { background: #dcfce7; color: #14532d; }
+  .sow-correction { background: #fef9c3; color: #713f12; }
+  .sow-inprogress { background: #dbeafe; color: #1e40af; }
+  .sow-notstarted { background: #fff7ed; color: #9a3412; }
+  .sow-due        { background: #fef9c3; color: #713f12; }
+  .sow-overdue    { background: #fee2e2; color: #991b1b; }
+  .sow-nopdate    { background: #f3f4f6; color: #6b7280; }
+  [data-theme="dark"] .sow-accepted   { background: rgba(34,197,94,0.12);   color: #22c55e; }
+  [data-theme="dark"] .sow-correction { background: rgba(245,158,11,0.12);  color: #f59e0b; }
+  [data-theme="dark"] .sow-inprogress { background: rgba(79,142,247,0.12);  color: #4f8ef7; }
+  [data-theme="dark"] .sow-notstarted { background: rgba(194,84,10,0.12);   color: #fb923c; }
+  [data-theme="dark"] .sow-due        { background: rgba(245,158,11,0.12);  color: #f59e0b; }
+  [data-theme="dark"] .sow-overdue    { background: rgba(244,63,94,0.12);   color: #f43f5e; }
+  [data-theme="dark"] .sow-nopdate    { background: rgba(75,85,99,0.2);     color: #6b7280; }
+
+  /* ── DATE / AMR / QTY ── */
+  .date-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--txt2);
+  }
+  .date-val.overdue { color: var(--red); }
+  .date-na { color: var(--mut); font-size: 11px; }
+  .amr-type {
+    font-size: 12px;
+    color: var(--txt2);
+    font-weight: 500;
+  }
+  .qty-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--txt);
+  }
+  .type-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .type-new          { background: #dbeafe; color: #1e40af; }
+  .type-replacement  { background: #fff7ed; color: #9a3412; }
+  .type-internal     { background: #f3f4f6; color: #6b7280; }
+  [data-theme="dark"] .type-new          { background: rgba(79,142,247,0.1);  color: #4f8ef7; }
+  [data-theme="dark"] .type-replacement  { background: rgba(251,146,60,0.1);  color: #fb923c; }
+  [data-theme="dark"] .type-internal     { background: rgba(75,85,99,0.15);   color: #9ca3af; }
+
+  .se-val { font-size: 12px; color: var(--txt2); }
+  .se-na  { color: var(--mut); font-size: 11px; }
+
+  /* ── EMPTY STATE ── */
+  .empty-row td {
+    text-align: center;
+    padding: 32px;
+    color: var(--mut);
+    font-size: 12px;
+  }
+
+  /* ── PRIORITY ── */
+  .pri-revenue   { background: #fee2e2; color: #991b1b; }
+  .pri-keylogo   { background: #dbeafe; color: #1e40af; }
+  .pri-standard  { background: #f3f4f6; color: #6b7280; }
+  .pri-internal  { background: #f3f4f6; color: #6b7280; }
+  [data-theme="dark"] .pri-revenue   { background: rgba(244,63,94,0.1);   color: #f43f5e; }
+  [data-theme="dark"] .pri-keylogo   { background: rgba(79,142,247,0.1);  color: #4f8ef7; }
+  [data-theme="dark"] .pri-standard  { background: rgba(75,85,99,0.12);   color: #9ca3af; }
+  [data-theme="dark"] .pri-internal  { background: rgba(75,85,99,0.12);   color: #9ca3af; }
+
+  /* ── PAGE DIVIDER ── */
+  .page-divider { background:var(--s1); border-top:1px solid var(--bdr); border-bottom:1px solid var(--bdr); padding:12px 24px; }
+  .page-divider-inner { display:flex; align-items:center; gap:10px; }
+  .page-div-badge { background:#1a6cf0; color:#fff; font-weight:700; font-size:10px; padding:2px 7px; border-radius:4px; letter-spacing:1px; font-family:'Space Mono',monospace; }
+  .page-div-title { font-size:13px; font-weight:700; color:var(--txt); letter-spacing:0.3px; }
+  .page-div-sub { font-size:11px; color:var(--mut); font-family:'Space Mono',monospace; }
+  /* ── BRF TABLE EXTRAS ── */
+  .plan-overdue { color:var(--red); font-weight:700; font-family:'Space Mono',monospace; font-size:11px; }
+  .plan-current { color:var(--ylw); font-weight:700; font-family:'Space Mono',monospace; font-size:11px; }
+  .plan-future  { color:var(--grn); font-family:'Space Mono',monospace; font-size:11px; }
+  .plan-na      { color:var(--mut); font-size:11px; }
+  .st-todo     { background:#eef2ff; color:#4338ca; }
+  .st-inbuild  { background:#fffbeb; color:#92400e; }
+  .st-pdi      { background:#e0f2fe; color:#0369a1; }
+  .mat-done    { background:#dcfce7; color:#14532d; }
+  .mat-ordered { background:#dbeafe; color:#1e40af; }
+  .mat-kitting { background:#fef9c3; color:#713f12; }
+  .mat-notyet  { background:#fee2e2; color:#991b1b; }
+  .mat-other   { background:#f3f4f6; color:#6b7280; }
+  [data-theme="dark"] .st-todo     { background:rgba(129,140,248,0.15); color:#818cf8; }
+  [data-theme="dark"] .st-inbuild  { background:rgba(245,158,11,0.15);  color:#f59e0b; }
+  [data-theme="dark"] .st-pdi      { background:rgba(79,142,247,0.15);  color:#4f8ef7; }
+  [data-theme="dark"] .mat-done    { background:rgba(34,197,94,0.12);   color:#22c55e; }
+  [data-theme="dark"] .mat-ordered { background:rgba(79,142,247,0.12);  color:#4f8ef7; }
+  [data-theme="dark"] .mat-kitting { background:rgba(245,158,11,0.12);  color:#f59e0b; }
+  [data-theme="dark"] .mat-notyet  { background:rgba(244,63,94,0.1);    color:#f43f5e; }
+  [data-theme="dark"] .mat-other   { background:rgba(75,85,99,0.15);    color:#9ca3af; }
+  .so-link { font-family:'Space Mono',monospace; font-size:10px; color:var(--acc); font-weight:700; }
+  .so-name { font-size:11px; color:var(--txt2); }
+  .health-ok   { color:var(--grn); font-weight:700; font-size:15px; }
+  .health-warn { color:var(--ylw); font-weight:700; font-size:15px; }
+  .health-bad  { color:var(--red); font-weight:700; font-size:15px; }
+  .mo-tag { display:inline-block; font-family:'Space Mono',monospace; font-size:9px; color:var(--acc2); background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.2); padding:1px 5px; border-radius:3px; margin:1px 2px; }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--mut); }
+
+  /* ── TAB NAVIGATION ── */
+  .tab-nav {
+    background: var(--s1);
+    border-bottom: 1px solid var(--bdr);
+    display: flex;
+    padding: 0 24px;
+    position: sticky;
+    top: 56px;
+    z-index: 98;
+  }
+  .tab-item {
+    padding: 13px 22px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--mut);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .tab-item:hover { color: var(--txt2); }
+  .tab-item.active { color: var(--acc); border-bottom-color: var(--acc); }
+  .tab-item .tab-badge {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'Space Mono', monospace;
+    background: var(--s3);
+    color: var(--mut);
+  }
+  .tab-item.active .tab-badge { background: rgba(0,212,255,0.12); color: var(--acc); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+  /* filter bar sticky offset when tab nav is showing */
+  .filter-bar { top: 100px; }
+  /* SO-MO linkage tab full-width summary */
+  .somo-summary-bar {
+    display: flex;
+    gap: 16px;
+    padding: 16px 24px;
+    background: var(--s1);
+    border-bottom: 1px solid var(--bdr);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .somo-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+    background: var(--s2);
+    border: 1px solid var(--bdr);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+  }
+  .somo-stat-num  { font-size: 24px; font-weight: 700; font-family: 'Space Mono', monospace; line-height: 1; }
+  .somo-stat-lbl  { font-size: 10px; color: var(--mut); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
+  /* ── COMMENT BUTTON ── */
+  .comment-btn {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    color: var(--mut);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 5px;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+  .comment-btn:hover { border-color: var(--acc); color: var(--acc); background: rgba(0,212,255,0.08); }
+  .comment-btn.commented { color: var(--grn); border-color: var(--grn); }
+
+  /* ── COMMENT MODAL ── */
+  .cm-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  .cm-overlay.open { display: flex; }
+  .cm-modal {
+    background: #141820;
+    border: 1px solid var(--bdr);
+    border-radius: 10px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    width: 460px;
+    max-width: calc(100vw - 32px);
+    padding: 0;
+    overflow: hidden;
+  }
+  .cm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--bdr);
+  }
+  .cm-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--txt2);
+  }
+  .cm-close {
+    background: none; border: none; color: var(--mut);
+    cursor: pointer; font-size: 14px; padding: 2px 4px;
+    border-radius: 4px; line-height: 1;
+  }
+  .cm-close:hover { color: var(--txt); background: var(--s3); }
+  .cm-creds-section {
+    padding: 14px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .cm-creds-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--txt2);
+    margin-bottom: 2px;
+  }
+  .cm-creds-hint {
+    padding: 10px 20px 0;
+    font-size: 11px;
+    color: var(--grn);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cm-link-btn {
+    background: none; border: none;
+    color: var(--mut); font-size: 10px; cursor: pointer;
+    text-decoration: underline; padding: 0;
+  }
+  .cm-link-btn:hover { color: var(--txt2); }
+  .cm-input {
+    background: var(--s2);
+    border: 1px solid var(--bdr);
+    border-radius: 6px;
+    color: var(--txt);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 8px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .cm-input:focus { border-color: var(--acc); }
+  .cm-textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--s2);
+    border: 1px solid var(--bdr);
+    border-radius: 6px;
+    color: var(--txt);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 14px 20px 0;
+    width: calc(100% - 40px);
+    padding: 10px 12px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .cm-textarea:focus { border-color: var(--acc); }
+  .cm-feedback {
+    min-height: 18px;
+    font-size: 11px;
+    padding: 6px 20px 0;
+    font-family: 'Space Mono', monospace;
+  }
+  .cm-feedback.cm-success { color: var(--grn); }
+  .cm-feedback.cm-error   { color: var(--red); }
+  .cm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 20px 18px;
+  }
+  .cm-btn-cancel {
+    background: var(--s3); border: 1px solid var(--bdr);
+    border-radius: 6px; color: var(--txt2);
+    font-family: 'Syne', sans-serif; font-size: 11px;
+    font-weight: 700; padding: 7px 16px; cursor: pointer;
+  }
+  .cm-btn-cancel:hover { border-color: var(--txt2); }
+  .cm-btn-submit {
+    background: var(--acc); border: none;
+    border-radius: 6px; color: #000;
+    font-family: 'Syne', sans-serif; font-size: 11px;
+    font-weight: 700; padding: 7px 18px; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .cm-btn-submit:hover { opacity: 0.85; }
+  .cm-btn-submit:disabled { opacity: 0.45; cursor: default; }
+</style>
+</head>
+<body>
+
+<!-- TOP HEADER -->
+<div class="top-header">
+  <div class="logo-badge">ATI</div>
+  <div class="header-title">Sales Orders</div>
+  <div class="header-sub">DEL Project · ati-motors.atlassian.net</div>
+  <div class="last-updated" id="lastUpdated">Updated: —</div>
+</div>
+
+
+<!-- TAB NAVIGATION -->
+<div class="tab-nav">
+  <div class="tab-item active" onclick="switchTab('mo')"   id="tab-btn-mo">
+    <span>Manufacturing Orders</span><span class="tab-badge">MOM</span>
+  </div>
+  <div class="tab-item"        onclick="switchTab('so')"   id="tab-btn-so">
+    <span>Sales Orders</span><span class="tab-badge">DEL</span>
+  </div>
+  <div class="tab-item"        onclick="switchTab('somo')" id="tab-btn-somo">
+    <span>SO–MO Linkage</span><span class="tab-badge">HEALTH</span>
+  </div>
+</div>
+
+
+<!-- TAB PANE: MANUFACTURING ORDERS -->
+<div id="tab-mo" class="tab-pane active">
+  <!-- BRF KPI + CHART PANEL -->
+<div class="kpi-panel">
+  <div class="kpi-left">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      <div class="kpi-label-header" style="margin-bottom:0;color:#f5c518">Forecast</div>
+      <div class="amr-multiselect" id="brfMultiWrap">
+        <button class="amr-multi-btn" id="brfMultiBtn" onclick="toggleBRFDropdown(event)">All Types ▾</button>
+        <div class="amr-multi-panel" id="brfMultiPanel">
+          <div class="amr-multi-actions">
+            <button onclick="selectAllBRF(event)">All</button>
+            <button onclick="clearAllBRF(event)">Clear</button>
+          </div>
+          <div id="brfCheckboxList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-num" style="color:#f5c518" id="brf-active">—</div>
+      <div class="kpi-sub">Active MOs</div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(245,197,24,0.25)">
+      <div class="kpi-num yellow" id="brf-inbuild">—</div>
+      <div class="kpi-sub">In Build</div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(255,77,109,0.25)">
+      <div class="kpi-num red" id="brf-overdue">—</div>
+      <div class="kpi-sub">Overdue Plan</div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(96,165,250,0.25)">
+      <div class="kpi-num" style="color:#60a5fa" id="brf-orphan">—</div>
+      <div class="kpi-sub">Orphan MOs</div>
+    </div>
+  </div>
+  <div class="kpi-right">
+    <div class="kpi-chart-header">
+      <span class="kpi-chart-title">Units by Dispatch Plan Month</span>
+      <div style="display:flex;gap:10px;align-items:center;margin-left:auto;">
+        <span style="font-size:10px;color:var(--mut);">
+          <span style="display:inline-block;width:10px;height:10px;background:#16a34a;border-radius:2px;margin-right:4px;vertical-align:middle;opacity:0.7"></span>Done
+          <span style="display:inline-block;width:10px;height:10px;background:#b45309;border-radius:2px;margin-left:8px;margin-right:4px;vertical-align:middle;opacity:0.8"></span>In Build
+          <span style="display:inline-block;width:10px;height:10px;background:#6366f1;border-radius:2px;margin-left:8px;margin-right:4px;vertical-align:middle;opacity:0.75"></span>To Do
+        </span>
+      </div>
+    </div>
+    <div class="kpi-chart-wrap">
+      <canvas id="rfChart" style="display:block"></canvas>
+    </div>
+  </div>
+</div>
+
+  <!-- PIPELINE TABLES -->
+  <div class="main" style="padding-top:8px">
+    <div id="section-pipeline" class="section"></div>
+  </div>
+</div>
+
+
+<!-- TAB PANE: SALES ORDERS -->
+<div id="tab-so" class="tab-pane">
+  <!-- ACTIVE KPI PANEL -->
+<div class="kpi-panel">
+  <div class="kpi-left">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      <div class="kpi-label-header" style="margin-bottom:0">Active Orders</div>
+      <div class="amr-multiselect" id="amrMultiWrap">
+        <button class="amr-multi-btn" id="amrMultiBtn" onclick="toggleAMRDropdown(event)">All Types ▾</button>
+        <div class="amr-multi-panel" id="amrMultiPanel">
+          <div class="amr-multi-actions">
+            <button onclick="selectAllAMR(event)">All</button>
+            <button onclick="clearAllAMR(event)">Clear</button>
+          </div>
+          <div id="amrCheckboxList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-num" id="kpi-orders">—</div>
+      <div class="kpi-sub">Total Orders</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-num green" id="kpi-amrs">—</div>
+      <div class="kpi-sub">Total AMRs</div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(255,77,109,0.25)">
+      <div class="kpi-num red" id="kpi-overdue">—</div>
+      <div class="kpi-sub">Overdue Units</div>
+    </div>
+  </div>
+  <div class="kpi-right">
+    <div class="kpi-chart-header">
+      <span class="kpi-chart-title">AMRs by Due Week</span>
+    </div>
+    <div class="kpi-chart-wrap">
+      <canvas id="amrChart"></canvas>
+    </div>
+  </div>
+</div>
+
+  <!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <input type="text" id="searchInput" placeholder="🔍  Search orders…" oninput="applyFilters()">
+  </div>
+  <div class="filter-group">
+    <select id="amrFilter" onchange="applyFilters()">
+      <option value="">All AMR Types</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <select id="poFilter" onchange="applyFilters()">
+      <option value="">All PO Status</option>
+      <option value="received">PO Received</option>
+      <option value="not_received">PO Not Received</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <select id="sowFilter" onchange="applyFilters()">
+      <option value="">All SOW Status</option>
+      <option value="accepted">Done &amp; Accepted</option>
+      <option value="correction">Under Correction</option>
+      <option value="notstarted">Not Started</option>
+      <option value="none">No SOW</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">SOW deadline:</span>
+    <input type="number" id="sowThreshold" value="10" min="1" max="365" oninput="applyFilters()">
+    <span class="filter-label">days</span>
+  </div>
+  <button class="reset-btn" onclick="resetFilters()">Reset</button>
+</div>
+
+  <!-- EXCEPTIONS -->
+<div id="so-exceptions" style="padding:0 0 0 0"></div>
+  <!-- MAIN -->
+<div class="main">
+  <div id="section-active"   class="section"></div>
+  <div id="section-dispatch" class="section collapsed"></div>
+  <div id="section-comm"     class="section collapsed"></div>
+  <div id="section-handover" class="section collapsed"></div>
+  <div id="section-requests" class="section collapsed"></div>
+  <div id="section-rejected" class="section collapsed"></div>
+</div>
+</div>
+
+
+<!-- TAB PANE: SO-MO LINKAGE -->
+<div id="tab-somo" class="tab-pane">
+  <div class="somo-summary-bar">
+    <div class="somo-stat">
+      <div class="somo-stat-num" style="color:var(--grn)" id="somo-covered">—</div>
+      <div class="somo-stat-lbl">Fully Covered</div>
+    </div>
+    <div class="somo-stat">
+      <div class="somo-stat-num" style="color:var(--ylw)" id="somo-partial">—</div>
+      <div class="somo-stat-lbl">Partial</div>
+    </div>
+    <div class="somo-stat" style="border-color:rgba(255,77,109,0.3)">
+      <div class="somo-stat-num" style="color:var(--red)" id="somo-missing">—</div>
+      <div class="somo-stat-lbl">Missing MOs</div>
+    </div>
+    <div class="somo-stat" style="border-color:rgba(96,165,250,0.3)">
+      <div class="somo-stat-num" style="color:#60a5fa" id="somo-orphan">—</div>
+      <div class="somo-stat-lbl">Orphan MOs</div>
+    </div>
+    <div style="margin-left:auto;font-size:11px;color:var(--mut);font-family:'Space Mono',monospace" id="somo-note">
+      Active SOs only · all non-rejected statuses
+    </div>
+  </div>
+  <div class="main" style="padding-top:8px">
+    <div id="section-somo" class="section"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const RAW_ORDERS = [{"key":"DEL-108","summary":"Tenneco Litchfield Sherpa 10K 2nos","status":"Handover Done","amrType":"10k","qty":2,"location":"Litchfield","typeOfSale":"Customer - New","poNumber":"4502031696","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-28","priority":""},{"key":"DEL-124","summary":"Samsung Monofork. 2 Nos","status":"commissioning","amrType":"Flex Fork (Monofork)","qty":2,"location":"Kanchipuram","typeOfSale":"Customer - New","poNumber":"2112444414","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-23","priority":""},{"key":"DEL-132","summary":"Owens Corning Pallet Mover Batch 1 - 4 nos","status":"Dispatch","amrType":"Pallet Mover","qty":4,"location":"Taloja","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2025-11-21","priority":"Highest"},{"key":"DEL-140","summary":"Owens Corning Pallet Mover Batch 2 - 4 nos","status":"Dispatch","amrType":"Pallet Mover","qty":4,"location":"Taloja","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2025-11-30","priority":"Highest"},{"key":"DEL-148","summary":"Tenneco Pueabla","status":"commissioning","amrType":"XT Lite","qty":1,"location":"Mexico","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":""},{"key":"DEL-156","summary":"Thailand Demo Pallet Mover","status":"Dispatch","amrType":"Pallet Mover","qty":1,"location":"","typeOfSale":"Internal","poNumber":"NA","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2025-11-30","priority":"Highest"},{"key":"DEL-164","summary":"Ceat Halol Batch 1 3 Sherpa Tug v3","status":"Handover Done","amrType":"Tug V3","qty":3,"location":"Ceat Halol","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-11","priority":""},{"key":"DEL-172","summary":"Ceat Halol 1 Sherpa XT","status":"Handover Done","amrType":"XT","qty":1,"location":"Halol, Gujarat","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-11","priority":""},{"key":"DEL-180","summary":"AutoLiv PalletMover 2 nos","status":"Dispatch","amrType":"Pallet Mover","qty":2,"location":"Bangalore","typeOfSale":"Customer - New","poNumber":"PO100324","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-10","priority":"Highest"},{"key":"DEL-188","summary":"Denso","status":"commissioning","amrType":"XT","qty":1,"location":"Nelamangla, Bangalore","typeOfSale":"Customer - New","poNumber":"ORN-00000655-40028","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-24","priority":""},{"key":"DEL-198","summary":"Royal Enfield Vallam 3 XT Lites","status":"Rejected","amrType":"XT Lite","qty":3,"location":"Vallam","typeOfSale":"Customer - Replacement","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-24","priority":""},{"key":"DEL-213","summary":"Meril Life Science ","status":"commissioning","amrType":"XT","qty":1,"location":"Vapi, Gujrat","typeOfSale":"Customer - New","poNumber":"9107002378","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-15","priority":""},{"key":"DEL-221","summary":"Sanmina, Chennai","status":"commissioning","amrType":"Lite","qty":2,"location":"SEZ unit, Orgadam, Sriperumbudur, Chennai","typeOfSale":"Customer - New","poNumber":"PK70P1341187, PK70P1341271","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-15","priority":""},{"key":"DEL-229","summary":"Sanmina, Chennai","status":"commissioning","amrType":"Lite","qty":1,"location":"SEZ unit, Orgadam, Sriperumbudur, Chennai","typeOfSale":"Customer - New","poNumber":"PK70P1341271","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-15","priority":""},{"key":"DEL-327","summary":"Electrolux","status":"Handover Done","amrType":"XT","qty":2,"location":"Thailand","typeOfSale":"Customer - New","poNumber":"PMF3-ETL2506-041","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-30","priority":""},{"key":"DEL-356","summary":"Tenneco Canada","status":"commissioning","amrType":"10k","qty":2,"location":"Canada","typeOfSale":"Customer - New","poNumber":"4502031696","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-30","priority":""},{"key":"DEL-379","summary":"Ati Eye || Daimler Chennai","status":"Request","amrType":"Others","qty":1,"location":"Chennai","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-10","priority":""},{"key":"DEL-388","summary":"Thailand Demo Sherpa XT","status":"Handover Done","amrType":"XT","qty":1,"location":"Thailand","typeOfSale":"Internal","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-30","priority":""},{"key":"DEL-396","summary":"Thailand Demo Sherpa XT Lite","status":"Handover Done","amrType":"XT Lite","qty":1,"location":"Thailand","typeOfSale":"Internal","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-30","priority":""},{"key":"DEL-404","summary":"Mexico Demo Pallet Mover","status":"Validation","amrType":"Pallet Mover","qty":1,"location":"Mexico","typeOfSale":"Internal","poNumber":"NA","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2025-11-30","priority":"Low"},{"key":"DEL-412","summary":"Ceat Halol Batch 2 - 4 Sherpa Tug v3","status":"commissioning","amrType":"Tug V3","qty":4,"location":"Ceat Halol","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-26","priority":""},{"key":"DEL-451","summary":"Schneider Attibele One Campus Sherpa 10K","status":"Validation","amrType":"10k","qty":1,"location":"Attibele","typeOfSale":"Customer - New","poNumber":"5004701907467","poDate":"2025-09-19","sowStatus":"","solutionEngineer":"Paras Miglani","dueDate":"2026-02-27","priority":""},{"key":"DEL-459","summary":"Schneider Attibele One Campus Pivot","status":"Under Procurement","amrType":"Flex Tug ( Pivot )","qty":1,"location":"Attibele","typeOfSale":"Customer - New","poNumber":"5004701907467","poDate":"2025-09-19","sowStatus":"Done and accepted","solutionEngineer":"Paras Miglani","dueDate":"2025-12-12","priority":""},{"key":"DEL-467","summary":"Siemens Goa","status":"Request","amrType":"","qty":2,"location":"Goa","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":""},{"key":"DEL-476","summary":"Auto-unhitch (15 Nos)","status":"Request","amrType":"","qty":0,"location":"Various","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-15","priority":""},{"key":"DEL-492","summary":"TVSM Hosur Tug V3","status":"Rejected","amrType":"Tug V3","qty":1,"location":"Hosur","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-18","priority":""},{"key":"DEL-500","summary":"Lifter 500 - Bosch Nagnathapura","status":"Handover Done","amrType":"Lifter 500","qty":1,"location":"Bengaluru","typeOfSale":"Customer - New","poNumber":"0087539215","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-18","priority":""},{"key":"DEL-508","summary":"Contitech Mexico Sherpa 10K 3 quantity ","status":"Dispatch","amrType":"10k","qty":3,"location":"Mexico ","typeOfSale":"Customer - New","poNumber":"45760326","poDate":"2025-09-29","sowStatus":"","solutionEngineer":"","dueDate":"2026-02-16","priority":""},{"key":"DEL-516","summary":"Sai Life Science Sherpa XT ","status":"Dispatch","amrType":"XT","qty":1,"location":"Bidar","typeOfSale":"Customer - New","poNumber":"2461268","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-22","priority":""},{"key":"DEL-533","summary":"Turbo Energy Sherpa XT 1 no","status":"Handover Done","amrType":"XT","qty":1,"location":"pulivalam ","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-10","priority":"High"},{"key":"DEL-541","summary":"Valeo Ati Eye + Tug v3","status":"Dispatch","amrType":"","qty":0,"location":"","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-551","summary":"Innovista Lifter || 5 Nos","status":"Dispatch","amrType":"Lifter 1000","qty":5,"location":"","typeOfSale":"Customer - New","poNumber":"05 K 160","poDate":"2025-10-18","sowStatus":"Done and accepted","solutionEngineer":"Pratik Pathak","dueDate":"2026-02-28","priority":"Medium"},{"key":"DEL-579","summary":"Schneider Electric Attibelle Lifter integration(Fall Check)","status":"Request","amrType":"Tug V3.5","qty":1,"location":"Attibelle","typeOfSale":"","poNumber":"4057701834632","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-31","priority":"Medium"},{"key":"DEL-588","summary":"Bosch Trolley 7 nos","status":"Dispatch","amrType":"Others","qty":7,"location":"Bosch Nagnathpura.","typeOfSale":"","poNumber":"0087541575","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-30","priority":"High"},{"key":"DEL-596","summary":"HUL Pondicherry 2 Lites Replacement","status":"Dispatch","amrType":"Lite","qty":2,"location":"Pondicherry","typeOfSale":"Customer - New","poNumber":"PO17092483","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-31","priority":"Medium"},{"key":"DEL-604","summary":"Tenneco Puebla - 1 XT Lite","status":"Dispatch","amrType":"Lite","qty":1,"location":"","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-15","priority":"Medium"},{"key":"DEL-612","summary":"Tenneco Puebla - 1 Pallet Mover","status":"Dispatch","amrType":"Pallet Mover","qty":1,"location":"Puebla Mexico","typeOfSale":"Customer - New","poNumber":"2464-4502042076","poDate":"2025-09-29","sowStatus":"","solutionEngineer":"","dueDate":"2026-02-16","priority":"Medium"},{"key":"DEL-620","summary":"Bekaert XT and XT-lite","status":"Dispatch","amrType":"","qty":2,"location":"Pune","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2026-01-15","priority":"High"},{"key":"DEL-630","summary":"We took back the Lite AMR from ARTPARK for refurbisment.Please start the process and let me know which are the prarts needs to be changed.","status":"Request","amrType":"Lite","qty":1,"location":"Art park bangalore","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-18","priority":"Medium"},{"key":"DEL-638","summary":"Yokohama 10K 6 nos","status":"Dispatch","amrType":"10k","qty":6,"location":"Dahej","typeOfSale":"Customer - New","poNumber":"4500031990","poDate":"2025-11-13","sowStatus":"Done and accepted","solutionEngineer":"Navneet Tripathi","dueDate":"2026-03-20","priority":"High"},{"key":"DEL-669","summary":"Flex Fork Engineering vehicle","status":"Approved","amrType":"Flex Fork (Monofork)","qty":1,"location":"Engineering Ati Motors","typeOfSale":"Internal","poNumber":"NA","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-31","priority":"Medium"},{"key":"DEL-677","summary":"Flex Tug Engineering vehicle","status":"Approved","amrType":"Flex Tug ( Pivot )","qty":1,"location":"Engineering Ati Motors","typeOfSale":"Internal","poNumber":"NA","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-31","priority":"Medium"},{"key":"DEL-685","summary":"Epiroc Mining 1 XT","status":"Dispatch","amrType":"XT","qty":1,"location":"","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-694","summary":"HUL Dapada Pallet Mover POC","status":"Dispatch","amrType":"Pallet Mover","qty":1,"location":"Dapada","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-15","priority":"Medium"},{"key":"DEL-702","summary":"Arcelor Mittal 2 Nos - 10K","status":"IQC","amrType":"10k","qty":2,"location":"Hazira","typeOfSale":"Customer - New","poNumber":"5300060859","poDate":"2026-03-04","sowStatus":"","solutionEngineer":"Balaji Jayakumar","dueDate":"2026-05-10","priority":"Medium"},{"key":"DEL-718","summary":"L&T Vadodara Sherpa 10K","status":"Vehicle Bringup","amrType":"10k","qty":1,"location":"Vadodara","typeOfSale":"Customer - New","poNumber":"01L021972","poDate":"2026-01-17","sowStatus":"Done and accepted","solutionEngineer":"","dueDate":"2026-03-20","priority":"Medium"},{"key":"DEL-726","summary":"Electrolux 10K replacement","status":"Mechanical Assembly","amrType":"10k","qty":3,"location":"Thailand","typeOfSale":"Customer - Replacement","poNumber":"NA","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-03-27","priority":"Medium"},{"key":"DEL-734","summary":"Daikin Thailand XT 1nos","status":"Dispatch","amrType":"XT","qty":1,"location":"Thailand","typeOfSale":"Customer - New","poNumber":"PMF3-TTFL-2511-019","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"High"},{"key":"DEL-742","summary":"Schneider Electric Dubai - 1 PM + AtiEye","status":"Rejected","amrType":"Pallet Mover","qty":1,"location":"Dubai","typeOfSale":"Customer - New","poNumber":"MSA Signed","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-750","summary":"Daikin Thailand 10K 1 nos","status":"Dispatch","amrType":"10k","qty":1,"location":"Thailand","typeOfSale":"Customer - New","poNumber":"PMF3-TTFL2602-016","poDate":"2026-02-24","sowStatus":"","solutionEngineer":"","dueDate":"2026-03-17","priority":"Medium"},{"key":"DEL-758","summary":"Sobha Dubai (5 XT Lite) - PO Not Received","status":"Validation","amrType":"XT Lite","qty":5,"location":"","typeOfSale":"Customer - New","poNumber":"Not Received","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-766","summary":"Lifter 500 - Bosch NNP (Phase 2) - PO Not yet received","status":"Approved","amrType":"Lifter 500","qty":1,"location":"Bosch Nagnathapura","typeOfSale":"Customer - New","poNumber":"Not Received","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2026-03-20","priority":"Medium"},{"key":"DEL-774","summary":"Yazaki - Lifter 500 POC (Mecha Base) [PO not available]","status":"Rejected","amrType":"Lifter 500","qty":1,"location":"India","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-03-18","priority":"Medium"},{"key":"DEL-783","summary":"Orchid Technology Ahmedabad (Johnson Control)","status":"Rejected","amrType":"XT Lite","qty":1,"location":"Ahmedabad, Gujarat","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-31","priority":"High"},{"key":"DEL-791","summary":"Auto Unhitch for Orchid","status":"Rejected","amrType":"Others","qty":1,"location":"Ahmedabad , Gujarat","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-799","summary":"HUL Sumerpur - POC (Sherpa Lite)","status":"Dispatch","amrType":"Lite","qty":1,"location":"Sumerpur","typeOfSale":"Customer - New","poNumber":"","poDate":"2026-01-13","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-30","priority":"Medium"},{"key":"DEL-817","summary":"CEAT Halol Spare AMR(V3.5)","status":"Dispatch","amrType":"Tug V3","qty":1,"location":"","typeOfSale":"Customer - Replacement","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-02-28","priority":"High"},{"key":"DEL-825","summary":"Bosch NNP Swapping of spare v3 AMR with new XT lite.","status":"Dispatch","amrType":"XT Lite","qty":1,"location":"Bosch Nagnathapura","typeOfSale":"Customer - Replacement","poNumber":"NA","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-03-06","priority":"High"},{"key":"DEL-841","summary":"Pallet Mover (1 Nos) - Bosch Bidadi","status":"Validation","amrType":"Pallet Mover","qty":1,"location":"Bosch Bidadi","typeOfSale":"Customer - New","poNumber":"0087566444","poDate":"2026-03-11","sowStatus":"Done and accepted","solutionEngineer":"Suvrangshu Sen","dueDate":"2026-05-13","priority":"Medium"},{"key":"DEL-850","summary":"HUL Haldia 2 PMs POC for 3 Months","status":"Approved","amrType":"Pallet Mover","qty":2,"location":"HUL Haldia","typeOfSale":"Customer - New","poNumber":"PO17461321","poDate":"2026-02-23","sowStatus":"Done, Under correction","solutionEngineer":"Navneet Tripathi","dueDate":"2026-05-15","priority":"Medium"},{"key":"DEL-874","summary":"Bekaert Sherpa FlexTug","status":"Approved","amrType":"Flex Tug ( Pivot )","qty":1,"location":"Bekaert","typeOfSale":"Customer - New","poNumber":"G400262374","poDate":"2026-02-25","sowStatus":"Done, Under correction","solutionEngineer":"Navneet Tripathi","dueDate":"","priority":"Medium"},{"key":"DEL-883","summary":"Goodyear Haryana - Sherpa 10K","status":"Vehicle Bringup","amrType":"10k","qty":1,"location":"Ballabgarh , Haryana","typeOfSale":"Customer - New","poNumber":"PMF3-TTFL2602-016","poDate":"2026-02-19","sowStatus":"Done and accepted","solutionEngineer":"Balaji Jayakumar","dueDate":"2026-05-19","priority":"Medium"},{"key":"DEL-892","summary":"Yokohama 10K 4 nos ","status":"Approved","amrType":"10k","qty":4,"location":"Dahej","typeOfSale":"Customer - New","poNumber":"450032656","poDate":"2026-03-03","sowStatus":"Done, Under correction","solutionEngineer":"Navneet Tripathi","dueDate":"2026-06-03","priority":"Medium"},{"key":"DEL-901","summary":"Sobha Dubai - 4 PM [PO Not Yet Received]","status":"Approved","amrType":"Pallet Mover","qty":4,"location":"Dubai","typeOfSale":"Customer - New","poNumber":"Not Received","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-916","summary":"Test ticket","status":"Dispatch","amrType":"Pallet Mover","qty":1,"location":"","typeOfSale":"","poNumber":"2346732467","poDate":"","sowStatus":"","solutionEngineer":"Rohit Unnithan","dueDate":"","priority":"Medium"},{"key":"DEL-1115","summary":"Saft America - Valdosta | Sherpa XT Lite x1 (RaaS)","status":"Rejected","amrType":"XT Lite","qty":1,"location":"","typeOfSale":"Customer - Replacement","poNumber":"735","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-06-30","priority":"Medium"},{"key":"DEL-1116","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright)","status":"Approved","amrType":"Pallet Mover","qty":4,"location":"","typeOfSale":"Customer - New","poNumber":"G400268124","poDate":"2026-03-25","sowStatus":"Done, Under correction","solutionEngineer":"Navneet Tripathi","dueDate":"2026-06-30","priority":"Medium"},{"key":"DEL-1133","summary":"Innovista Lifter || 1 No","status":"Approved","amrType":"Lifter 1000","qty":1,"location":"","typeOfSale":"Customer - New","poNumber":"05 K 160","poDate":"2025-10-18","sowStatus":"Done and accepted","solutionEngineer":"Pratik Pathak","dueDate":"2026-02-28","priority":"Medium"},{"key":"DEL-1171","summary":"Saft 10K","status":"Approved","amrType":"10k","qty":2,"location":"","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-06-19","priority":"Medium"},{"key":"DEL-1180","summary":"Tenneco Litchfield 10K","status":"Approved","amrType":"10k","qty":1,"location":"","typeOfSale":"Customer - Replacement","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-06-26","priority":"Medium"}];
+
+// ── BUILD AMR FILTER ──────────────────────────────────────────────────────
+function buildAMRFilter() {
+  const types = [...new Set(RAW_ORDERS.map(o => o.amrType).filter(Boolean))].sort();
+  const sel = document.getElementById('amrFilter');
+  types.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    sel.appendChild(opt);
+  });
+}
+
+// ── FILTER LOGIC ──────────────────────────────────────────────────────────
+function getFiltered() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const amr    = document.getElementById('amrFilter').value;
+  const po     = document.getElementById('poFilter').value;
+  const sow    = document.getElementById('sowFilter').value;
+  const thresh = parseInt(document.getElementById('sowThreshold').value) || 10;
+
+  return RAW_ORDERS.filter(o => {
+    if (search) {
+      const hay = (o.summary + o.key + o.amrType + o.location + o.poNumber).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    if (amr && o.amrType !== amr) return false;
+    if (po === 'received' && !isPOReceived(o.poNumber)) return false;
+    if (po === 'not_received' && isPOReceived(o.poNumber)) return false;
+    if (sow) {
+      const badge = computeSOWBadge(o, thresh);
+      if (sow === 'accepted'   && badge.cls !== 'sow-accepted')   return false;
+      if (sow === 'correction' && badge.cls !== 'sow-correction') return false;
+      if (sow === 'notstarted' && badge.cls !== 'sow-notstarted') return false;
+      if (sow === 'none'       && badge.cls !== 'sow-nopdate')    return false;
+    }
+    return true;
+  });
+}
+
+// ── DATE / FORMAT UTILITIES ───────────────────────────────────────────────
+const TODAY = (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })();
+
+function parseDate(s) {
+  if (!s) return null;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+function fmtDate(s) {
+  const d = parseDate(s);
+  if (!d) return '';
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+// ── STATUS / TYPE / PRIORITY HELPERS ─────────────────────────────────────
+function statusClass(s) {
+  if (!s) return 'st-approved';
+  const sl = s.toLowerCase();
+  if (sl === 'rejected')                           return 'st-rejected';
+  if (sl === 'handover done')                      return 'st-handover';
+  if (sl === 'commissioning')                      return 'st-commissioning';
+  if (sl === 'request')                            return 'st-request';
+  if (sl === 'dispatch')                           return 'st-dispatch';
+  if (sl === 'iqc')                                return 'st-iqc';
+  if (sl === 'approved')                           return 'st-approved';
+  if (sl.includes('procurement'))                  return 'st-procurement';
+  if (sl.includes('electronics')||sl.includes('electrical')) return 'st-elec-assy';
+  if (sl.includes('mechanical'))                   return 'st-mech-assy';
+  if (sl.includes('bringup')||sl.includes('bring up')) return 'st-bringup';
+  if (sl === 'validation')                         return 'st-validation';
+  return 'st-approved';
+}
+
+function typeClass(t) {
+  if (!t) return '';
+  const tl = t.toLowerCase();
+  if (tl.includes('outright')||tl.includes('sale')) return 'type-sale';
+  if (tl.includes('lease')||tl.includes('raas'))    return 'type-lease';
+  if (tl.includes('demo'))                          return 'type-demo';
+  return '';
+}
+function typeLabel(t) { return t || '—'; }
+
+function priorityLabel(p) { return p || ''; }
+function priorityClass(p) {
+  if (!p) return '';
+  const pl = p.toLowerCase();
+  if (pl === 'highest') return 'pri-revenue';
+  if (pl === 'high')    return 'pri-keylogo';
+  if (pl === 'medium')  return 'pri-standard';
+  if (pl === 'low')     return 'pri-internal';
+  return '';
+}
+
+function isPOReceived(poNumber) { return !!(poNumber && String(poNumber).trim()); }
+
+function computeSOWBadge(o, thresh) {
+  const ss = (o.sowStatus || '').trim().toLowerCase();
+  if (!ss) return { cls: 'sow-nopdate', lbl: '\u2014' };
+  if (ss.startsWith('done and accepted')) return { cls: 'sow-accepted',   lbl: 'Accepted' };
+  if (ss.startsWith('done, under correction')) return { cls: 'sow-correction', lbl: 'Under Correction' };
+  if (ss === 'not started') return { cls: 'sow-notstarted', lbl: 'Not Started' };
+  return { cls: 'sow-nopdate', lbl: (o.sowStatus || '').trim() };
+}
+
+// ── RENDER ROW ────────────────────────────────────────────────────────────
+function renderRow(o, thresh) {
+  const sc = statusClass(o.status);
+  const poRcvd = isPOReceived(o.poNumber);
+  const sow = computeSOWBadge(o, thresh);
+  const priLbl = priorityLabel(o.priority);
+  const priCls = priorityClass(o.priority);
+  const dueDateFmt = fmtDate(o.dueDate);
+  const poDateFmt = fmtDate(o.poDate);
+
+  // due date overdue check
+  const dueDt = parseDate(o.dueDate);
+  const dueOverdue = dueDt && dueDt < TODAY;
+
+  const summaryClean = escHtml(o.summary);
+  const locationClean = escHtml(o.location || '');
+  const poNumClean = escHtml(o.poNumber || '');
+  const seClean = escHtml(o.solutionEngineer || '');
+
+  const excs = new Set(getExceptions(o, thresh));
+  return `<tr>
+    <td style="min-width:240px;max-width:300px">
+      <div class="order-name">${summaryClean}</div>
+      <div class="order-meta">
+        <span class="order-key">${o.key}</span>
+        ${locationClean ? `<span class="order-location">📍 ${locationClean}</span>` : ''}
+        ${priLbl ? `<span class="order-priority badge ${priCls}">${priLbl}</span>` : ''}
+      </div>
+    </td>
+    <td><span class="badge ${sc}">${escHtml(o.status)}</span></td>
+    <td><span class="amr-type">${escHtml(o.amrType) || '<span class="date-na">—</span>'}</span></td>
+    <td><span class="badge type-badge ${typeClass(o.typeOfSale)}">${typeLabel(o.typeOfSale)}</span></td>
+    <td class="right"><span class="qty-val">${o.qty || '—'}</span></td>
+    <td class="${excs.has('po') ? 'exc-cell' : ''}">
+      ${o.typeOfSale === 'Customer - New'
+        ? (poRcvd ? `<span class="po-yes">✓</span><div class="po-num">${poNumClean}</div>` : `<span class="po-no">✗</span>`)
+        : (poNumClean ? `<span class="date-val" style="font-size:11px">${poNumClean}</span>` : `<span class="date-na">—</span>`)}
+    </td>
+    <td class="${excs.has('podate') ? 'exc-cell' : ''}"><span class="${poDateFmt ? 'date-val' : 'date-na'}">${poDateFmt || '—'}</span></td>
+    <td class="${excs.has('duedate') ? 'exc-cell' : ''}"><span class="${dueDateFmt ? ('date-val'+(dueOverdue?' overdue':'')) : 'date-na'}">${dueDateFmt || '—'}</span></td>
+    <td class="${excs.has('sow') ? 'exc-cell' : ''}"><span class="badge ${sow.cls}">${sow.lbl}</span></td>
+    <td><span class="${seClean ? 'se-val' : 'se-na'}">${seClean || '—'}</span></td>
+  </tr>`;
+}
+
+// ── RENDER SECTION ────────────────────────────────────────────────────────
+const TABLE_HEADER = `
+<thead><tr>
+  <th>Order</th>
+  <th>Status</th>
+  <th>AMR Type</th>
+  <th>Type of Sale</th>
+  <th class="right">Qty</th>
+  <th>PO Received</th>
+  <th>PO Date</th>
+  <th>Due Date</th>
+  <th>SOW</th>
+  <th>Solution Engineer</th>
+</tr></thead>`;
+
+function renderSection(secDef, filteredOrders, thresh) {
+  const el = document.getElementById(secDef.id);
+  const orders = filteredOrders.filter(o => secDef.statuses.has(o.status));
+  const totalQty = orders.reduce((s, o) => s + (parseInt(o.qty) || 0), 0);
+  const isCollapsed = el.classList.contains('collapsed');
+
+  let rows = orders.map(o => renderRow(o, thresh)).join('');
+  if (!rows) rows = `<tr class="empty-row"><td colspan="10">No orders match the current filters</td></tr>`;
+
+  el.innerHTML = `
+    <div class="section-header" onclick="toggleSection('${secDef.id}')">
+      <div class="section-dot" style="background:${secDef.dotColor}"></div>
+      <span class="section-title">${secDef.label}</span>
+      <span class="section-count">${orders.length} order${orders.length !== 1 ? 's' : ''}</span>
+      ${totalQty ? `<span class="section-qty">· ${totalQty} unit${totalQty !== 1 ? 's' : ''}</span>` : ''}
+      <span class="collapse-icon">▾</span>
+    </div>
+    <div class="table-wrap">
+      <table>${TABLE_HEADER}<tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+// ── AMR COLORS ────────────────────────────────────────────────────────────
+const AMR_COLORS = {
+  'Pallet Mover':         '#00d4ff',
+  '10k':                  '#7b61ff',
+  'XT Lite':              '#00e5a0',
+  'XT':                   '#f5c518',
+  'Lite':                 '#ff8c42',
+  'Flex Tug ( Pivot )':   '#60a5fa',
+  'Lifter 1000':          '#f472b6',
+  'Lifter 500':           '#a78bfa',
+  'Tug V3':               '#fb923c',
+  'Tug V3.5':             '#34d399',
+  'Flex Fork (Monofork)': '#e879f9',
+  'Others':               '#94a3b8',
+};
+function amrColor(t) { return AMR_COLORS[t] || '#5a6678'; }
+
+// ── CHART STATE ───────────────────────────────────────────────────────────
+const ACTIVE_ST_SET = new Set(['Approved','Under Procurement','IQC','Electronics Assembly','Mechanical Assembly','Vehicle Bringup','Validation']);
+let amrChart = null;
+let selectedAMRTypes = new Set();      // driven by the inline multi-select dropdown
+let currentFilteredActive = [];        // cached active slice of current filter
+
+function getMonday(d) {
+  const date = new Date(d);
+  const day  = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  date.setDate(diff);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function buildChartData(activeOrders) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const curMonday = getMonday(today);
+  const curTs = curMonday.getTime();
+
+  // weekTs → amrType → {count, overdueCount}
+  const buckets    = new Map();
+  const noDateBucket = {};
+  let overdueUnits = 0;
+
+  activeOrders.forEach(o => {
+    const qty = parseInt(o.qty) || 0;
+    if (!qty) return;
+    const amr = o.amrType || 'Others';
+
+    if (!o.dueDate) {
+      noDateBucket[amr] = (noDateBucket[amr] || 0) + qty;
+      return;
+    }
+
+    const due = new Date(o.dueDate);
+    if (isNaN(due)) { noDateBucket[amr] = (noDateBucket[amr] || 0) + qty; return; }
+
+    const isOverdue = due < today;
+    if (isOverdue) overdueUnits += qty;
+
+    const weekTs = isOverdue ? curTs : getMonday(due).getTime();
+    if (!buckets.has(weekTs)) buckets.set(weekTs, { overdue: false, byAMR: {} });
+    const b = buckets.get(weekTs);
+    if (isOverdue) b.overdue = true;
+    b.byAMR[amr] = (b.byAMR[amr] || 0) + qty;
+  });
+
+  // Sort weeks ascending
+  const sortedTs = [...buckets.keys()].sort((a,b) => a-b);
+
+  // Week labels
+  const labels = sortedTs.map(ts => {
+    const d = new Date(ts);
+    const lbl = d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+    return (buckets.get(ts).overdue ? '⚠ ' : '') + 'Wk ' + lbl;
+  });
+
+  // Add "No Due Date" bucket at the end if non-empty
+  const hasNoDate = Object.values(noDateBucket).some(v => v > 0);
+  if (hasNoDate) labels.push('No Due Date');
+
+  // All AMR types across active orders (sorted by total desc)
+  const amrTotals = {};
+  activeOrders.forEach(o => {
+    const amr = o.amrType || 'Others';
+    amrTotals[amr] = (amrTotals[amr] || 0) + (parseInt(o.qty) || 0);
+  });
+  const allAMRTypes = Object.keys(amrTotals).sort((a,b) => amrTotals[b]-amrTotals[a]);
+
+  // Build datasets — one per AMR type (activeOrders already pre-filtered)
+  const datasets = allAMRTypes
+    .map(amr => {
+      const data = sortedTs.map(ts => (buckets.get(ts).byAMR[amr] || 0));
+      if (hasNoDate) data.push(noDateBucket[amr] || 0);
+      return {
+        label: amr,
+        data,
+        backgroundColor: amrColor(amr),
+        borderRadius: 3,
+        borderSkipped: false,
+      };
+    });
+
+  return { labels, datasets, overdueUnits, allAMRTypes };
+}
+
+// ── RENDER CHART ──────────────────────────────────────────────────────────
+function renderChart(activeOrders) {
+  const { labels, datasets, overdueUnits } = buildChartData(activeOrders);
+
+  // KPI numbers reflect the filtered active orders
+  document.getElementById('kpi-orders').textContent  = activeOrders.length;
+  document.getElementById('kpi-amrs').textContent    = activeOrders.reduce((s,o) => s+(parseInt(o.qty)||0), 0);
+  document.getElementById('kpi-overdue').textContent = overdueUnits;
+
+  const canvas = document.getElementById('amrChart');
+  if (amrChart) { amrChart.destroy(); amrChart = null; }
+
+  if (!datasets.length) return;
+
+  amrChart = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e242d',
+          borderColor: '#2d3648',
+          borderWidth: 1,
+          titleColor: '#e8edf3',
+          bodyColor: '#a8b4c4',
+          padding: 10,
+          callbacks: {
+            title: ctx => ctx[0].label.replace('⚠ ', '⚠  '),
+            label: ctx => '  ' + ctx.dataset.label + ': ' + ctx.parsed.x + ' unit' + (ctx.parsed.x !== 1 ? 's' : ''),
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          grid:   { color: 'rgba(45,54,72,0.6)' },
+          ticks:  { color: '#5a6678', font: { family: 'Space Mono', size: 10 }, stepSize: 1 },
+          border: { color: '#232a35' },
+        },
+        y: {
+          stacked: true,
+          grid:   { display: false },
+          ticks:  {
+            color: ctx => ctx.tick.label.startsWith('⚠') ? '#ff4d6d' : '#a8b4c4',
+            font: { family: 'Syne', size: 11, weight: '600' },
+          },
+          border: { color: '#232a35' },
+        }
+      },
+      layout: { padding: { right: 8 } }
+    }
+  });
+}
+
+// ── AMR MULTI-SELECT DROPDOWN ─────────────────────────────────────────────
+function buildAMRDropdown() {
+  const allActive = RAW_ORDERS.filter(o => ACTIVE_ST_SET.has(o.status));
+  const amrTotals = {};
+  allActive.forEach(o => {
+    const amr = o.amrType || 'Others';
+    amrTotals[amr] = (amrTotals[amr] || 0) + (parseInt(o.qty) || 0);
+  });
+  const sorted = Object.keys(amrTotals).sort((a,b) => amrTotals[b]-amrTotals[a]);
+  sorted.forEach(a => selectedAMRTypes.add(a));   // all selected by default
+
+  const container = document.getElementById('amrCheckboxList');
+  container.innerHTML = '';
+  sorted.forEach(amr => {
+    const label = document.createElement('label');
+    label.className = 'amr-checkbox-item';
+    label.innerHTML = `
+      <input type="checkbox" checked data-amr="${escHtml(amr)}" onchange="onAMRCheckboxChange()">
+      <span class="amr-checkbox-dot" style="background:${amrColor(amr)}"></span>
+      <span class="amr-checkbox-label">${escHtml(amr)}</span>
+      <span class="amr-checkbox-count">${amrTotals[amr]}</span>`;
+    container.appendChild(label);
+  });
+}
+
+function updateAMRBtnLabel() {
+  const all     = [...document.querySelectorAll('#amrCheckboxList input[type="checkbox"]')];
+  const checked = all.filter(cb => cb.checked);
+  let label;
+  if (checked.length === all.length)  label = 'All Types';
+  else if (checked.length === 0)      label = 'None';
+  else if (checked.length <= 2)       label = checked.map(cb => cb.dataset.amr).join(', ');
+  else                                label = checked.length + ' Types';
+  const btn = document.getElementById('amrMultiBtn');
+  btn.textContent = label + ' ▾';
+  btn.classList.toggle('filtered', checked.length !== all.length);
+}
+
+function onAMRCheckboxChange() {
+  selectedAMRTypes.clear();
+  document.querySelectorAll('#amrCheckboxList input[type="checkbox"]').forEach(cb => {
+    if (cb.checked) selectedAMRTypes.add(cb.dataset.amr);
+  });
+  updateAMRBtnLabel();
+  applyFilters();
+}
+
+function selectAllAMR(e) {
+  e.stopPropagation();
+  document.querySelectorAll('#amrCheckboxList input[type="checkbox"]').forEach(cb => {
+    cb.checked = true;
+    selectedAMRTypes.add(cb.dataset.amr);
+  });
+  updateAMRBtnLabel();
+  applyFilters();
+}
+
+function clearAllAMR(e) {
+  e.stopPropagation();
+  document.querySelectorAll('#amrCheckboxList input[type="checkbox"]').forEach(cb => cb.checked = false);
+  selectedAMRTypes.clear();
+  updateAMRBtnLabel();
+  applyFilters();
+}
+
+function toggleAMRDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('amrMultiPanel').classList.toggle('open');
+}
+
+document.addEventListener('click', () => {
+  const p = document.getElementById('amrMultiPanel');
+  if (p) p.classList.remove('open');
+});
+
+// ── SECTION DEFINITIONS ───────────────────────────────────────────────────
+const SECTIONS = [
+  { id:'section-active',   label:'Active',        dotColor:'#22c55e', statuses: ACTIVE_ST_SET },
+  { id:'section-dispatch', label:'Dispatched',    dotColor:'#4f8ef7', statuses: new Set(['Dispatch']) },
+  { id:'section-comm',     label:'Commissioning', dotColor:'#f59e0b', statuses: new Set(['commissioning']) },
+  { id:'section-handover', label:'Handover Done', dotColor:'#34d399', statuses: new Set(['Handover Done']) },
+  { id:'section-requests', label:'Requests',      dotColor:'#a78bfa', statuses: new Set(['Request']) },
+  { id:'section-rejected', label:'Rejected',      dotColor:'#f43f5e', statuses: new Set(['Rejected']) },
+];
+
+// ── EXCEPTION HELPERS ────────────────────────────────────────────────────────
+const PENDING_STATUSES = new Set(['Dispatch','Handover Done','Rejected','commissioning']);
+function getExceptions(o, thresh) {
+  if (o.typeOfSale !== 'Customer - New') return [];
+  const excs = [];
+  // PO not received
+  const pn = (o.poNumber || '').trim().toLowerCase();
+  if (!pn || pn === 'na' || pn.startsWith('not received')) excs.push('po');
+  // PO date not provided
+  if (!o.poDate) excs.push('podate');
+  // Due date overdue (only if not yet completed)
+  if (!PENDING_STATUSES.has(o.status) && o.dueDate && parseDate(o.dueDate) < TODAY) excs.push('duedate');
+  // SOW overdue: not available AND PO date exists AND (PO date + thresh days) < today
+  const ss = (o.sowStatus || '').trim().toLowerCase();
+  const sowNotAvailable = !ss || ss === 'not started';
+  if (sowNotAvailable && o.poDate) {
+    const poDate = parseDate(o.poDate);
+    if (poDate) {
+      const deadline = new Date(poDate);
+      deadline.setDate(deadline.getDate() + (thresh || 10));
+      if (deadline < TODAY) excs.push('sow');
+    }
+  }
+  return excs;
+}
+
+const EXC_DEFS = [
+  { key:'po',      icon:'📄', lbl:'PO Not Received'  },
+  { key:'podate',  icon:'📅', lbl:'PO Date Missing'  },
+  { key:'duedate', icon:'⏰', lbl:'Due Date Overdue'  },
+  { key:'sow',     icon:'📋', lbl:'SOW Overdue'       },
+];
+
+function renderExceptions(filtered, thresh) {
+  const el = document.getElementById('so-exceptions');
+  if (!el) return;
+  const cnOrders = filtered.filter(o => o.typeOfSale === 'Customer - New' && ACTIVE_ST_SET.has(o.status));
+  const withExc = cnOrders.map(o => ({ o, excs: getExceptions(o, thresh) })).filter(x => x.excs.length);
+  const counts = {}; EXC_DEFS.forEach(d => { counts[d.key] = 0; });
+  withExc.forEach(({ excs }) => excs.forEach(k => counts[k]++));
+  const total = withExc.length;
+  if (total === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="exc-panel">
+    <div class="exc-panel-head">
+      <span class="exc-panel-title">⚠ Exceptions</span>
+      <span class="exc-panel-sub">${total} Customer-New order${total!==1?'s':''} need attention</span>
+    </div>
+    <div class="exc-cards">
+      ${EXC_DEFS.map(d => `
+        <div class="exc-card ${counts[d.key] ? '' : 'exc-card-ok'}">
+          <span class="exc-icon">${d.icon}</span>
+          <span class="exc-count">${counts[d.key]}</span>
+          <span class="exc-lbl">${d.lbl}</span>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── APPLY FILTERS ─────────────────────────────────────────────────────────
+function applyFilters() {
+  const thresh   = parseInt(document.getElementById('sowThreshold').value) || 10;
+  const filtered = getFiltered();
+  currentFilteredActive = filtered.filter(o =>
+    ACTIVE_ST_SET.has(o.status) &&
+    (selectedAMRTypes.size === 0 || selectedAMRTypes.has(o.amrType || 'Others'))
+  );
+  renderChart(currentFilteredActive);
+  SECTIONS.forEach(s => renderSection(s, filtered, thresh));
+  renderExceptions(filtered, thresh);
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('amrFilter').value = '';
+  document.getElementById('poFilter').value = '';
+  document.getElementById('sowFilter').value = '';
+  document.getElementById('sowThreshold').value = '10';
+  applyFilters();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+function init() {
+  buildAMRFilter();
+  document.getElementById('lastUpdated').textContent =
+    'Updated: ' + new Date().toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  buildAMRDropdown();
+  applyFilters(); // sets currentFilteredActive and calls renderChart internally
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BUILD ROLLING FORECAST DATA + LOGIC
+// ═══════════════════════════════════════════════════════════════════════════
+const RAW_MOS = [{"key":"MOM-2","summary":"Meri Life Science - Vapi","status":"Done","amrType":"Sherpa XT","serial":"XT 11","dueDate":"2025-10-31","plan":"2025-10","delKey":""},{"key":"MOM-3","summary":"Denso Kirloskar - Bangalore","status":"Done","amrType":"Sherpa XT","serial":"XT 16","dueDate":"2025-10-25","plan":"2025-10","delKey":"DEL-188"},{"key":"MOM-4","summary":"Thailand Demo","status":"Done","amrType":"Sherpa XT","serial":"XT 01","dueDate":"2025-11-05","plan":"2025-10","delKey":""},{"key":"MOM-5","summary":"Turbo Energy - Pulivalam","status":"Done","amrType":"Sherpa XT","serial":"XT 19","dueDate":"2025-11-10","plan":"2025-11","delKey":"DEL-533"},{"key":"MOM-6","summary":"Sai Life Sciences - Hyderabad","status":"Done","amrType":"Sherpa XT","serial":"XT 21","dueDate":"2025-12-24","plan":"2025-12","delKey":""},{"key":"MOM-7","summary":"Schneider Electric_ One Campus_ Attibele","status":"Validation","amrType":"Sherpa 10K","serial":"10K 16","dueDate":"2026-02-28","plan":"2026-02","delKey":"DEL-451"},{"key":"MOM-8","summary":"Yokohama Dahej -4","status":"Done","amrType":"Sherpa 10K","serial":"10K 14","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-9","summary":"Yokohama Dahej -3","status":"Done","amrType":"Sherpa 10K","serial":"10K 13","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-10","summary":"Yokohama Dahej -6","status":"Done","amrType":"Sherpa 10K","serial":"10K 15","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-11","summary":"Yokohama Dahej -5","status":"Done","amrType":"Sherpa 10K","serial":"10K 10","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-12","summary":"Yokohama Dahej -1","status":"Done","amrType":"Sherpa 10K","serial":"10K 11","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-13","summary":"Bekaert Industries -Pune","status":"Done","amrType":"Sherpa XT","serial":"XT 22","dueDate":"2026-01-15","plan":"2026-01","delKey":""},{"key":"MOM-14","summary":"Epiroc Mining- Nashik","status":"Done","amrType":"Sherpa XT","serial":"XT 20","dueDate":"2026-01-24","plan":"2026-01","delKey":""},{"key":"MOM-15","summary":"Daikin Compressor - Thailand","status":"Done","amrType":"Sherpa XT","serial":"XT 23 ","dueDate":"2026-02-06","plan":"2026-02","delKey":""},{"key":"MOM-19","summary":"Mexico Demo","status":"Done","amrType":"Sherpa XT Lite","serial":"XT lite 17","dueDate":"2025-10-31","plan":"2025-11","delKey":""},{"key":"MOM-20","summary":"Tenneco Puebla","status":"Done","amrType":"Sherpa XT Lite","serial":"XT Lite 17","dueDate":"2026-01-23","plan":"2026-01","delKey":""},{"key":"MOM-25","summary":"Bekaert Industries -Pune","status":"Done","amrType":"Sherpa XT Lite","serial":"XT Lite 19","dueDate":"2026-01-09","plan":"2025-12","delKey":""},{"key":"MOM-26","summary":"Owens Corning -1","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 01","dueDate":"2025-10-30","plan":"2025-11","delKey":"DEL-132"},{"key":"MOM-27","summary":"Owens Corning -2","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 02","dueDate":"2025-10-30","plan":"2025-11","delKey":"DEL-132"},{"key":"MOM-28","summary":"Owens Corning -3","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 04","dueDate":"2025-10-21","plan":"2025-11","delKey":"DEL-132"},{"key":"MOM-29","summary":"Owens Corning -4","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 03","dueDate":"2025-10-30","plan":"2025-11","delKey":"DEL-132"},{"key":"MOM-30","summary":"Owens Corning -5","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 05","dueDate":"2025-12-25","plan":"2025-12","delKey":"DEL-140"},{"key":"MOM-31","summary":"Owens Corning -6","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 06","dueDate":"2025-12-25","plan":"2025-12","delKey":"DEL-140"},{"key":"MOM-32","summary":"Owens Corning -7","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 07","dueDate":"2025-12-25","plan":"2025-12","delKey":"DEL-140"},{"key":"MOM-33","summary":"Owens Corning -8","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 09 ","dueDate":"2025-12-25","plan":"2025-12","delKey":"DEL-140"},{"key":"MOM-36","summary":"USA Demo","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 14","dueDate":"2026-03-19","plan":"2026-03","delKey":""},{"key":"MOM-37","summary":"Thailand Demo","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 08","dueDate":"2026-01-08","plan":"2025-12","delKey":""},{"key":"MOM-39","summary":"Engineering","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 10","dueDate":"2026-01-09","plan":"2026-01","delKey":""},{"key":"MOM-40","summary":"Tenneco - Puebla","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 12","dueDate":"2026-01-27","plan":"2026-01","delKey":""},{"key":"MOM-43","summary":"HUL - Pondicherry","status":"Done","amrType":"Sherpa Lite","serial":"Lite 38","dueDate":"2025-12-22","plan":"2025-12","delKey":""},{"key":"MOM-44","summary":"HUL - Pondicherry","status":"Done","amrType":"Sherpa Lite","serial":"Lite 37","dueDate":"2025-12-22","plan":"2025-12","delKey":""},{"key":"MOM-45","summary":"Tenneco - Litchfield MI","status":"Done","amrType":"Sherpa 10K","serial":"10K 01","dueDate":"2025-12-15","plan":"2025-12","delKey":""},{"key":"MOM-46","summary":"Tenneco - Litchfield MI","status":"Done","amrType":"Sherpa 10K","serial":"10K 02","dueDate":"2025-12-15","plan":"2025-12","delKey":""},{"key":"MOM-47","summary":"Tenneco - Canada","status":"Done","amrType":"Sherpa 10K","serial":"10K 05","dueDate":"2026-01-10","plan":"2025-12","delKey":""},{"key":"MOM-48","summary":"Tenneco - Canada","status":"Done","amrType":"Sherpa 10K","serial":"10K 04","dueDate":"2026-01-10","plan":"2025-12","delKey":""},{"key":"MOM-49","summary":"Daikin Thailand ","status":"Done","amrType":"Sherpa 10K","serial":"10k 08","dueDate":"2026-03-18","plan":"2026-01","delKey":"DEL-451"},{"key":"MOM-50","summary":"ContiTech SLP","status":"Done","amrType":"Sherpa 10K","serial":"10K 07","dueDate":"2026-01-30","plan":"2026-01","delKey":""},{"key":"MOM-51","summary":"ContiTech SLP","status":"Done","amrType":"Sherpa 10K","serial":"10K 06","dueDate":"2026-01-30","plan":"2026-01","delKey":""},{"key":"MOM-52","summary":"ContiTech SLP","status":"Done","amrType":"Sherpa 10K","serial":"10K 03","dueDate":"2026-01-30","plan":"2026-01","delKey":""},{"key":"MOM-53","summary":"Yokohama Dahej -2","status":"Done","amrType":"Sherpa 10K","serial":"10K 12","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-54","summary":"L& T vadodra","status":"Validation","amrType":"Sherpa 10K","serial":"10K 17","dueDate":"2026-03-26","plan":"2026-03","delKey":"DEL-718"},{"key":"MOM-55","summary":"Innovista Automation - Kolhapur-1","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1k 01","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-56","summary":"Innovista Automation - Kolhapur-2","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 02","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-57","summary":"Innovista Automation - Kolhapur-3","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 03","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-58","summary":"Innovista Automation - Kolhapur-4","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 04","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-59","summary":"Innovista Automation - Kolhapur-5","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 05","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-60","summary":"Innovista Automation - Kolhapur-6","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 06","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-1133"},{"key":"MOM-61","summary":"BOSCH-Naganathapura","status":"Done","amrType":"Sherpa Lifter 500","serial":"Lifter 500","dueDate":"2026-01-05","plan":"2025-12","delKey":""},{"key":"MOM-67","summary":"ArcelorMittal Nippon Steel India-1","status":"Mechanical Assembly","amrType":"Sherpa 10K","serial":"10K 19","dueDate":"2026-05-29","plan":"2026-04","delKey":"DEL-702"},{"key":"MOM-68","summary":"ArcelorMittal Nippon Steel India-2","status":"MRS Raised","amrType":"Sherpa 10K","serial":"10K 20","dueDate":"2026-05-29","plan":"2026-04","delKey":"DEL-702"},{"key":"MOM-73","summary":"Hindustan Unilever Limited - HUL","status":"To Do","amrType":"Sherpa Lifter 500","serial":"Lifter 500","dueDate":"2026-04-13","plan":"2026-04","delKey":""},{"key":"MOM-76","summary":"HUL-Dapada POC","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 13","dueDate":"2026-01-10","plan":"2026-01","delKey":""},{"key":"MOM-77","summary":"Mahle Filters_ Manesar_ POC","status":"MRS Raised","amrType":"Sherpa Pallet Mover","serial":"PM 20","dueDate":"2026-04-13","plan":"2026-04","delKey":""},{"key":"MOM-78","summary":"Britannia Industries","status":"Validation","amrType":"Sherpa XT Lite","serial":"XT Lite 18","dueDate":"2026-03-31","plan":"2026-03","delKey":""},{"key":"MOM-80","summary":"Shoba-Dubai-1","status":"Validation","amrType":"Sherpa XT Lite","serial":"XT Lite 21","dueDate":"2026-03-28","plan":"2026-03","delKey":"DEL-758"},{"key":"MOM-81","summary":"Shoba-Dubai-2","status":"Validation","amrType":"Sherpa XT Lite","serial":"XT Lite 22","dueDate":"2026-03-28","plan":"2026-03","delKey":"DEL-758"},{"key":"MOM-82","summary":"Shoba-Dubai-3","status":"Validation","amrType":"Sherpa XT Lite","serial":"XT Lite 23","dueDate":"2026-03-28","plan":"2026-03","delKey":"DEL-758"},{"key":"MOM-83","summary":"Electrolux Thailand-2","status":"To Do","amrType":"Sherpa 10K","serial":"10K 21","dueDate":"2026-04-09","plan":"2026-04","delKey":"DEL-726"},{"key":"MOM-84","summary":"Electrolux Thailand-3","status":"To Do","amrType":"Sherpa 10K","serial":"10K 22","dueDate":"2026-04-09","plan":"2026-04","delKey":"DEL-726"},{"key":"MOM-90","summary":"HUL Sumerpur","status":"Done","amrType":"Sherpa Lite","serial":"Lite 33","dueDate":"2026-02-12","plan":"2026-02","delKey":""},{"key":"MOM-91","summary":"10k-Buffer-1","status":"To Do","amrType":"Sherpa 10K","serial":"10K 23","dueDate":"2026-02-28","plan":"2026-05","delKey":""},{"key":"MOM-92","summary":"10k Buffer-2","status":"To Do","amrType":"Sherpa 10K","serial":"10K 25","dueDate":"2026-03-31","plan":"2026-05","delKey":""},{"key":"MOM-93","summary":"10K Buffer-3","status":"To Do","amrType":"Sherpa 10K","serial":"10k 24","dueDate":"2026-03-31","plan":"2026-05","delKey":""},{"key":"MOM-94","summary":"PM Buffer-1","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 26","dueDate":"2026-04-22","plan":"2026-05","delKey":""},{"key":"MOM-95","summary":"PM Buffer-2","status":"Validation","amrType":"Sherpa Pallet Mover","serial":"PM 17","dueDate":"2026-02-28","plan":"2026-03","delKey":""},{"key":"MOM-96","summary":"PM Buffer-3","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 21","dueDate":"2026-02-28","plan":"2026-03","delKey":""},{"key":"MOM-97","summary":"Shoba-Dubai-4","status":"vehicle Bringup","amrType":"Sherpa XT Lite","serial":"XT Lite 24","dueDate":"2026-04-22","plan":"2026-04","delKey":"DEL-758"},{"key":"MOM-98","summary":"Shoba-Dubai-5","status":"To Do","amrType":"Sherpa XT Lite","serial":"XT Lite 25","dueDate":"2026-04-22","plan":"2026-04","delKey":"DEL-758"},{"key":"MOM-99","summary":"Bosch Bidadi ","status":"Validation","amrType":"Sherpa Pallet Mover","serial":"PM 16","dueDate":"2026-04-29","plan":"2026-04","delKey":"DEL-841"},{"key":"MOM-101","summary":"HUL Haldia-1","status":"Validation","amrType":"Sherpa Pallet Mover","serial":"PM 18","dueDate":"2026-05-15","plan":"2026-04","delKey":"DEL-850"},{"key":"MOM-102","summary":"HUL Haldia-2","status":"MRS Raised","amrType":"Sherpa Pallet Mover","serial":"PM 19","dueDate":"2026-05-15","plan":"2026-04","delKey":"DEL-850"},{"key":"MOM-103","summary":"Shobha-Dubai-1","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 22","dueDate":"2026-04-24","plan":"2026-04","delKey":"DEL-901"},{"key":"MOM-104","summary":"Shoba-Dubai-2","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 23","dueDate":"2026-04-25","plan":"2026-04","delKey":"DEL-901"},{"key":"MOM-105","summary":"Shoba-Dubai-3","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 24","dueDate":"2026-04-26","plan":"2026-04","delKey":"DEL-901"},{"key":"MOM-106","summary":"Shoba-Dubai-4","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 25","dueDate":"2026-04-27","plan":"2026-04","delKey":"DEL-901"},{"key":"MOM-107","summary":"Mexico Demo XT-lite","status":"To Do","amrType":"Sherpa XT Lite","serial":"XT Lite 26","dueDate":"2026-05-08","plan":"2026-05","delKey":""},{"key":"MOM-108","summary":"Mexico Demo 10 K","status":"To Do","amrType":"Sherpa 10K","serial":"10K 26","dueDate":"2026-05-12","plan":"2026-05","delKey":""},{"key":"MOM-109","summary":"Ceat Halol Spare AMR","status":"Done","amrType":"Sherpa Tug","serial":"Tug 88","dueDate":"2026-03-13","plan":"2026-03","delKey":""},{"key":"MOM-110","summary":"Bosch NNpura Spare","status":"Done","amrType":"Sherpa XT Lite","serial":"XT lite 06","dueDate":"2026-03-06","plan":"2026-03","delKey":"DEL-825"},{"key":"MOM-111","summary":"Goodyear ","status":"Validation","amrType":"Sherpa 10K","serial":"10K 09","dueDate":"2026-03-20","plan":"2026-03","delKey":"DEL-883"},{"key":"MOM-112","summary":"Validation (Paul)","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 11","dueDate":"2025-12-01","plan":"2026-02","delKey":""},{"key":"MOM-113","summary":"Dana Anand-1","status":"To Do","amrType":"Sherpa XT Lite","serial":"XT Lite 27","dueDate":"2026-04-30","plan":"2026-04","delKey":""},{"key":"MOM-114","summary":"Dana Anand-2","status":"To Do","amrType":"Sherpa XT Lite","serial":"XT Lite 28","dueDate":"2026-04-30","plan":"2026-04","delKey":""},{"key":"MOM-116","summary":"Yokohoma Dahej-7","status":"To Do","amrType":"Sherpa 10K","serial":"10K 27","dueDate":"2026-03-04","plan":"2026-05","delKey":"DEL-892"},{"key":"MOM-117","summary":"Yokohoma Dahej-9","status":"To Do","amrType":"Sherpa 10K","serial":"10K 28","dueDate":"2026-03-06","plan":"2026-05","delKey":"DEL-892"},{"key":"MOM-118","summary":"Yokohoma Dahej-8","status":"To Do","amrType":"Sherpa 10K","serial":"10K 29","dueDate":"2026-03-05","plan":"2026-05","delKey":"DEL-892"},{"key":"MOM-119","summary":"Yokohoma Dahej-10","status":"To Do","amrType":"Sherpa 10K","serial":"10K 30","dueDate":"2026-06-05","plan":"2026-05","delKey":"DEL-892"},{"key":"MOM-120","summary":"Turbo energy","status":"To Do","amrType":"Sherpa 10K","serial":"10K 31","dueDate":"2026-05-08","plan":"2026-05","delKey":""},{"key":"MOM-121","summary":"Bekaert","status":"To Do","amrType":"Sherpa Pivot","serial":"Pivot 03","dueDate":"2026-04-20","plan":"2026-04","delKey":"DEL-874"},{"key":"MOM-123","summary":"Electrolux Thailand-1","status":"vehicle Bringup","amrType":"Sherpa 10K","serial":"10K 18","dueDate":"2026-04-15","plan":"2026-04","delKey":"DEL-726"},{"key":"MOM-125","summary":"Mexico Demo","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 15","dueDate":"2026-03-27","plan":"2026-03","delKey":""},{"key":"MOM-199","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) — 1 of 4.0","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 27","dueDate":"2026-06-30","plan":"2026-06","delKey":"DEL-1116"},{"key":"MOM-200","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) — 4 of 4.0","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 28","dueDate":"2026-06-30","plan":"2026-06","delKey":"DEL-1116"},{"key":"MOM-201","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) — 3 of 4.0","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 29","dueDate":"2026-06-30","plan":"2026-06","delKey":"DEL-1116"},{"key":"MOM-202","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) — 2 of 4.0","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 30","dueDate":"2026-06-30","plan":"2026-06","delKey":"DEL-1116"},{"key":"MOM-208","summary":"Tenneco Litchfield 10K — 1 of 1.0","status":"To Do","amrType":"","serial":"","dueDate":"2026-06-26","plan":"2025-12","delKey":"DEL-1180"},{"key":"MOM-209","summary":"Saft 10K — 2 of 2.0","status":"To Do","amrType":"","serial":"","dueDate":"2026-06-19","plan":"2025-12","delKey":"DEL-1171"},{"key":"MOM-210","summary":"Saft 10K — 1 of 2.0","status":"To Do","amrType":"","serial":"","dueDate":"2026-06-19","plan":"2025-12","delKey":"DEL-1171"}];
+// ── UTILITIES ─────────────────────────────────────────────────────────────
+function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── BRF CONSTANTS ─────────────────────────────────────────────────────────
+const IN_BUILD_ST = new Set(['Validation','MRS Raised','vehicle Bringup','Mechanical Assembly']);
+const TODAY_MONTH = (()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); })();
+let selectedBRFTypes = new Set();
+let rfChart = null;
+
+function updateBRFBtnLabel(){
+  const all=[...document.querySelectorAll('#brfCheckboxList input[type="checkbox"]')];
+  const checked=all.filter(c=>c.checked);
+  let lbl=checked.length===all.length?'All Types':checked.length===0?'None':
+    checked.length<=2?checked.map(c=>c.dataset.amr).join(', '):checked.length+' Types';
+  const btn=document.getElementById('brfMultiBtn');
+  btn.textContent=lbl+' ▾';
+  btn.classList.toggle('filtered',checked.length!==all.length);
+}
+function onBRFCheckboxChange(){
+  selectedBRFTypes.clear();
+  document.querySelectorAll('#brfCheckboxList input').forEach(cb=>{
+    if(cb.checked) selectedBRFTypes.add(cb.dataset.amr);
+  });
+  updateBRFBtnLabel();
+  renderBRF();
+}
+function selectAllBRF(e){e.stopPropagation();document.querySelectorAll('#brfCheckboxList input').forEach(cb=>{cb.checked=true;selectedBRFTypes.add(cb.dataset.amr)});updateBRFBtnLabel();renderBRF();}
+function clearAllBRF(e){e.stopPropagation();document.querySelectorAll('#brfCheckboxList input').forEach(cb=>cb.checked=false);selectedBRFTypes.clear();updateBRFBtnLabel();renderBRF();}
+function toggleBRFDropdown(e){e.stopPropagation();document.getElementById('brfMultiPanel').classList.toggle('open');}
+document.addEventListener('click',()=>{const p=document.getElementById('brfMultiPanel');if(p)p.classList.remove('open');});
+
+// ── ROLLING FORECAST CHART ────────────────────────────────────────────────
+// Returns the Monday of the week containing dateStr (YYYY-MM-DD) as YYYY-MM-DD
+function getWeekStart(dateStr){
+  if(!dateStr) return null;
+  const d=new Date(dateStr+'T00:00:00');
+  if(isNaN(d)) return null;
+  const day=d.getDay(); // 0=Sun,1=Mon,...,6=Sat
+  const diff=(day===0)?-6:(1-day); // shift to Monday
+  d.setDate(d.getDate()+diff);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+// Returns "dd MMM" label for a week-start YYYY-MM-DD
+function fmtWeekLabel(ws){
+  const d=new Date(ws+'T00:00:00');
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+}
+
+// Today's week start (Monday)
+const TODAY_WEEK = getWeekStart(TODAY.getFullYear()+'-'+String(TODAY.getMonth()+1).padStart(2,'0')+'-'+String(TODAY.getDate()).padStart(2,'0'));
+
+function renderRFChart(filtered){
+  const canvas=document.getElementById('rfChart');
+  if(rfChart){rfChart.destroy();rfChart=null;}
+
+  // Collect all week-start values from dueDate across ALL RAW_MOS (not just filtered)
+  // so axis is stable; but count only filtered rows
+  const allWeeks=new Set();
+  RAW_MOS.forEach(o=>{ const w=getWeekStart(o.dueDate); if(w) allWeeks.add(w); });
+  // Also seed a few weeks around today so chart always shows near-term
+  for(let i=-1;i<=8;i++){
+    const d=new Date(TODAY); d.setDate(d.getDate()+i*7);
+    const ws=getWeekStart(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));
+    if(ws) allWeeks.add(ws);
+  }
+  const weeks=[...allWeeks].sort();
+
+  const labels=weeks.map(fmtWeekLabel);
+
+  const dark = document.documentElement.getAttribute('data-theme')==='dark';
+  const datasets=[
+    {label:'Done',
+     data:weeks.map(w=>filtered.filter(o=>getWeekStart(o.dueDate)===w&&o.status==='Done').length),
+     backgroundColor: dark ? 'rgba(34,197,94,0.5)' : 'rgba(22,163,74,0.65)',borderRadius:3,borderSkipped:false},
+    {label:'In Build',
+     data:weeks.map(w=>filtered.filter(o=>getWeekStart(o.dueDate)===w&&IN_BUILD_ST.has(o.status)).length),
+     backgroundColor: dark ? 'rgba(245,158,11,0.85)' : 'rgba(180,83,9,0.75)',borderRadius:3,borderSkipped:false},
+    {label:'To Do',
+     data:weeks.map(w=>filtered.filter(o=>getWeekStart(o.dueDate)===w&&o.status==='To Do').length),
+     backgroundColor: dark ? 'rgba(129,140,248,0.85)' : 'rgba(99,102,241,0.7)',borderRadius:3,borderSkipped:false},
+  ];
+
+  // Highlight current week's x-axis label in amber
+  const currentIdx=weeks.indexOf(TODAY_WEEK);
+
+  rfChart=new Chart(canvas,{
+    type:'bar',
+    data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:300},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor: dark ? '#1e242d' : '#ffffff',
+          borderColor: dark ? '#2d3648' : '#e1e5ea',borderWidth:1,
+          titleColor: dark ? '#e8edf3' : '#111827',
+          bodyColor:  dark ? '#a8b4c4' : '#374151',padding:10,
+          callbacks:{
+            title:ctx=>'Week of '+ctx[0].label,
+            label:ctx=>'  '+ctx.dataset.label+': '+ctx.parsed.y+' unit'+(ctx.parsed.y!==1?'s':''),
+          }
+        }
+      },
+      scales:{
+        x:{stacked:true,
+           grid:{color: dark ? 'rgba(45,54,72,0.6)' : 'rgba(0,0,0,0.06)'},
+           ticks:{color:(ctx)=>ctx.index===currentIdx ? (dark?'#f59e0b':'#b45309') : (dark?'#94a3b8':'#374151'),
+                  font:{family:'Syne',size:11,weight:'600'},maxRotation:45,minRotation:30},
+           border:{color: dark ? '#2e3347' : '#e1e5ea'}},
+        y:{stacked:true,beginAtZero:true,
+           grid:{color: dark ? 'rgba(45,54,72,0.4)' : 'rgba(0,0,0,0.05)'},
+           ticks:{color: dark ? '#4b5563' : '#9ca3af',font:{family:'Space Mono',size:10},stepSize:1},
+           border:{color: dark ? '#2e3347' : '#e1e5ea'}}
+      },
+      layout:{padding:{top:8}}
+    }
+  });
+}
+
+// ── BRF KPI CARDS ─────────────────────────────────────────────────────────
+function renderBRFKPIs(filtered){
+  const active = filtered.filter(m=>m.status!=='Done');
+  const inBuild= active.filter(m=>IN_BUILD_ST.has(m.status));
+  const overdue= active.filter(m=>m.dueDate && parseDate(m.dueDate)<TODAY);
+  const orphan = active.filter(m=>!m.delKey);
+  document.getElementById('brf-active').textContent  = active.length;
+  document.getElementById('brf-inbuild').textContent = inBuild.length;
+  document.getElementById('brf-overdue').textContent = overdue.length;
+  document.getElementById('brf-orphan').textContent  = orphan.length;
+  const brfSub = document.getElementById('brf-sub');
+  if(brfSub) brfSub.textContent = active.length+' active · '+filtered.filter(m=>m.status==='Done').length+' dispatched';
+}
+
+// ── PIPELINE TABLE HELPERS ────────────────────────────────────────────────
+function planMonthClass(plan){
+  if(!plan) return 'plan-na';
+  if(plan<TODAY_MONTH) return 'plan-overdue';
+  if(plan===TODAY_MONTH) return 'plan-current';
+  return 'plan-future';
+}
+function planMonthLabel(plan){
+  if(!plan) return '—';
+  const [y,m]=plan.split('-');
+  const label=new Date(y,parseInt(m)-1).toLocaleDateString('en-GB',{month:'short',year:'2-digit'});
+  if(plan<TODAY_MONTH) return '⚠ '+label;
+  if(plan===TODAY_MONTH) return '▶ '+label;
+  return label;
+}
+function moStatusClass(s){
+  if(s==='To Do') return 'st-todo';
+  if(s==='Done') return 'st-done-mo';
+  if(s==='PDI') return 'st-pdi';
+  return 'st-inbuild';
+}
+function matClass(s){
+  if(!s) return 'mat-other';
+  const sl=s.toLowerCase();
+  if(sl.includes('complet')||sl.includes('kitting done')) return 'mat-done';
+  if(sl==='ordered') return 'mat-ordered';
+  if(sl.includes('kitting')) return 'mat-kitting';
+  if(sl.includes('not yet')) return 'mat-notyet';
+  return 'mat-other';
+}
+function priorityShort(p){
+  if(!p) return null;
+  if(p.includes('Revenue')) return {cls:'pri-revenue',lbl:'Qtrly Rev'};
+  if(p.includes('Key Logo')) return {cls:'pri-keylogo',lbl:'Key Logo'};
+  if(p.includes('Standard')) return {cls:'pri-standard',lbl:'Standard'};
+  if(p.includes('Internal')) return {cls:'pri-internal',lbl:'Internal'};
+  return null;
+}
+
+// ── PIPELINE ROW ──────────────────────────────────────────────────────────
+const PIPE_HEADER=`<thead><tr>
+  <th>MO</th><th>Build</th><th>AMR Type</th>
+  <th>Stage</th><th>Serial No</th><th>Material</th>
+  <th>Due Date</th>
+</tr></thead>`;
+
+function renderPipelineRow(m){
+  const mc=moStatusClass(m.status);
+  const serial=escHtml(m.serial||'—');
+  const due=m.dueDate?fmtDate(m.dueDate):'—';
+  const dueClass=m.dueDate&&parseDate(m.dueDate)<TODAY?'sow-overdue':'';
+
+  return `<tr>
+    <td><span class="order-key">${escHtml(m.key)}</span></td>
+    <td style="max-width:220px"><span class="order-name" style="font-size:12px">${escHtml(m.summary.replace(/ — \d+ of [\d.]+$/,''))}</span></td>
+    <td><span class="amr-type">${escHtml(m.amrType||'—')}</span></td>
+    <td><span class="badge ${mc}">${escHtml(m.status)}</span></td>
+    <td><span class="date-val" style="font-size:11px">${serial}</span></td>
+    <td><span style="font-size:10px;color:var(--mut)">—</span></td>
+    <td><span class="date-val ${dueClass}" style="font-size:11px">${due}</span></td>
+  </tr>`;
+}
+
+// ── RENDER PIPELINE TABLE ────────────────────────────────────────────────
+function renderPipeline(filtered){
+  const TO_DO_ST    = new Set(['To Do']);
+  const DONE_ST     = new Set(['Done','Dispatch']);
+  const REJECTED_ST = new Set(['Rejected']);
+
+  function byDue(a,b){
+    if(a.dueDate&&b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+    if(a.dueDate) return -1;
+    if(b.dueDate) return 1;
+    return 0;
+  }
+
+  const inBuild  = filtered.filter(m=>!TO_DO_ST.has(m.status)&&!DONE_ST.has(m.status)&&!REJECTED_ST.has(m.status)).sort(byDue);
+  const toDo     = filtered.filter(m=>TO_DO_ST.has(m.status)).sort(byDue);
+  const done     = filtered.filter(m=>DONE_ST.has(m.status)).sort(byDue);
+  const rejected = filtered.filter(m=>REJECTED_ST.has(m.status)).sort(byDue);
+
+  const SECTIONS=[
+    {id:'pipe-inbuild',  title:'In Build',  dot:'#f59e0b', data:inBuild,  collapsed:false},
+    {id:'pipe-todo',     title:'To Do',     dot:'#7b61ff', data:toDo,     collapsed:true},
+    {id:'pipe-done',     title:'Done',      dot:'#22c55e', data:done,     collapsed:true},
+    {id:'pipe-rejected', title:'Rejected',  dot:'#f43f5e', data:rejected, collapsed:true},
+  ];
+
+  const el=document.getElementById('section-pipeline');
+  if(!el) return;
+
+  el.innerHTML=SECTIONS.map(sec=>{
+    const qty=sec.data.length;
+    const rows=sec.data.map(m=>renderPipelineRow(m)).join('')||
+      `<tr class="empty-row"><td colspan="7">No builds in this section</td></tr>`;
+    return `<div id="${sec.id}" class="section${sec.collapsed?' collapsed':''}">
+      <div class="section-header" onclick="toggleSection('${sec.id}')">
+        <div class="section-dot" style="background:${sec.dot}"></div>
+        <span class="section-title">${sec.title}</span>
+        <span class="section-count">${qty} unit${qty!==1?'s':''}</span>
+        <span class="collapse-icon">▾</span>
+      </div>
+      <div class="table-wrap">
+        <table>${PIPE_HEADER}<tbody>${rows}</tbody></table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── SO-MO HEALTH ──────────────────────────────────────────────────────────
+const SO_MO_MAP=(()=>{
+  const m={};
+  RAW_MOS.forEach(mo=>{if(mo.delKey){(m[mo.delKey]=m[mo.delKey]||[]).push(mo.key);}});
+  return m;
+})();
+
+const SOMO_HEADER=`<thead><tr>
+  <th>Sales Order</th><th>SO Status</th><th>AMR Type</th>
+  <th class="right">Ordered</th><th class="right">MOs Created</th><th class="right">Gap</th>
+  <th>Linked MOs</th><th>Health</th>
+</tr></thead>`;
+
+function renderSOHealthRow(so){
+  const moKeys=SO_MO_MAP[so.key]||[];
+  const qty=parseInt(so.qty)||0;
+  const gap=qty-moKeys.length;
+  const health=gap<=0?'<span class="health-ok">✓</span>':
+    moKeys.length>0?'<span class="health-warn">⚠</span>':
+    '<span class="health-bad">✗</span>';
+  const moTagsHtml=moKeys.map(k=>`<span class="mo-tag">${escHtml(k)}</span>`).join('')||
+    '<span class="plan-na">none</span>';
+  const sc=statusClass(so.status);
+
+  return `<tr>
+    <td>
+      <div class="order-name" style="font-size:12px">${escHtml(so.summary)}</div>
+      <div class="order-meta"><span class="order-key">${escHtml(so.key)}</span></div>
+    </td>
+    <td><span class="badge ${sc}">${escHtml(so.status)}</span></td>
+    <td><span class="amr-type">${escHtml(so.amrType)||'—'}</span></td>
+    <td class="right"><span class="qty-val">${qty||'—'}</span></td>
+    <td class="right"><span class="qty-val" style="color:${moKeys.length?'var(--grn)':'var(--red)'}">${moKeys.length}</span></td>
+    <td class="right"><span class="qty-val" style="color:${gap>0?'var(--red)':gap<0?'var(--ylw)':'var(--grn)'}">${gap>0?'+'+gap:gap}</span></td>
+    <td>${moTagsHtml}</td>
+    <td style="text-align:center">${health}</td>
+  </tr>`;
+}
+
+function renderSOHealth(){
+  const ACTIVE_SO_ST=new Set(['Approved','Under Procurement','IQC','Electronics Assembly','Mechanical Assembly','Vehicle Bringup','Validation']);
+  const activeSOs=RAW_ORDERS.filter(s=>ACTIVE_SO_ST.has(s.status)&&s.status!=='Rejected');
+  const ok   =activeSOs.filter(s=>(SO_MO_MAP[s.key]||[]).length>=(parseInt(s.qty)||0)&&s.qty);
+  const warn =activeSOs.filter(s=>{const m=SO_MO_MAP[s.key]||[];return m.length>0&&m.length<(parseInt(s.qty)||0);});
+  const bad  =activeSOs.filter(s=>!(SO_MO_MAP[s.key]||[]).length);
+  const sorted=[...bad,...warn,...ok];
+
+  const el=document.getElementById('section-somo');
+  const rows=sorted.map(s=>renderSOHealthRow(s)).join('')||
+    '<tr class="empty-row"><td colspan="8">No active SOs</td></tr>';
+
+  const summary=`<span style="color:var(--grn);font-weight:700">${ok.length} covered</span>
+    <span class="section-count"> · </span>
+    <span style="color:var(--ylw);font-weight:700">${warn.length} partial</span>
+    <span class="section-count"> · </span>
+    <span style="color:var(--red);font-weight:700">${bad.length} missing MOs</span>`;
+
+  el.innerHTML=`
+    <div class="section-header" onclick="toggleSection('section-somo')">
+      <div class="section-dot" style="background:#60a5fa"></div>
+      <span class="section-title">SO–MO Linkage Health</span>
+      <span class="section-count" style="margin-left:8px">${summary}</span>
+      <span class="collapse-icon">▾</span>
+    </div>
+    <div class="table-wrap">
+      <table>${SOMO_HEADER}<tbody>${rows}</tbody></table>
+    </div>`;
+  el.classList.add('collapsed');
+}
+
+// ── MAIN BRF RENDER ───────────────────────────────────────────────────────
+function renderBRF(){
+  const filtered = selectedBRFTypes.size===0 ? RAW_MOS :
+    RAW_MOS.filter(m=>selectedBRFTypes.has(m.amrType));
+  renderBRFKPIs(filtered);
+  renderRFChart(filtered);
+  renderPipeline(filtered);
+  renderSOHealth(); // SO health always uses full data
+}
+
+function buildBRFDropdown(){
+  const amrTotals={};
+  RAW_MOS.forEach(m=>{
+    if(!m.amrType) return;
+    amrTotals[m.amrType]=(amrTotals[m.amrType]||0)+1;
+  });
+  const sorted=Object.keys(amrTotals).sort((a,b)=>amrTotals[b]-amrTotals[a]);
+  sorted.forEach(a=>selectedBRFTypes.add(a));
+  const container=document.getElementById('brfCheckboxList');
+  if(!container) return;
+  container.innerHTML='';
+  sorted.forEach(amr=>{
+    const label=document.createElement('label');
+    label.className='amr-checkbox-item';
+    label.innerHTML=`
+      <input type="checkbox" checked data-amr="${escHtml(amr)}" onchange="onBRFCheckboxChange()">
+      <span class="amr-checkbox-label">${escHtml(amr)}</span>
+      <span class="amr-checkbox-count">${amrTotals[amr]}</span>`;
+    container.appendChild(label);
+  });
+  updateBRFBtnLabel();
+}
+
+function initBRF(){
+  buildBRFDropdown();
+  renderBRF();
+}
+
+
+// ── TAB NAVIGATION ────────────────────────────────────────────────────────
+const TAB_NAMES = { mo:'Manufacturing Orders', so:'Sales Orders', somo:'SO–MO Linkage' };
+function switchTab(tab){
+  ['mo','so','somo'].forEach(t=>{
+    document.getElementById('tab-pane-'+t)||document.getElementById('tab-'+t);
+    const pane=document.getElementById('tab-'+t);
+    const btn=document.getElementById('tab-btn-'+t);
+    if(pane) pane.classList.toggle('active',t===tab);
+    if(btn)  btn.classList.toggle('active',t===tab);
+  });
+  document.querySelector('.header-title').textContent=TAB_NAMES[tab]||tab;
+  if(tab==='somo') renderSOHealthTab();
+}
+function renderSOHealthTab(){
+  const ACTIVE_SO_ST=new Set(['Approved','Under Procurement','IQC','Electronics Assembly','Mechanical Assembly','Vehicle Bringup','Validation']);
+  const activeSOs=RAW_ORDERS.filter(s=>ACTIVE_SO_ST.has(s.status));
+  const covered=activeSOs.filter(s=>(SO_MO_MAP[s.key]||[]).length>=(parseInt(s.qty)||0)&&s.qty>0);
+  const partial =activeSOs.filter(s=>{const m=SO_MO_MAP[s.key]||[];return m.length>0&&m.length<(parseInt(s.qty)||0);});
+  const missing =activeSOs.filter(s=>!(SO_MO_MAP[s.key]||[]).length);
+  const orphan  =RAW_MOS.filter(m=>m.status!=='Done'&&!m.delKey);
+  document.getElementById('somo-covered').textContent=covered.length;
+  document.getElementById('somo-partial').textContent=partial.length;
+  document.getElementById('somo-missing').textContent=missing.length;
+  document.getElementById('somo-orphan').textContent=orphan.length;
+  renderSOHealth(); // reuse existing renderer
+  document.getElementById('section-somo').classList.remove('collapsed');
+}
+
+// ── THEME TOGGLE ─────────────────────────────────────────────────────────────
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+  document.getElementById('theme-toggle').textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('ati-theme', isDark ? '' : 'dark');
+  // Re-render charts with updated colors
+  if(rfChart){ rfChart.destroy(); rfChart=null; }
+  if(amrChart){ amrChart.destroy(); amrChart=null; }
+  setTimeout(()=>{ initBRF(); applyFilters(); }, 50);
+}
+// Restore saved theme
+(function(){
+  const saved = localStorage.getItem('ati-theme');
+  if(saved==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    document.addEventListener('DOMContentLoaded',()=>{
+      const btn=document.getElementById('theme-toggle');
+      if(btn) btn.textContent='☀️';
+    });
+  }
+})();
+
+init();
+switchTab('mo');
+setTimeout(()=>{ initBRF(); }, 0);
+
+// ── JIRA COMMENT FEATURE ─────────────────────────────────────────────────
+
+// Credentials are stored server-side by the local proxy (dashboard_server.py)
+// sessionStorage is used only to remember UI state (whether creds form is shown)
+function getJiraCreds(){
+  const e = sessionStorage.getItem('jira_email');
+  const t = sessionStorage.getItem('jira_token');
+  return (e && t) ? { email: e, token: t } : null;
+}
+
+function saveJiraCreds(email, token){
+  sessionStorage.setItem('jira_email', email);
+  sessionStorage.setItem('jira_token', token);
+}
+
+// On load, ask proxy if credentials are already saved
+fetch('/api/jira/creds/check').then(r=>r.json()).then(d=>{
+  if(d.saved){
+    sessionStorage.setItem('jira_email', d.email);
+    sessionStorage.setItem('jira_token', '__saved__');
+  }
+}).catch(()=>{});
+
+function openCommentModal(moKey){
+  document.getElementById('cm-mo-key').textContent = moKey;
+  document.getElementById('cm-textarea').value = '';
+  document.getElementById('cm-feedback').textContent = '';
+  document.getElementById('cm-feedback').className = 'cm-feedback';
+  document.getElementById('cm-submit').disabled = false;
+  document.getElementById('cm-submit').textContent = 'Post to Jira';
+
+  const creds = getJiraCreds();
+  document.getElementById('cm-creds-section').style.display = creds ? 'none' : 'block';
+  if(!creds){
+    document.getElementById('cm-email').value = '';
+    document.getElementById('cm-token').value = '';
+  } else {
+    document.getElementById('cm-creds-hint-text').textContent = '🔑 Signed in as ' + sessionStorage.getItem('jira_email');
+    document.getElementById('cm-creds-hint').style.display = 'flex';
+  }
+
+  document.getElementById('comment-modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('cm-textarea').focus(), 80);
+}
+
+function closeCommentModal(){
+  document.getElementById('comment-modal-overlay').classList.remove('open');
+}
+
+async function submitComment(){
+  const moKey   = document.getElementById('cm-mo-key').textContent.trim();
+  const text    = document.getElementById('cm-textarea').value.trim();
+  const fb      = document.getElementById('cm-feedback');
+  const btn     = document.getElementById('cm-submit');
+
+  if(!text){ fb.textContent = 'Please enter a comment.'; fb.className='cm-feedback cm-error'; return; }
+
+  let creds = getJiraCreds();
+  if(!creds){
+    const email = document.getElementById('cm-email').value.trim();
+    const token = document.getElementById('cm-token').value.trim();
+    if(!email || !token){ fb.textContent = 'Enter your Jira email and API token.'; fb.className='cm-feedback cm-error'; return; }
+    saveJiraCreds(email, token);
+    creds = { email, token };
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Posting…';
+  fb.textContent  = '';
+  fb.className    = 'cm-feedback';
+
+  // Build request body — include credentials only if freshly entered (not __saved__)
+  const payload = { key: moKey, text };
+  if(creds && creds.token !== '__saved__'){
+    payload.email = creds.email;
+    payload.token = creds.token;
+  }
+
+  try {
+    const res = await fetch('/api/jira/comment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if(res.ok){
+      fb.textContent = '✓ Comment posted to ' + moKey;
+      fb.className   = 'cm-feedback cm-success';
+      btn.textContent = 'Posted ✓';
+      // mark the row button green briefly
+      const rowBtn = document.querySelector('[data-mo-key="'+moKey+'"]');
+      if(rowBtn){ rowBtn.classList.add('commented'); setTimeout(()=>rowBtn.classList.remove('commented'), 3000); }
+      setTimeout(closeCommentModal, 1400);
+    } else {
+      const err = await res.json().catch(()=>({}));
+      const msg = err.error || (err.errorMessages||[]).join(' ') || ('HTTP ' + res.status);
+      if(res.status === 401){
+        fb.textContent = '✗ Invalid credentials. Clear and try again.';
+        sessionStorage.removeItem('jira_email'); sessionStorage.removeItem('jira_token');
+        document.getElementById('cm-creds-section').style.display = 'block';
+        document.getElementById('cm-creds-hint').style.display = 'none';
+      } else {
+        fb.textContent = '✗ ' + msg;
+      }
+      fb.className = 'cm-feedback cm-error';
+      btn.disabled = false; btn.textContent = 'Post to Jira';
+    }
+  } catch(e){
+    fb.textContent = '✗ Network error: ' + e.message;
+    fb.className   = 'cm-feedback cm-error';
+    btn.disabled   = false; btn.textContent = 'Post to Jira';
+  }
+}
+
+function clearJiraCreds(){
+  sessionStorage.removeItem('jira_email');
+  sessionStorage.removeItem('jira_token');
+  document.getElementById('cm-creds-section').style.display = 'block';
+  document.getElementById('cm-creds-hint').style.display = 'none';
+  document.getElementById('cm-email').value = '';
+  document.getElementById('cm-token').value = '';
+}
+
+// close on overlay click (delegation — modal HTML is after this script block)
+document.addEventListener('click', function(e){
+  if(e.target && e.target.id==='comment-modal-overlay') closeCommentModal();
+});
+// close on Escape
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeCommentModal(); });
+</script>
+
+<!-- ── COMMENT MODAL ─────────────────────────────────────────────── -->
+<div id="comment-modal-overlay" class="cm-overlay">
+  <div class="cm-modal">
+    <div class="cm-header">
+      <div class="cm-title">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="margin-right:6px;vertical-align:-2px"><path d="M14 1H2C1.45 1 1 1.45 1 2v9c0 .55.45 1 1 1h2v3l3.5-3H14c.55 0 1-.45 1-1V2c0-.55-.45-1-1-1z" fill="#00d4ff"/></svg>
+        Add Jira Comment — <span id="cm-mo-key" style="color:var(--acc);font-family:'Space Mono',monospace"></span>
+      </div>
+      <button class="cm-close" onclick="closeCommentModal()">✕</button>
+    </div>
+
+    <div id="cm-creds-section" class="cm-creds-section">
+      <div class="cm-creds-label">🔑 Jira credentials <span style="color:var(--mut);font-weight:400">(stored for this session only)</span></div>
+      <input id="cm-email" class="cm-input" type="email" placeholder="your@email.com" autocomplete="email">
+      <input id="cm-token" class="cm-input" type="password" placeholder="Jira API token" autocomplete="off">
+      <div style="font-size:10px;color:var(--mut);margin-top:4px">Generate at <span style="color:var(--acc)">id.atlassian.com → Security → API tokens</span></div>
+    </div>
+    <div id="cm-creds-hint" class="cm-creds-hint" style="display:none">
+      <span id="cm-creds-hint-text"></span>
+      <button class="cm-link-btn" onclick="clearJiraCreds()">Change</button>
+    </div>
+
+    <textarea id="cm-textarea" class="cm-textarea" placeholder="Write your comment…" rows="4"></textarea>
+    <div id="cm-feedback" class="cm-feedback"></div>
+
+    <div class="cm-actions">
+      <button class="cm-btn-cancel" onclick="closeCommentModal()">Cancel</button>
+      <button id="cm-submit" class="cm-btn-submit" onclick="submitComment()">Post to Jira</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
