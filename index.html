@@ -6,6 +6,7 @@
 <title>ATI Motors — Sales Orders</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
     --bg:   #f4f6f8;
@@ -677,6 +678,47 @@
   }
   .somo-stat-num  { font-size: 24px; font-weight: 700; font-family: 'Space Mono', monospace; line-height: 1; }
   .somo-stat-lbl  { font-size: 10px; color: var(--mut); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
+  /* ── SALESFORCE TAB ── */
+  .sf-kpi-card {
+    background: var(--s1); border: 1px solid var(--bdr); border-radius: 8px;
+    padding: 12px 18px; min-width: 130px; font-family: 'Space Mono', monospace;
+  }
+  .sf-kpi-card .sf-kpi-num { font-size: 22px; font-weight: 700; line-height: 1; }
+  .sf-kpi-card .sf-kpi-lbl { font-size: 10px; color: var(--mut); text-transform: uppercase; letter-spacing: 0.7px; margin-top: 4px; }
+  #sf-table tbody tr { border-bottom: 1px solid var(--bdr); transition: background .12s; }
+  #sf-table tbody tr:hover { background: var(--s2); }
+  #sf-table td { padding: 8px 10px; color: var(--txt); vertical-align: top; }
+  .sf-stage-won    { background: rgba(0,229,160,.12); color: #00e5a0; border-radius: 4px; padding: 2px 7px; font-size: 11px; white-space: nowrap; }
+  .sf-stage-awaited{ background: rgba(245,197,24,.12); color: #f5c518; border-radius: 4px; padding: 2px 7px; font-size: 11px; white-space: nowrap; }
+  .sf-stage-neg    { background: rgba(96,165,250,.12); color: #60a5fa; border-radius: 4px; padding: 2px 7px; font-size: 11px; white-space: nowrap; }
+  .sf-stage-prop   { background: rgba(167,139,250,.12); color: #a78bfa; border-radius: 4px; padding: 2px 7px; font-size: 11px; white-space: nowrap; }
+  .sf-no-po        { color: var(--red); font-size: 11px; font-style: italic; }
+  .sf-ancillary-toggle { cursor: pointer; color: var(--acc); font-size: 11px; font-family: 'Space Mono',monospace; background: none; border: none; padding: 0; }
+  .sf-ancillary-list { margin-top: 5px; padding: 6px 8px; background: var(--s2); border-radius: 5px; font-size: 11px; color: var(--mut); display: none; }
+  .sf-ancillary-list.open { display: block; }
+  /* ── STATUS DROPDOWN ── */
+  .sf-status-sel {
+    -webkit-appearance: none; appearance: none;
+    border: 1px solid transparent; border-radius: 5px;
+    padding: 3px 10px; font-size: 11px;
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    cursor: pointer; outline: none; transition: opacity .15s;
+    min-width: 90px; text-align: center;
+  }
+  .sf-status-sel:hover { opacity: .8; }
+  .sf-status-pending   { background: rgba(245,197,24,.15); color: #f5c518; border-color: rgba(245,197,24,.3); }
+  .sf-status-completed { background: rgba(22,163,74,.15); color: var(--grn); border-color: rgba(22,163,74,.3); }
+  .sf-status-cancelled { background: rgba(156,163,175,.12); color: var(--mut); border-color: rgba(156,163,175,.25); }
+  .sf-status-sel option { background: var(--s1); color: var(--txt); font-weight: 600; }
+  .df-section { margin-bottom: 32px; }
+  .df-section-hdr { display:flex; align-items:center; gap:12px; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--bdr); }
+  .df-section-title { font-family:'Syne',sans-serif; font-weight:700; font-size:14px; color:var(--txt); }
+  .df-section-source { font-family:'Space Mono',monospace; font-size:10px; color:var(--mut); background:var(--s2); padding:2px 8px; border-radius:4px; border:1px solid var(--bdr); }
+  .df-section-count { font-family:'Space Mono',monospace; font-size:11px; color:var(--acc); margin-left:auto; }
+  .df-jira-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .df-jira-table th { padding:8px 10px; text-align:left; color:var(--mut); font-family:'Syne',sans-serif; font-weight:600; border-bottom:1px solid var(--bdr); white-space:nowrap; background:var(--s2); position:sticky; top:0; z-index:2; }
+  .df-jira-table td { padding:7px 10px; border-bottom:1px solid rgba(255,255,255,.04); }
+  .df-jira-table tbody tr:hover { background: rgba(255,255,255,.03); }
   /* ── COMMENT BUTTON ── */
   .comment-btn {
     background: none;
@@ -845,6 +887,12 @@
   <div class="tab-item"        onclick="switchTab('somo')" id="tab-btn-somo">
     <span>SO–MO Linkage</span><span class="tab-badge">HEALTH</span>
   </div>
+  <div class="tab-item"        onclick="switchTab('sf')"   id="tab-btn-sf">
+    <span>Demand Forecast</span><span class="tab-badge">DF</span>
+  </div>
+  <div class="tab-item"        onclick="switchTab('bp')"   id="tab-btn-bp">
+    <span>Build Plan</span><span class="tab-badge">BP</span>
+  </div>
 </div>
 
 
@@ -996,6 +1044,17 @@
 </div>
 
 
+<!-- TAB PANE: BUILD PLAN -->
+<div id="tab-bp" class="tab-pane">
+  <div style="padding:28px 32px 0;">
+    <div id="bp-stats" style="display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap;"></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--txt);margin-bottom:12px;">12-WEEK BUILD HEATMAP</div>
+    <div id="bp-heatmap" style="overflow-x:auto;margin-bottom:36px;"></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--txt);margin-bottom:12px;">PRIORITY BUILD QUEUE</div>
+    <div id="bp-queue" style="overflow-x:auto;margin-bottom:40px;"></div>
+  </div>
+</div>
+
 <!-- TAB PANE: SO-MO LINKAGE -->
 <div id="tab-somo" class="tab-pane">
   <div class="somo-summary-bar">
@@ -1024,9 +1083,218 @@
   </div>
 </div>
 
+<!-- DEL TICKET DRAFT MODAL -->
+<div id="sf-ticket-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--s1);border:1px solid var(--bdr);border-radius:12px;width:520px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div style="padding:18px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--txt)">DEL Ticket Draft</div>
+      <button onclick="document.getElementById('sf-ticket-modal').style.display='none'" style="background:none;border:none;color:var(--mut);cursor:pointer;font-size:18px;line-height:1">✕</button>
+    </div>
+    <div id="sf-ticket-modal-body" style="padding:20px"></div>
+    <div style="padding:14px 20px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px">
+      <button onclick="sfCopyTicket()" style="
+        background:var(--acc);color:#0a0c10;border:none;border-radius:6px;
+        padding:8px 18px;font-family:'Syne',sans-serif;font-weight:600;font-size:13px;cursor:pointer
+      ">Copy to clipboard</button>
+      <button onclick="document.getElementById('sf-ticket-modal').style.display='none'" style="
+        background:var(--s2);color:var(--txt);border:1px solid var(--bdr);border-radius:6px;
+        padding:8px 18px;font-family:'Syne',sans-serif;font-size:13px;cursor:pointer
+      ">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB PANE: SALESFORCE IMPORT -->
+<div id="tab-sf" class="tab-pane">
+  <div class="main" style="padding-top:16px">
+
+    <!-- Toolbar -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+      <button onclick="sfFetchGSheet()" style="
+        display:inline-flex;align-items:center;gap:6px;padding:7px 16px;
+        background:var(--acc);color:#0a0c10;border-radius:6px;font-family:'Syne',sans-serif;
+        font-weight:600;font-size:13px;cursor:pointer;border:none;transition:opacity .15s;white-space:nowrap;
+      " onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">
+        ↻ Refresh Data
+      </button>
+      <div id="sf-file-name" style="font-size:12px;font-family:'Space Mono',monospace;color:var(--mut)">No data loaded</div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <select id="sf-status-filter" onchange="sfRender()" style="
+          background:var(--s2);border:1px solid var(--bdr);color:var(--txt);
+          padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Syne',sans-serif;
+        ">
+          <option value="all">All Statuses</option>
+          <option value="Pending" selected>Pending</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <select id="sf-stage-filter" onchange="sfRender()" style="
+          background:var(--s2);border:1px solid var(--bdr);color:var(--txt);
+          padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Syne',sans-serif;
+        ">
+          <option value="all">All Stages</option>
+          <option value="Closed Won" selected>Closed Won</option>
+          <option value="PO Awaited">PO Awaited</option>
+          <option value="Negotiation/Review">Negotiation / Review</option>
+          <option value="Proposal/Price Quote">Proposal / Price Quote</option>
+        </select>
+        <select id="sf-po-filter" onchange="sfRender()" style="
+          background:var(--s2);border:1px solid var(--bdr);color:var(--txt);
+          padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Syne',sans-serif;
+        ">
+          <option value="all">All PO Status</option>
+          <option value="with">Has PO</option>
+          <option value="without">No PO</option>
+        </select>
+        <select id="sf-ticket-filter" onchange="sfRender()" style="
+          background:var(--s2);border:1px solid var(--bdr);color:var(--txt);
+          padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Syne',sans-serif;
+        ">
+          <option value="all">All Tickets</option>
+          <option value="matched">Has DEL Ticket</option>
+          <option value="missing">No DEL Ticket</option>
+        </select>
+        <input id="sf-search" type="text" placeholder="Search account / product…" oninput="sfRender()" style="
+          background:var(--s2);border:1px solid var(--bdr);color:var(--txt);
+          padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Syne',sans-serif;width:200px;
+        ">
+      </div>
+    </div>
+
+    <!-- Section 1 header: Customer - New -->
+    <div class="df-section-hdr">
+      <div class="df-section-title">Customer — New</div>
+      <div class="df-section-source">Source: Salesforce</div>
+    </div>
+
+
+    <!-- Product Demand Summary -->
+    <div id="sf-demand-wrap" style="margin-bottom:28px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--txt);margin-bottom:10px;letter-spacing:.4px;">
+        PRODUCT DEMAND SUMMARY
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="sf-demand-table" style="border-collapse:collapse;font-size:12px;min-width:620px;">
+          <thead>
+            <tr style="background:var(--s2);">
+              <th rowspan="2" style="padding:8px 16px 8px 12px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;">Product</th>
+              <th colspan="2" style="padding:6px 20px;text-align:center;color:var(--grn);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;">Customer — New</th>
+              <th rowspan="2" style="padding:8px 20px;text-align:center;color:#a78bfa;font-family:'Syne',sans-serif;font-weight:600;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;">Replacement</th>
+              <th rowspan="2" style="padding:8px 20px;text-align:center;color:var(--ylw);font-family:'Syne',sans-serif;font-weight:600;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;">Internal</th>
+              <th rowspan="2" style="padding:8px 20px;text-align:center;color:#ffb300;font-family:'Syne',sans-serif;font-weight:600;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;">⚠ Exceptions</th>
+              <th rowspan="2" style="padding:8px 20px;text-align:center;color:var(--acc);font-family:'Syne',sans-serif;font-weight:600;border-bottom:2px solid var(--bdr);white-space:nowrap;vertical-align:middle;">Total</th>
+            </tr>
+            <tr style="background:var(--s2);">
+              <th style="padding:5px 14px;text-align:center;color:var(--grn);font-family:'Syne',sans-serif;font-weight:500;font-size:11px;border-bottom:2px solid var(--bdr);border-right:1px solid rgba(255,255,255,.07);white-space:nowrap;opacity:.85;">Closed Won</th>
+              <th style="padding:5px 14px;text-align:center;color:var(--ylw);font-family:'Syne',sans-serif;font-weight:500;font-size:11px;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;opacity:.85;">Awaiting PO</th>
+            </tr>
+          </thead>
+          <tbody id="sf-demand-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Product filter banner -->
+    <div id="product-filter-banner" style="display:none;align-items:center;gap:10px;margin-bottom:16px;padding:9px 14px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:6px;font-family:'Syne',sans-serif;font-size:12px;color:var(--acc);">
+      <span style="opacity:.7;">Filtering by:</span>
+      <span id="product-filter-label" style="font-weight:700;"></span>
+      <button onclick="setProductFilter(activeProductFilter)" style="margin-left:auto;background:none;border:1px solid rgba(59,130,246,.3);border-radius:4px;color:var(--mut);cursor:pointer;font-size:11px;padding:2px 8px;font-family:'Syne',sans-serif;">✕ Clear filter</button>
+    </div>
+
+    <!-- Table -->
+    <div id="sf-table-wrap" style="overflow-x:auto;margin-bottom:40px;">
+      <div id="sf-empty" style="text-align:center;padding:60px 20px;color:var(--mut);font-family:'Space Mono',monospace;font-size:13px;">
+        Upload a Salesforce export (.xlsx) to see orders here
+      </div>
+      <table id="sf-table" style="display:none;width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="background:var(--s2);position:sticky;top:0;z-index:2;">
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">#</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Status</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Account</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Region</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">AMR Type</th>
+            <th style="padding:8px 10px;text-align:center;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);">Qty</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">PO Number</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">PO Date</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Due Date</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Location</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Purchase Type</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Owner</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Stage</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Delivery Ticket</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Ancillary</th>
+          </tr>
+        </thead>
+        <tbody id="sf-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Section 2: Customer - Replacement -->
+    <div class="df-section">
+      <div class="df-section-hdr">
+        <div class="df-section-title">Customer — Replacement</div>
+        <div class="df-section-source">Source: Jira DEL Board</div>
+        <div class="df-section-count" id="df-repl-count"></div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="df-jira-table">
+          <thead><tr>
+            <th>#</th><th>Account</th><th>AMR Type</th>
+            <th style="text-align:center;">Qty</th>
+            <th>Due Date</th>
+            <th>Location</th><th>Status</th>
+          </tr></thead>
+          <tbody id="df-repl-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 3: Internal -->
+    <div class="df-section">
+      <div class="df-section-hdr">
+        <div class="df-section-title">Internal</div>
+        <div class="df-section-source">Source: Jira DEL Board</div>
+        <div class="df-section-count" id="df-int-count"></div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="df-jira-table">
+          <thead><tr>
+            <th>#</th><th>Account</th><th>AMR Type</th>
+            <th style="text-align:center;">Qty</th>
+            <th>Due Date</th>
+            <th>Location</th><th>Status</th>
+          </tr></thead>
+          <tbody id="df-int-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 4: Exceptions — DEL tickets not in Salesforce -->
+    <div class="df-section" style="border-top:2px solid rgba(255,160,0,.35);">
+      <div class="df-section-hdr">
+        <div class="df-section-title" style="color:#ffb300;">⚠ Exceptions — Not in Salesforce</div>
+        <div class="df-section-source">Customer — New · active DEL tickets with no matching SF opportunity</div>
+        <div class="df-section-count" id="df-exc-count"></div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="df-jira-table">
+          <thead><tr>
+            <th>#</th><th>DEL Ticket</th><th>Account</th><th>AMR Type</th>
+            <th style="text-align:center;">Qty</th>
+            <th>PO Number</th><th>Due Date</th><th>Status</th>
+          </tr></thead>
+          <tbody id="df-exc-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────
-const RAW_ORDERS = [{"key":"DEL-108","summary":"Tenneco Litchfield Sherpa 10K 2nos","status":"Handover Done","amrType":"10k","qty":2,"location":"Litchfield","typeOfSale":"Customer - New","poNumber":"4502031696","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-28","priority":""},{"key":"DEL-124","summary":"Samsung Monofork. 2 Nos","status":"commissioning","amrType":"Flex Fork (Monofork)","qty":2,"location":"Kanchipuram","typeOfSale":"Customer - New","poNumber":"2112444414","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-23","priority":""},{"key":"DEL-132","summary":"Owens Corning Pallet Mover Batch 1 - 4 nos","status":"Dispatch","amrType":"Pallet Mover","qty":4,"location":"Taloja","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2025-11-21","priority":"Highest"},{"key":"DEL-140","summary":"Owens Corning Pallet Mover Batch 2 - 4 nos","status":"Dispatch","amrType":"Pallet Mover","qty":4,"location":"Taloja","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2025-11-30","priority":"Highest"},{"key":"DEL-148","summary":"Tenneco Pueabla","status":"commissioning","amrType":"XT Lite","qty":1,"location":"Mexico","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":""},{"key":"DEL-156","summary":"Thailand Demo Pallet Mover","status":"Dispatch","amrType":"Pallet Mover","qty":1,"location":"","typeOfSale":"Internal","poNumber":"NA","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2025-11-30","priority":"Highest"},{"key":"DEL-164","summary":"Ceat Halol Batch 1 3 Sherpa Tug v3","status":"Handover Done","amrType":"Tug V3","qty":3,"location":"Ceat Halol","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-11","priority":""},{"key":"DEL-172","summary":"Ceat Halol 1 Sherpa XT","status":"Handover Done","amrType":"XT","qty":1,"location":"Halol, Gujarat","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-11","priority":""},{"key":"DEL-180","summary":"AutoLiv PalletMover 2 nos","status":"Dispatch","amrType":"Pallet Mover","qty":2,"location":"Bangalore","typeOfSale":"Customer - New","poNumber":"PO100324","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-10","priority":"Highest"},{"key":"DEL-188","summary":"Denso","status":"commissioning","amrType":"XT","qty":1,"location":"Nelamangla, Bangalore","typeOfSale":"Customer - New","poNumber":"ORN-00000655-40028","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-24","priority":""},{"key":"DEL-198","summary":"Royal Enfield Vallam 3 XT Lites","status":"Rejected","amrType":"XT Lite","qty":3,"location":"Vallam","typeOfSale":"Customer - Replacement","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-24","priority":""},{"key":"DEL-213","summary":"Meril Life Science ","status":"commissioning","amrType":"XT","qty":1,"location":"Vapi, Gujrat","typeOfSale":"Customer - New","poNumber":"9107002378","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-15","priority":""},{"key":"DEL-221","summary":"Sanmina, Chennai","status":"commissioning","amrType":"Lite","qty":2,"location":"SEZ unit, Orgadam, Sriperumbudur, Chennai","typeOfSale":"Customer - New","poNumber":"PK70P1341187, PK70P1341271","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-15","priority":""},{"key":"DEL-229","summary":"Sanmina, Chennai","status":"commissioning","amrType":"Lite","qty":1,"location":"SEZ unit, Orgadam, Sriperumbudur, Chennai","typeOfSale":"Customer - New","poNumber":"PK70P1341271","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-15","priority":""},{"key":"DEL-327","summary":"Electrolux","status":"Handover Done","amrType":"XT","qty":2,"location":"Thailand","typeOfSale":"Customer - New","poNumber":"PMF3-ETL2506-041","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-30","priority":""},{"key":"DEL-356","summary":"Tenneco Canada","status":"commissioning","amrType":"10k","qty":2,"location":"Canada","typeOfSale":"Customer - New","poNumber":"4502031696","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-30","priority":""},{"key":"DEL-379","summary":"Ati Eye || Daimler Chennai","status":"Request","amrType":"Others","qty":1,"location":"Chennai","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-10","priority":""},{"key":"DEL-388","summary":"Thailand Demo Sherpa XT","status":"Handover Done","amrType":"XT","qty":1,"location":"Thailand","typeOfSale":"Internal","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-30","priority":""},{"key":"DEL-396","summary":"Thailand Demo Sherpa XT Lite","status":"Handover Done","amrType":"XT Lite","qty":1,"location":"Thailand","typeOfSale":"Internal","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-30","priority":""},{"key":"DEL-404","summary":"Mexico Demo Pallet Mover","status":"Validation","amrType":"Pallet Mover","qty":1,"location":"Mexico","typeOfSale":"Internal","poNumber":"NA","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2025-11-30","priority":"Low"},{"key":"DEL-412","summary":"Ceat Halol Batch 2 - 4 Sherpa Tug v3","status":"commissioning","amrType":"Tug V3","qty":4,"location":"Ceat Halol","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-09-26","priority":""},{"key":"DEL-451","summary":"Schneider Attibele One Campus Sherpa 10K","status":"Validation","amrType":"10k","qty":1,"location":"Attibele","typeOfSale":"Customer - New","poNumber":"5004701907467","poDate":"2025-09-19","sowStatus":"","solutionEngineer":"Paras Miglani","dueDate":"2026-02-27","priority":""},{"key":"DEL-459","summary":"Schneider Attibele One Campus Pivot","status":"Under Procurement","amrType":"Flex Tug ( Pivot )","qty":1,"location":"Attibele","typeOfSale":"Customer - New","poNumber":"5004701907467","poDate":"2025-09-19","sowStatus":"Done and accepted","solutionEngineer":"Paras Miglani","dueDate":"2025-12-12","priority":""},{"key":"DEL-467","summary":"Siemens Goa","status":"Request","amrType":"","qty":2,"location":"Goa","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":""},{"key":"DEL-476","summary":"Auto-unhitch (15 Nos)","status":"Request","amrType":"","qty":0,"location":"Various","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-15","priority":""},{"key":"DEL-492","summary":"TVSM Hosur Tug V3","status":"Rejected","amrType":"Tug V3","qty":1,"location":"Hosur","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-18","priority":""},{"key":"DEL-500","summary":"Lifter 500 - Bosch Nagnathapura","status":"Handover Done","amrType":"Lifter 500","qty":1,"location":"Bengaluru","typeOfSale":"Customer - New","poNumber":"0087539215","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-18","priority":""},{"key":"DEL-508","summary":"Contitech Mexico Sherpa 10K 3 quantity ","status":"Dispatch","amrType":"10k","qty":3,"location":"Mexico ","typeOfSale":"Customer - New","poNumber":"45760326","poDate":"2025-09-29","sowStatus":"","solutionEngineer":"","dueDate":"2026-02-16","priority":""},{"key":"DEL-516","summary":"Sai Life Science Sherpa XT ","status":"Dispatch","amrType":"XT","qty":1,"location":"Bidar","typeOfSale":"Customer - New","poNumber":"2461268","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-22","priority":""},{"key":"DEL-533","summary":"Turbo Energy Sherpa XT 1 no","status":"Handover Done","amrType":"XT","qty":1,"location":"pulivalam ","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-10","priority":"High"},{"key":"DEL-541","summary":"Valeo Ati Eye + Tug v3","status":"Dispatch","amrType":"","qty":0,"location":"","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-551","summary":"Innovista Lifter || 5 Nos","status":"Dispatch","amrType":"Lifter 1000","qty":5,"location":"","typeOfSale":"Customer - New","poNumber":"05 K 160","poDate":"2025-10-18","sowStatus":"Done and accepted","solutionEngineer":"Pratik Pathak","dueDate":"2026-02-28","priority":"Medium"},{"key":"DEL-579","summary":"Schneider Electric Attibelle Lifter integration(Fall Check)","status":"Request","amrType":"Tug V3.5","qty":1,"location":"Attibelle","typeOfSale":"","poNumber":"4057701834632","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-10-31","priority":"Medium"},{"key":"DEL-588","summary":"Bosch Trolley 7 nos","status":"Dispatch","amrType":"Others","qty":7,"location":"Bosch Nagnathpura.","typeOfSale":"","poNumber":"0087541575","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-30","priority":"High"},{"key":"DEL-596","summary":"HUL Pondicherry 2 Lites Replacement","status":"Dispatch","amrType":"Lite","qty":2,"location":"Pondicherry","typeOfSale":"Customer - New","poNumber":"PO17092483","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-31","priority":"Medium"},{"key":"DEL-604","summary":"Tenneco Puebla - 1 XT Lite","status":"Dispatch","amrType":"Lite","qty":1,"location":"","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-15","priority":"Medium"},{"key":"DEL-612","summary":"Tenneco Puebla - 1 Pallet Mover","status":"Dispatch","amrType":"Pallet Mover","qty":1,"location":"Puebla Mexico","typeOfSale":"Customer - New","poNumber":"2464-4502042076","poDate":"2025-09-29","sowStatus":"","solutionEngineer":"","dueDate":"2026-02-16","priority":"Medium"},{"key":"DEL-620","summary":"Bekaert XT and XT-lite","status":"Dispatch","amrType":"","qty":2,"location":"Pune","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2026-01-15","priority":"High"},{"key":"DEL-630","summary":"We took back the Lite AMR from ARTPARK for refurbisment.Please start the process and let me know which are the prarts needs to be changed.","status":"Request","amrType":"Lite","qty":1,"location":"Art park bangalore","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-11-18","priority":"Medium"},{"key":"DEL-638","summary":"Yokohama 10K 6 nos","status":"Dispatch","amrType":"10k","qty":6,"location":"Dahej","typeOfSale":"Customer - New","poNumber":"4500031990","poDate":"2025-11-13","sowStatus":"Done and accepted","solutionEngineer":"Navneet Tripathi","dueDate":"2026-03-20","priority":"High"},{"key":"DEL-669","summary":"Flex Fork Engineering vehicle","status":"Approved","amrType":"Flex Fork (Monofork)","qty":1,"location":"Engineering Ati Motors","typeOfSale":"Internal","poNumber":"NA","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-31","priority":"Medium"},{"key":"DEL-677","summary":"Flex Tug Engineering vehicle","status":"Approved","amrType":"Flex Tug ( Pivot )","qty":1,"location":"Engineering Ati Motors","typeOfSale":"Internal","poNumber":"NA","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2025-12-31","priority":"Medium"},{"key":"DEL-685","summary":"Epiroc Mining 1 XT","status":"Dispatch","amrType":"XT","qty":1,"location":"","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-694","summary":"HUL Dapada Pallet Mover POC","status":"Dispatch","amrType":"Pallet Mover","qty":1,"location":"Dapada","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-15","priority":"Medium"},{"key":"DEL-702","summary":"Arcelor Mittal 2 Nos - 10K","status":"IQC","amrType":"10k","qty":2,"location":"Hazira","typeOfSale":"Customer - New","poNumber":"5300060859","poDate":"2026-03-04","sowStatus":"","solutionEngineer":"Balaji Jayakumar","dueDate":"2026-05-10","priority":"Medium"},{"key":"DEL-718","summary":"L&T Vadodara Sherpa 10K","status":"Vehicle Bringup","amrType":"10k","qty":1,"location":"Vadodara","typeOfSale":"Customer - New","poNumber":"01L021972","poDate":"2026-01-17","sowStatus":"Done and accepted","solutionEngineer":"","dueDate":"2026-03-20","priority":"Medium"},{"key":"DEL-726","summary":"Electrolux 10K replacement","status":"Mechanical Assembly","amrType":"10k","qty":3,"location":"Thailand","typeOfSale":"Customer - Replacement","poNumber":"NA","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-03-27","priority":"Medium"},{"key":"DEL-734","summary":"Daikin Thailand XT 1nos","status":"Dispatch","amrType":"XT","qty":1,"location":"Thailand","typeOfSale":"Customer - New","poNumber":"PMF3-TTFL-2511-019","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"High"},{"key":"DEL-742","summary":"Schneider Electric Dubai - 1 PM + AtiEye","status":"Rejected","amrType":"Pallet Mover","qty":1,"location":"Dubai","typeOfSale":"Customer - New","poNumber":"MSA Signed","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-750","summary":"Daikin Thailand 10K 1 nos","status":"Dispatch","amrType":"10k","qty":1,"location":"Thailand","typeOfSale":"Customer - New","poNumber":"PMF3-TTFL2602-016","poDate":"2026-02-24","sowStatus":"","solutionEngineer":"","dueDate":"2026-03-17","priority":"Medium"},{"key":"DEL-758","summary":"Sobha Dubai (5 XT Lite) - PO Not Received","status":"Validation","amrType":"XT Lite","qty":5,"location":"","typeOfSale":"Customer - New","poNumber":"Not Received","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-766","summary":"Lifter 500 - Bosch NNP (Phase 2) - PO Not yet received","status":"Approved","amrType":"Lifter 500","qty":1,"location":"Bosch Nagnathapura","typeOfSale":"Customer - New","poNumber":"Not Received","poDate":"","sowStatus":"Not Started","solutionEngineer":"","dueDate":"2026-03-20","priority":"Medium"},{"key":"DEL-774","summary":"Yazaki - Lifter 500 POC (Mecha Base) [PO not available]","status":"Rejected","amrType":"Lifter 500","qty":1,"location":"India","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-03-18","priority":"Medium"},{"key":"DEL-783","summary":"Orchid Technology Ahmedabad (Johnson Control)","status":"Rejected","amrType":"XT Lite","qty":1,"location":"Ahmedabad, Gujarat","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-31","priority":"High"},{"key":"DEL-791","summary":"Auto Unhitch for Orchid","status":"Rejected","amrType":"Others","qty":1,"location":"Ahmedabad , Gujarat","typeOfSale":"","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-799","summary":"HUL Sumerpur - POC (Sherpa Lite)","status":"Dispatch","amrType":"Lite","qty":1,"location":"Sumerpur","typeOfSale":"Customer - New","poNumber":"","poDate":"2026-01-13","sowStatus":"","solutionEngineer":"","dueDate":"2026-01-30","priority":"Medium"},{"key":"DEL-817","summary":"CEAT Halol Spare AMR(V3.5)","status":"Dispatch","amrType":"Tug V3","qty":1,"location":"","typeOfSale":"Customer - Replacement","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-02-28","priority":"High"},{"key":"DEL-825","summary":"Bosch NNP Swapping of spare v3 AMR with new XT lite.","status":"Dispatch","amrType":"XT Lite","qty":1,"location":"Bosch Nagnathapura","typeOfSale":"Customer - Replacement","poNumber":"NA","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-03-06","priority":"High"},{"key":"DEL-841","summary":"Pallet Mover (1 Nos) - Bosch Bidadi","status":"Validation","amrType":"Pallet Mover","qty":1,"location":"Bosch Bidadi","typeOfSale":"Customer - New","poNumber":"0087566444","poDate":"2026-03-11","sowStatus":"Done and accepted","solutionEngineer":"Suvrangshu Sen","dueDate":"2026-05-13","priority":"Medium"},{"key":"DEL-850","summary":"HUL Haldia 2 PMs POC for 3 Months","status":"Approved","amrType":"Pallet Mover","qty":2,"location":"HUL Haldia","typeOfSale":"Customer - New","poNumber":"PO17461321","poDate":"2026-02-23","sowStatus":"Done, Under correction","solutionEngineer":"Navneet Tripathi","dueDate":"2026-05-15","priority":"Medium"},{"key":"DEL-874","summary":"Bekaert Sherpa FlexTug","status":"Approved","amrType":"Flex Tug ( Pivot )","qty":1,"location":"Bekaert","typeOfSale":"Customer - New","poNumber":"G400262374","poDate":"2026-02-25","sowStatus":"Done, Under correction","solutionEngineer":"Navneet Tripathi","dueDate":"","priority":"Medium"},{"key":"DEL-883","summary":"Goodyear Haryana - Sherpa 10K","status":"Vehicle Bringup","amrType":"10k","qty":1,"location":"Ballabgarh , Haryana","typeOfSale":"Customer - New","poNumber":"PMF3-TTFL2602-016","poDate":"2026-02-19","sowStatus":"Done and accepted","solutionEngineer":"Balaji Jayakumar","dueDate":"2026-05-19","priority":"Medium"},{"key":"DEL-892","summary":"Yokohama 10K 4 nos ","status":"Approved","amrType":"10k","qty":4,"location":"Dahej","typeOfSale":"Customer - New","poNumber":"450032656","poDate":"2026-03-03","sowStatus":"Done, Under correction","solutionEngineer":"Navneet Tripathi","dueDate":"2026-06-03","priority":"Medium"},{"key":"DEL-901","summary":"Sobha Dubai - 4 PM [PO Not Yet Received]","status":"Approved","amrType":"Pallet Mover","qty":4,"location":"Dubai","typeOfSale":"Customer - New","poNumber":"Not Received","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"","priority":"Medium"},{"key":"DEL-916","summary":"Test ticket","status":"Dispatch","amrType":"Pallet Mover","qty":1,"location":"","typeOfSale":"","poNumber":"2346732467","poDate":"","sowStatus":"","solutionEngineer":"Rohit Unnithan","dueDate":"","priority":"Medium"},{"key":"DEL-1115","summary":"Saft America - Valdosta | Sherpa XT Lite x1 (RaaS)","status":"Rejected","amrType":"XT Lite","qty":1,"location":"","typeOfSale":"Customer - Replacement","poNumber":"735","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-06-30","priority":"Medium"},{"key":"DEL-1116","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright)","status":"Approved","amrType":"Pallet Mover","qty":4,"location":"","typeOfSale":"Customer - New","poNumber":"G400268124","poDate":"2026-03-25","sowStatus":"Done, Under correction","solutionEngineer":"Navneet Tripathi","dueDate":"2026-06-30","priority":"Medium"},{"key":"DEL-1133","summary":"Innovista Lifter || 1 No","status":"Approved","amrType":"Lifter 1000","qty":1,"location":"","typeOfSale":"Customer - New","poNumber":"05 K 160","poDate":"2025-10-18","sowStatus":"Done and accepted","solutionEngineer":"Pratik Pathak","dueDate":"2026-02-28","priority":"Medium"},{"key":"DEL-1171","summary":"Saft 10K","status":"Approved","amrType":"10k","qty":2,"location":"","typeOfSale":"Customer - New","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-06-19","priority":"Medium"},{"key":"DEL-1180","summary":"Tenneco Litchfield 10K","status":"Approved","amrType":"10k","qty":1,"location":"","typeOfSale":"Customer - Replacement","poNumber":"","poDate":"","sowStatus":"","solutionEngineer":"","dueDate":"2026-06-26","priority":"Medium"}];
+let RAW_ORDERS = [{"key": "DEL-1235", "summary": "Engineering Vehicle (04/26) | Pallet Mover", "status": "Dispatch", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-07-17"}, {"key": "DEL-1226", "summary": "Engineering Vehicle (04/26) | 10K", "status": "Dispatch", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-07-17"}, {"key": "DEL-1217", "summary": "Siemens Goa | Lifter 500", "status": "Approved", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-07-17"}, {"key": "DEL-1199", "summary": "HUL Dapada | Lifter 500", "status": "Approved", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-07-17"}, {"key": "DEL-1189", "summary": "Amazon, USA | Pallet Mover", "status": "Approved", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "2D-20895522", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-04-23"}, {"key": "DEL-1180", "summary": "Tenneco Litchfield 10K", "status": "Approved", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-06-26"}, {"key": "DEL-1171", "summary": "Saft 10K", "status": "Approved", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-06-19"}, {"key": "DEL-1133", "summary": "Innovista Lifter || 1 No", "status": "Approved", "priority": "Medium", "amrType": "Lifter 1000", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "05 K 160", "poDate": "2025-10-18", "sowStatus": "Done and accepted ", "solutionEngineer": "Pratik Pathak", "dueDate": "2026-02-28"}, {"key": "DEL-1116", "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright)", "status": "Approved", "priority": "Medium", "amrType": "Pallet Mover", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "G400268124", "poDate": "2026-03-25", "sowStatus": "Done, Under correction", "solutionEngineer": "Navneet Tripathi", "dueDate": "2026-06-30"}, {"key": "DEL-1115", "summary": "Saft America - Valdosta | Sherpa XT Lite x1 (RaaS)", "status": "Rejected", "priority": "Medium", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "735", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-06-30"}, {"key": "DEL-916", "summary": "Test ticket", "status": "Dispatch", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "2346732467", "poDate": "", "sowStatus": "", "solutionEngineer": "Rohit Unnithan", "dueDate": ""}, {"key": "DEL-901", "summary": "Sobha Dubai - 4 PM [PO Not Yet Received]", "status": "Approved", "priority": "Medium", "amrType": "Pallet Mover", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "Not Received", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-892", "summary": "Yokohama 10K 4 nos ", "status": "Approved", "priority": "Medium", "amrType": "10k", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "4500032656", "poDate": "2026-03-03", "sowStatus": "Done, Under correction", "solutionEngineer": "Navneet Tripathi", "dueDate": "2026-06-03"}, {"key": "DEL-883", "summary": "Goodyear Haryana - Sherpa 10K", "status": "Vehicle Bringup", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "RPM-HR/202/2025-26", "poDate": "2026-02-19", "sowStatus": "Done and accepted ", "solutionEngineer": "Balaji Jayakumar", "dueDate": "2026-05-19"}, {"key": "DEL-874", "summary": "Bekaert Sherpa FlexTug", "status": "Approved", "priority": "Medium", "amrType": "Flex Tug ( Pivot )", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "G400262374", "poDate": "2026-02-25", "sowStatus": "Done, Under correction", "solutionEngineer": "Navneet Tripathi", "dueDate": ""}, {"key": "DEL-850", "summary": "HUL Haldia 2 PMs POC for 3 Months", "status": "Vehicle Bringup", "priority": "Medium", "amrType": "Pallet Mover", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PO17461321", "poDate": "2026-02-23", "sowStatus": "Done, Under correction", "solutionEngineer": "Navneet Tripathi", "dueDate": "2026-05-15"}, {"key": "DEL-841", "summary": "Pallet Mover (1 Nos) - Bosch Bidadi", "status": "Validation", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "PO0087566444", "poDate": "2026-03-11", "sowStatus": "Done and accepted ", "solutionEngineer": "Suvrangshu Sen", "dueDate": "2026-05-13"}, {"key": "DEL-825", "summary": "Bosch NNP Swapping of spare v3 AMR with new XT lite.", "status": "Dispatch", "priority": "High", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "NA", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-03-06"}, {"key": "DEL-817", "summary": "CEAT Halol Spare AMR(V3.5)", "status": "Dispatch", "priority": "High", "amrType": "Tug V3", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-02-28"}, {"key": "DEL-799", "summary": "HUL Sumerpur - POC (Sherpa Lite)", "status": "Dispatch", "priority": "Medium", "amrType": "Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "2026-01-13", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-30"}, {"key": "DEL-791", "summary": "Auto Unhitch for Orchid", "status": "Rejected", "priority": "Medium", "amrType": "Others", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-783", "summary": "Orchid Technology Ahmedabad (Johnson Control)", "status": "Rejected", "priority": "High", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-31"}, {"key": "DEL-774", "summary": "Yazaki - Lifter 500 POC (Mecha Base) [PO not available]", "status": "Rejected", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-03-18"}, {"key": "DEL-766", "summary": "Bosch NNP (Phase 2) | Lifter 500", "status": "Approved", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "Not Received", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2026-03-20"}, {"key": "DEL-758", "summary": "Sobha Dubai (5 XT Lite) - PO Not Received", "status": "Validation", "priority": "Medium", "amrType": "XT Lite", "qty": 5, "location": "", "typeOfSale": "Customer - New", "poNumber": "Not Received", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-750", "summary": "Daikin Thailand 10K 1 nos", "status": "Dispatch", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "PMF3-TTFL2602-016", "poDate": "2026-02-24", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-03-17"}, {"key": "DEL-742", "summary": "Schneider Electric Dubai - 1 PM + AtiEye", "status": "Rejected", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "MSA Signed", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-734", "summary": "Daikin Thailand XT 1nos", "status": "Dispatch", "priority": "High", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "PMF3-TTFL-2511-019", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-726", "summary": "Electrolux 10K replacement", "status": "Mechanical Assembly", "priority": "Medium", "amrType": "10k", "qty": 3, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "NA", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-03-27"}, {"key": "DEL-718", "summary": "L&T Vadodara Sherpa 10K", "status": "Dispatch", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "01L021972", "poDate": "2026-01-17", "sowStatus": "Done and accepted ", "solutionEngineer": "", "dueDate": "2026-03-20"}, {"key": "DEL-702", "summary": "Arcelor Mittal 2 Nos - 10K", "status": "IQC", "priority": "Medium", "amrType": "10k", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "5300060859", "poDate": "2026-03-04", "sowStatus": "", "solutionEngineer": "Balaji Jayakumar", "dueDate": "2026-05-10"}, {"key": "DEL-694", "summary": "HUL Dapada Pallet Mover POC", "status": "Dispatch", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-15"}, {"key": "DEL-685", "summary": "Epiroc Mining 1 XT", "status": "Dispatch", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-677", "summary": "Flex Tug Engineering vehicle", "status": "Approved", "priority": "Medium", "amrType": "Flex Tug ( Pivot )", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "NA", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-31"}, {"key": "DEL-669", "summary": "Flex Fork Engineering vehicle", "status": "Approved", "priority": "Medium", "amrType": "Flex Fork (Monofork)", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "NA", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-31"}, {"key": "DEL-638", "summary": "Yokohama 10K 6 nos", "status": "Dispatch", "priority": "High", "amrType": "10k", "qty": 6, "location": "", "typeOfSale": "Customer - New", "poNumber": "4500031990", "poDate": "2025-11-13", "sowStatus": "Done and accepted ", "solutionEngineer": "Navneet Tripathi", "dueDate": "2026-03-20"}, {"key": "DEL-630", "summary": "We took back the Lite AMR from ARTPARK for refurbisment.Please start the process and let me know which are the prarts needs to be changed.", "status": "Request", "priority": "Medium", "amrType": "Lite", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-18"}, {"key": "DEL-620", "summary": "Bekaert XT and XT-lite", "status": "Dispatch", "priority": "High", "amrType": "", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "G400242441", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2026-01-15"}, {"key": "DEL-612", "summary": "Tenneco Puebla - 1 Pallet Mover", "status": "Dispatch", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "2464-4502042076", "poDate": "2025-09-29", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-02-16"}, {"key": "DEL-604", "summary": "Tenneco Puebla - 1 XT Lite", "status": "Dispatch", "priority": "Medium", "amrType": "Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-15"}, {"key": "DEL-596", "summary": "HUL Pondicherry 2 Lites Replacement", "status": "Dispatch", "priority": "Medium", "amrType": "Lite", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PO17092483", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-31"}, {"key": "DEL-588", "summary": "Bosch Trolley 7 nos", "status": "Dispatch", "priority": "High", "amrType": "Others", "qty": 7, "location": "", "typeOfSale": "", "poNumber": "0087541575", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-579", "summary": "Schneider Electric Attibelle Lifter integration(Fall Check)", "status": "Request", "priority": "Medium", "amrType": "Tug V3.5", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "4057701834632", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-31"}, {"key": "DEL-551", "summary": "Innovista Lifter || 5 Nos", "status": "Dispatch", "priority": "Medium", "amrType": "Lifter 1000", "qty": 5, "location": "", "typeOfSale": "Customer - New", "poNumber": "05 K 160", "poDate": "2025-10-18", "sowStatus": "Done and accepted ", "solutionEngineer": "Pratik Pathak", "dueDate": "2026-02-28"}, {"key": "DEL-541", "summary": "Valeo Ati Eye + Tug v3", "status": "Dispatch", "priority": "Medium", "amrType": "", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-533", "summary": "Turbo Energy Sherpa XT 1 no", "status": "Handover Done", "priority": "High", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "680049103", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-10"}, {"key": "DEL-516", "summary": "Sai Life Science Sherpa XT ", "status": "Dispatch", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "2461268", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-22"}, {"key": "DEL-508", "summary": "Contitech Mexico Sherpa 10K 3 quantity ", "status": "Dispatch", "priority": "Medium", "amrType": "10k", "qty": 3, "location": "", "typeOfSale": "Customer - New", "poNumber": "45760326", "poDate": "2025-09-29", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-02-16"}, {"key": "DEL-500", "summary": "Lifter 500 - Bosch Nagnathapura", "status": "Handover Done", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "0087539215", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-18"}, {"key": "DEL-492", "summary": "TVSM Hosur Tug V3", "status": "Rejected", "priority": "Medium", "amrType": "Tug V3", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-18"}, {"key": "DEL-476", "summary": "Auto-unhitch (15 Nos)", "status": "Request", "priority": "Medium", "amrType": "", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-15"}, {"key": "DEL-467", "summary": "Siemens Goa", "status": "Request", "priority": "Medium", "amrType": "", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-459", "summary": "Schneider Attibele One Campus Pivot", "status": "Under Procurement", "priority": "Medium", "amrType": "Flex Tug ( Pivot )", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "‍5004701907467‎", "poDate": "2025-09-19", "sowStatus": "Done and accepted ", "solutionEngineer": "Paras Miglani", "dueDate": "2025-12-12"}, {"key": "DEL-451", "summary": "Schneider Attibele One Campus Sherpa 10K", "status": "Validation", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "5004701907467", "poDate": "2025-09-19", "sowStatus": "", "solutionEngineer": "Paras Miglani", "dueDate": "2026-02-27"}, {"key": "DEL-412", "summary": "Ceat Halol Batch 2 - 4 Sherpa Tug v3", "status": "commissioning", "priority": "Medium", "amrType": "Tug V3", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-26"}, {"key": "DEL-404", "summary": "Autonomy-Amazon use Case test", "status": "Dispatch", "priority": "Low", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "NA", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-396", "summary": "Thailand Demo Sherpa XT Lite", "status": "Handover Done", "priority": "Medium", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-388", "summary": "Thailand Demo Sherpa XT", "status": "Handover Done", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-379", "summary": "Ati Eye || Daimler Chennai", "status": "Request", "priority": "Medium", "amrType": "Others", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-10"}, {"key": "DEL-356", "summary": "Tenneco Canada", "status": "commissioning", "priority": "Medium", "amrType": "10k", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "4502031696", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-30"}, {"key": "DEL-327", "summary": "Electrolux", "status": "Handover Done", "priority": "Medium", "amrType": "XT", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PMF3-ETL2506-041", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-30"}, {"key": "DEL-229", "summary": "Sanmina, Chennai", "status": "commissioning", "priority": "Medium", "amrType": "Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "PK70P1341271", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-15"}, {"key": "DEL-221", "summary": "Sanmina, Chennai", "status": "commissioning", "priority": "Medium", "amrType": "Lite", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PK70P1341187, PK70P1341271", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-15"}, {"key": "DEL-213", "summary": "Meril Life Science ", "status": "commissioning", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "9107002378", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-15"}, {"key": "DEL-198", "summary": "Royal Enfield Vallam 3 XT Lites", "status": "Rejected", "priority": "Medium", "amrType": "XT Lite", "qty": 3, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-24"}, {"key": "DEL-188", "summary": "Denso", "status": "commissioning", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "ORN-00000655-40028", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-24"}, {"key": "DEL-180", "summary": "AutoLiv PalletMover 2 nos", "status": "Dispatch", "priority": "Highest", "amrType": "Pallet Mover", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PO100324", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-10"}, {"key": "DEL-172", "summary": "Ceat Halol 1 Sherpa XT", "status": "Handover Done", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-11"}, {"key": "DEL-164", "summary": "Ceat Halol Batch 1 3 Sherpa Tug v3", "status": "Handover Done", "priority": "Medium", "amrType": "Tug V3", "qty": 3, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-11"}, {"key": "DEL-156", "summary": "Thailand Demo Pallet Mover", "status": "Dispatch", "priority": "Highest", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "NA", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-148", "summary": "Tenneco Pueabla", "status": "commissioning", "priority": "Medium", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-140", "summary": "Owens Corning Pallet Mover Batch 2 - 4 nos", "status": "Dispatch", "priority": "Highest", "amrType": "Pallet Mover", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-132", "summary": "Owens Corning Pallet Mover Batch 1 - 4 nos", "status": "Dispatch", "priority": "Highest", "amrType": "Pallet Mover", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2025-11-21"}, {"key": "DEL-124", "summary": "Samsung Monofork. 2 Nos", "status": "commissioning", "priority": "Medium", "amrType": "Flex Fork (Monofork)", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "2112444414", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-23"}, {"key": "DEL-108", "summary": "Tenneco Litchfield Sherpa 10K 2nos", "status": "Handover Done", "priority": "Medium", "amrType": "10k", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "4502031696", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-28"}];
 
 // ── BUILD AMR FILTER ──────────────────────────────────────────────────────
 function buildAMRFilter() {
@@ -1340,7 +1608,6 @@ function renderChart(activeOrders) {
     type: 'bar',
     data: { labels, datasets },
     options: {
-      indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
       animation: { duration: 300 },
@@ -1355,28 +1622,31 @@ function renderChart(activeOrders) {
           padding: 10,
           callbacks: {
             title: ctx => ctx[0].label.replace('⚠ ', '⚠  '),
-            label: ctx => '  ' + ctx.dataset.label + ': ' + ctx.parsed.x + ' unit' + (ctx.parsed.x !== 1 ? 's' : ''),
+            label: ctx => '  ' + ctx.dataset.label + ': ' + ctx.parsed.y + ' unit' + (ctx.parsed.y !== 1 ? 's' : ''),
           }
         }
       },
       scales: {
         x: {
           stacked: true,
-          grid:   { color: 'rgba(45,54,72,0.6)' },
-          ticks:  { color: '#5a6678', font: { family: 'Space Mono', size: 10 }, stepSize: 1 },
-          border: { color: '#232a35' },
-        },
-        y: {
-          stacked: true,
           grid:   { display: false },
           ticks:  {
             color: ctx => ctx.tick.label.startsWith('⚠') ? '#ff4d6d' : '#a8b4c4',
             font: { family: 'Syne', size: 11, weight: '600' },
+            maxRotation: 45,
+            minRotation: 30,
           },
+          border: { color: '#232a35' },
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          grid:   { color: 'rgba(45,54,72,0.6)' },
+          ticks:  { color: '#5a6678', font: { family: 'Space Mono', size: 10 }, stepSize: 1 },
           border: { color: '#232a35' },
         }
       },
-      layout: { padding: { right: 8 } }
+      layout: { padding: { top: 8 } }
     }
   });
 }
@@ -1558,7 +1828,908 @@ function init() {
 // ═══════════════════════════════════════════════════════════════════════════
 // BUILD ROLLING FORECAST DATA + LOGIC
 // ═══════════════════════════════════════════════════════════════════════════
-const RAW_MOS = [{"key":"MOM-2","summary":"Meri Life Science - Vapi","status":"Done","amrType":"Sherpa XT","serial":"XT 11","dueDate":"2025-10-31","plan":"2025-10","delKey":""},{"key":"MOM-3","summary":"Denso Kirloskar - Bangalore","status":"Done","amrType":"Sherpa XT","serial":"XT 16","dueDate":"2025-10-25","plan":"2025-10","delKey":"DEL-188"},{"key":"MOM-4","summary":"Thailand Demo","status":"Done","amrType":"Sherpa XT","serial":"XT 01","dueDate":"2025-11-05","plan":"2025-10","delKey":""},{"key":"MOM-5","summary":"Turbo Energy - Pulivalam","status":"Done","amrType":"Sherpa XT","serial":"XT 19","dueDate":"2025-11-10","plan":"2025-11","delKey":"DEL-533"},{"key":"MOM-6","summary":"Sai Life Sciences - Hyderabad","status":"Done","amrType":"Sherpa XT","serial":"XT 21","dueDate":"2025-12-24","plan":"2025-12","delKey":""},{"key":"MOM-7","summary":"Schneider Electric_ One Campus_ Attibele","status":"Validation","amrType":"Sherpa 10K","serial":"10K 16","dueDate":"2026-02-28","plan":"2026-02","delKey":"DEL-451"},{"key":"MOM-8","summary":"Yokohama Dahej -4","status":"Done","amrType":"Sherpa 10K","serial":"10K 14","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-9","summary":"Yokohama Dahej -3","status":"Done","amrType":"Sherpa 10K","serial":"10K 13","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-10","summary":"Yokohama Dahej -6","status":"Done","amrType":"Sherpa 10K","serial":"10K 15","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-11","summary":"Yokohama Dahej -5","status":"Done","amrType":"Sherpa 10K","serial":"10K 10","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-12","summary":"Yokohama Dahej -1","status":"Done","amrType":"Sherpa 10K","serial":"10K 11","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-13","summary":"Bekaert Industries -Pune","status":"Done","amrType":"Sherpa XT","serial":"XT 22","dueDate":"2026-01-15","plan":"2026-01","delKey":""},{"key":"MOM-14","summary":"Epiroc Mining- Nashik","status":"Done","amrType":"Sherpa XT","serial":"XT 20","dueDate":"2026-01-24","plan":"2026-01","delKey":""},{"key":"MOM-15","summary":"Daikin Compressor - Thailand","status":"Done","amrType":"Sherpa XT","serial":"XT 23 ","dueDate":"2026-02-06","plan":"2026-02","delKey":""},{"key":"MOM-19","summary":"Mexico Demo","status":"Done","amrType":"Sherpa XT Lite","serial":"XT lite 17","dueDate":"2025-10-31","plan":"2025-11","delKey":""},{"key":"MOM-20","summary":"Tenneco Puebla","status":"Done","amrType":"Sherpa XT Lite","serial":"XT Lite 17","dueDate":"2026-01-23","plan":"2026-01","delKey":""},{"key":"MOM-25","summary":"Bekaert Industries -Pune","status":"Done","amrType":"Sherpa XT Lite","serial":"XT Lite 19","dueDate":"2026-01-09","plan":"2025-12","delKey":""},{"key":"MOM-26","summary":"Owens Corning -1","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 01","dueDate":"2025-10-30","plan":"2025-11","delKey":"DEL-132"},{"key":"MOM-27","summary":"Owens Corning -2","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 02","dueDate":"2025-10-30","plan":"2025-11","delKey":"DEL-132"},{"key":"MOM-28","summary":"Owens Corning -3","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 04","dueDate":"2025-10-21","plan":"2025-11","delKey":"DEL-132"},{"key":"MOM-29","summary":"Owens Corning -4","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 03","dueDate":"2025-10-30","plan":"2025-11","delKey":"DEL-132"},{"key":"MOM-30","summary":"Owens Corning -5","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 05","dueDate":"2025-12-25","plan":"2025-12","delKey":"DEL-140"},{"key":"MOM-31","summary":"Owens Corning -6","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 06","dueDate":"2025-12-25","plan":"2025-12","delKey":"DEL-140"},{"key":"MOM-32","summary":"Owens Corning -7","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 07","dueDate":"2025-12-25","plan":"2025-12","delKey":"DEL-140"},{"key":"MOM-33","summary":"Owens Corning -8","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 09 ","dueDate":"2025-12-25","plan":"2025-12","delKey":"DEL-140"},{"key":"MOM-36","summary":"USA Demo","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 14","dueDate":"2026-03-19","plan":"2026-03","delKey":""},{"key":"MOM-37","summary":"Thailand Demo","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 08","dueDate":"2026-01-08","plan":"2025-12","delKey":""},{"key":"MOM-39","summary":"Engineering","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 10","dueDate":"2026-01-09","plan":"2026-01","delKey":""},{"key":"MOM-40","summary":"Tenneco - Puebla","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 12","dueDate":"2026-01-27","plan":"2026-01","delKey":""},{"key":"MOM-43","summary":"HUL - Pondicherry","status":"Done","amrType":"Sherpa Lite","serial":"Lite 38","dueDate":"2025-12-22","plan":"2025-12","delKey":""},{"key":"MOM-44","summary":"HUL - Pondicherry","status":"Done","amrType":"Sherpa Lite","serial":"Lite 37","dueDate":"2025-12-22","plan":"2025-12","delKey":""},{"key":"MOM-45","summary":"Tenneco - Litchfield MI","status":"Done","amrType":"Sherpa 10K","serial":"10K 01","dueDate":"2025-12-15","plan":"2025-12","delKey":""},{"key":"MOM-46","summary":"Tenneco - Litchfield MI","status":"Done","amrType":"Sherpa 10K","serial":"10K 02","dueDate":"2025-12-15","plan":"2025-12","delKey":""},{"key":"MOM-47","summary":"Tenneco - Canada","status":"Done","amrType":"Sherpa 10K","serial":"10K 05","dueDate":"2026-01-10","plan":"2025-12","delKey":""},{"key":"MOM-48","summary":"Tenneco - Canada","status":"Done","amrType":"Sherpa 10K","serial":"10K 04","dueDate":"2026-01-10","plan":"2025-12","delKey":""},{"key":"MOM-49","summary":"Daikin Thailand ","status":"Done","amrType":"Sherpa 10K","serial":"10k 08","dueDate":"2026-03-18","plan":"2026-01","delKey":"DEL-451"},{"key":"MOM-50","summary":"ContiTech SLP","status":"Done","amrType":"Sherpa 10K","serial":"10K 07","dueDate":"2026-01-30","plan":"2026-01","delKey":""},{"key":"MOM-51","summary":"ContiTech SLP","status":"Done","amrType":"Sherpa 10K","serial":"10K 06","dueDate":"2026-01-30","plan":"2026-01","delKey":""},{"key":"MOM-52","summary":"ContiTech SLP","status":"Done","amrType":"Sherpa 10K","serial":"10K 03","dueDate":"2026-01-30","plan":"2026-01","delKey":""},{"key":"MOM-53","summary":"Yokohama Dahej -2","status":"Done","amrType":"Sherpa 10K","serial":"10K 12","dueDate":"2026-02-27","plan":"2026-02","delKey":"DEL-638"},{"key":"MOM-54","summary":"L& T vadodra","status":"Validation","amrType":"Sherpa 10K","serial":"10K 17","dueDate":"2026-03-26","plan":"2026-03","delKey":"DEL-718"},{"key":"MOM-55","summary":"Innovista Automation - Kolhapur-1","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1k 01","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-56","summary":"Innovista Automation - Kolhapur-2","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 02","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-57","summary":"Innovista Automation - Kolhapur-3","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 03","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-58","summary":"Innovista Automation - Kolhapur-4","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 04","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-59","summary":"Innovista Automation - Kolhapur-5","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 05","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-551"},{"key":"MOM-60","summary":"Innovista Automation - Kolhapur-6","status":"Done","amrType":"Sherpa Lifter","serial":"Lifter 1K 06","dueDate":"2026-02-25","plan":"2026-02","delKey":"DEL-1133"},{"key":"MOM-61","summary":"BOSCH-Naganathapura","status":"Done","amrType":"Sherpa Lifter 500","serial":"Lifter 500","dueDate":"2026-01-05","plan":"2025-12","delKey":""},{"key":"MOM-67","summary":"ArcelorMittal Nippon Steel India-1","status":"Mechanical Assembly","amrType":"Sherpa 10K","serial":"10K 19","dueDate":"2026-05-29","plan":"2026-04","delKey":"DEL-702"},{"key":"MOM-68","summary":"ArcelorMittal Nippon Steel India-2","status":"MRS Raised","amrType":"Sherpa 10K","serial":"10K 20","dueDate":"2026-05-29","plan":"2026-04","delKey":"DEL-702"},{"key":"MOM-73","summary":"Hindustan Unilever Limited - HUL","status":"To Do","amrType":"Sherpa Lifter 500","serial":"Lifter 500","dueDate":"2026-04-13","plan":"2026-04","delKey":""},{"key":"MOM-76","summary":"HUL-Dapada POC","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 13","dueDate":"2026-01-10","plan":"2026-01","delKey":""},{"key":"MOM-77","summary":"Mahle Filters_ Manesar_ POC","status":"MRS Raised","amrType":"Sherpa Pallet Mover","serial":"PM 20","dueDate":"2026-04-13","plan":"2026-04","delKey":""},{"key":"MOM-78","summary":"Britannia Industries","status":"Validation","amrType":"Sherpa XT Lite","serial":"XT Lite 18","dueDate":"2026-03-31","plan":"2026-03","delKey":""},{"key":"MOM-80","summary":"Shoba-Dubai-1","status":"Validation","amrType":"Sherpa XT Lite","serial":"XT Lite 21","dueDate":"2026-03-28","plan":"2026-03","delKey":"DEL-758"},{"key":"MOM-81","summary":"Shoba-Dubai-2","status":"Validation","amrType":"Sherpa XT Lite","serial":"XT Lite 22","dueDate":"2026-03-28","plan":"2026-03","delKey":"DEL-758"},{"key":"MOM-82","summary":"Shoba-Dubai-3","status":"Validation","amrType":"Sherpa XT Lite","serial":"XT Lite 23","dueDate":"2026-03-28","plan":"2026-03","delKey":"DEL-758"},{"key":"MOM-83","summary":"Electrolux Thailand-2","status":"To Do","amrType":"Sherpa 10K","serial":"10K 21","dueDate":"2026-04-09","plan":"2026-04","delKey":"DEL-726"},{"key":"MOM-84","summary":"Electrolux Thailand-3","status":"To Do","amrType":"Sherpa 10K","serial":"10K 22","dueDate":"2026-04-09","plan":"2026-04","delKey":"DEL-726"},{"key":"MOM-90","summary":"HUL Sumerpur","status":"Done","amrType":"Sherpa Lite","serial":"Lite 33","dueDate":"2026-02-12","plan":"2026-02","delKey":""},{"key":"MOM-91","summary":"10k-Buffer-1","status":"To Do","amrType":"Sherpa 10K","serial":"10K 23","dueDate":"2026-02-28","plan":"2026-05","delKey":""},{"key":"MOM-92","summary":"10k Buffer-2","status":"To Do","amrType":"Sherpa 10K","serial":"10K 25","dueDate":"2026-03-31","plan":"2026-05","delKey":""},{"key":"MOM-93","summary":"10K Buffer-3","status":"To Do","amrType":"Sherpa 10K","serial":"10k 24","dueDate":"2026-03-31","plan":"2026-05","delKey":""},{"key":"MOM-94","summary":"PM Buffer-1","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 26","dueDate":"2026-04-22","plan":"2026-05","delKey":""},{"key":"MOM-95","summary":"PM Buffer-2","status":"Validation","amrType":"Sherpa Pallet Mover","serial":"PM 17","dueDate":"2026-02-28","plan":"2026-03","delKey":""},{"key":"MOM-96","summary":"PM Buffer-3","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 21","dueDate":"2026-02-28","plan":"2026-03","delKey":""},{"key":"MOM-97","summary":"Shoba-Dubai-4","status":"vehicle Bringup","amrType":"Sherpa XT Lite","serial":"XT Lite 24","dueDate":"2026-04-22","plan":"2026-04","delKey":"DEL-758"},{"key":"MOM-98","summary":"Shoba-Dubai-5","status":"To Do","amrType":"Sherpa XT Lite","serial":"XT Lite 25","dueDate":"2026-04-22","plan":"2026-04","delKey":"DEL-758"},{"key":"MOM-99","summary":"Bosch Bidadi ","status":"Validation","amrType":"Sherpa Pallet Mover","serial":"PM 16","dueDate":"2026-04-29","plan":"2026-04","delKey":"DEL-841"},{"key":"MOM-101","summary":"HUL Haldia-1","status":"Validation","amrType":"Sherpa Pallet Mover","serial":"PM 18","dueDate":"2026-05-15","plan":"2026-04","delKey":"DEL-850"},{"key":"MOM-102","summary":"HUL Haldia-2","status":"MRS Raised","amrType":"Sherpa Pallet Mover","serial":"PM 19","dueDate":"2026-05-15","plan":"2026-04","delKey":"DEL-850"},{"key":"MOM-103","summary":"Shobha-Dubai-1","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 22","dueDate":"2026-04-24","plan":"2026-04","delKey":"DEL-901"},{"key":"MOM-104","summary":"Shoba-Dubai-2","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 23","dueDate":"2026-04-25","plan":"2026-04","delKey":"DEL-901"},{"key":"MOM-105","summary":"Shoba-Dubai-3","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 24","dueDate":"2026-04-26","plan":"2026-04","delKey":"DEL-901"},{"key":"MOM-106","summary":"Shoba-Dubai-4","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 25","dueDate":"2026-04-27","plan":"2026-04","delKey":"DEL-901"},{"key":"MOM-107","summary":"Mexico Demo XT-lite","status":"To Do","amrType":"Sherpa XT Lite","serial":"XT Lite 26","dueDate":"2026-05-08","plan":"2026-05","delKey":""},{"key":"MOM-108","summary":"Mexico Demo 10 K","status":"To Do","amrType":"Sherpa 10K","serial":"10K 26","dueDate":"2026-05-12","plan":"2026-05","delKey":""},{"key":"MOM-109","summary":"Ceat Halol Spare AMR","status":"Done","amrType":"Sherpa Tug","serial":"Tug 88","dueDate":"2026-03-13","plan":"2026-03","delKey":""},{"key":"MOM-110","summary":"Bosch NNpura Spare","status":"Done","amrType":"Sherpa XT Lite","serial":"XT lite 06","dueDate":"2026-03-06","plan":"2026-03","delKey":"DEL-825"},{"key":"MOM-111","summary":"Goodyear ","status":"Validation","amrType":"Sherpa 10K","serial":"10K 09","dueDate":"2026-03-20","plan":"2026-03","delKey":"DEL-883"},{"key":"MOM-112","summary":"Validation (Paul)","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 11","dueDate":"2025-12-01","plan":"2026-02","delKey":""},{"key":"MOM-113","summary":"Dana Anand-1","status":"To Do","amrType":"Sherpa XT Lite","serial":"XT Lite 27","dueDate":"2026-04-30","plan":"2026-04","delKey":""},{"key":"MOM-114","summary":"Dana Anand-2","status":"To Do","amrType":"Sherpa XT Lite","serial":"XT Lite 28","dueDate":"2026-04-30","plan":"2026-04","delKey":""},{"key":"MOM-116","summary":"Yokohoma Dahej-7","status":"To Do","amrType":"Sherpa 10K","serial":"10K 27","dueDate":"2026-03-04","plan":"2026-05","delKey":"DEL-892"},{"key":"MOM-117","summary":"Yokohoma Dahej-9","status":"To Do","amrType":"Sherpa 10K","serial":"10K 28","dueDate":"2026-03-06","plan":"2026-05","delKey":"DEL-892"},{"key":"MOM-118","summary":"Yokohoma Dahej-8","status":"To Do","amrType":"Sherpa 10K","serial":"10K 29","dueDate":"2026-03-05","plan":"2026-05","delKey":"DEL-892"},{"key":"MOM-119","summary":"Yokohoma Dahej-10","status":"To Do","amrType":"Sherpa 10K","serial":"10K 30","dueDate":"2026-06-05","plan":"2026-05","delKey":"DEL-892"},{"key":"MOM-120","summary":"Turbo energy","status":"To Do","amrType":"Sherpa 10K","serial":"10K 31","dueDate":"2026-05-08","plan":"2026-05","delKey":""},{"key":"MOM-121","summary":"Bekaert","status":"To Do","amrType":"Sherpa Pivot","serial":"Pivot 03","dueDate":"2026-04-20","plan":"2026-04","delKey":"DEL-874"},{"key":"MOM-123","summary":"Electrolux Thailand-1","status":"vehicle Bringup","amrType":"Sherpa 10K","serial":"10K 18","dueDate":"2026-04-15","plan":"2026-04","delKey":"DEL-726"},{"key":"MOM-125","summary":"Mexico Demo","status":"Done","amrType":"Sherpa Pallet Mover","serial":"PM 15","dueDate":"2026-03-27","plan":"2026-03","delKey":""},{"key":"MOM-199","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) — 1 of 4.0","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 27","dueDate":"2026-06-30","plan":"2026-06","delKey":"DEL-1116"},{"key":"MOM-200","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) — 4 of 4.0","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 28","dueDate":"2026-06-30","plan":"2026-06","delKey":"DEL-1116"},{"key":"MOM-201","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) — 3 of 4.0","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 29","dueDate":"2026-06-30","plan":"2026-06","delKey":"DEL-1116"},{"key":"MOM-202","summary":"Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) — 2 of 4.0","status":"To Do","amrType":"Sherpa Pallet Mover","serial":"PM 30","dueDate":"2026-06-30","plan":"2026-06","delKey":"DEL-1116"},{"key":"MOM-208","summary":"Tenneco Litchfield 10K — 1 of 1.0","status":"To Do","amrType":"","serial":"","dueDate":"2026-06-26","plan":"2025-12","delKey":"DEL-1180"},{"key":"MOM-209","summary":"Saft 10K — 2 of 2.0","status":"To Do","amrType":"","serial":"","dueDate":"2026-06-19","plan":"2025-12","delKey":"DEL-1171"},{"key":"MOM-210","summary":"Saft 10K — 1 of 2.0","status":"To Do","amrType":"","serial":"","dueDate":"2026-06-19","plan":"2025-12","delKey":"DEL-1171"}];
+const RAW_MOS = [
+  {
+    "key": "MOM-216",
+    "summary": "Bosch NNP (Phase 2) | Lifter 500 \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "",
+    "serial": "",
+    "dueDate": "2026-03-20",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-215",
+    "summary": "Siemens Goa | Lifter 500 \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "",
+    "serial": "",
+    "dueDate": "2026-07-17",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-214",
+    "summary": "HUL Dapada | Lifter 500 \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "",
+    "serial": "",
+    "dueDate": "2026-07-17",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-213",
+    "summary": "Engineering Vehicle (04/26) | Pallet Mover \u2014 1 of 1.0",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM-15",
+    "dueDate": "2026-04-15",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-212",
+    "summary": "Engineering Vehicle (04/26) | 10K \u2014 1 of 1.0",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 16",
+    "dueDate": "2026-04-15",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-211",
+    "summary": "Amazon, USA | Pallet Mover \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "",
+    "dueDate": "2026-04-23",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-210",
+    "summary": "Saft 10K \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "",
+    "dueDate": "2026-06-19",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-208",
+    "summary": "Tenneco Litchfield 10K \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "",
+    "dueDate": "2026-06-26",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-202",
+    "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) \u2014 2 of 4.0",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 30",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-201",
+    "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) \u2014 3 of 4.0",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 29",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-200",
+    "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) \u2014 4 of 4.0",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 28",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-199",
+    "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) \u2014 1 of 4.0",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 27",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-125",
+    "summary": "Mexico Demo",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 15",
+    "dueDate": "2026-03-27",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-123",
+    "summary": "Electrolux Thailand-1",
+    "status": "Validation",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 18",
+    "dueDate": "2026-04-15",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-121",
+    "summary": "Bekaert",
+    "status": "To Do",
+    "amrType": "Sherpa Pivot",
+    "serial": "Pivot 03",
+    "dueDate": "2026-04-20",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-120",
+    "summary": "Turbo energy",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 31",
+    "dueDate": "2026-05-08",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-119",
+    "summary": "Yokohoma Dahej-10",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 30",
+    "dueDate": "2026-06-05",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-118",
+    "summary": "Yokohoma Dahej-8",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 29",
+    "dueDate": "2026-03-05",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-117",
+    "summary": "Yokohoma Dahej-9",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 28",
+    "dueDate": "2026-03-06",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-116",
+    "summary": "Yokohoma Dahej-7",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 27",
+    "dueDate": "2026-03-04",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-114",
+    "summary": "Dana Anand-2",
+    "status": "To Do",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 28",
+    "dueDate": "2026-04-30",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-113",
+    "summary": "Dana Anand-1",
+    "status": "To Do",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 27",
+    "dueDate": "2026-04-30",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-112",
+    "summary": "Validation (Paul)",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 11",
+    "dueDate": "2025-12-01",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-111",
+    "summary": "Goodyear ",
+    "status": "Validation",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 17",
+    "dueDate": "2026-03-20",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-110",
+    "summary": "Bosch NNpura Spare",
+    "status": "Done",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT lite 06",
+    "dueDate": "2026-03-06",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-109",
+    "summary": "Ceat Halol Spare AMR",
+    "status": "Done",
+    "amrType": "Sherpa Tug",
+    "serial": "Tug 88",
+    "dueDate": "2026-03-13",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-108",
+    "summary": "Mexico Demo 10 K",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 26",
+    "dueDate": "2026-05-12",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-107",
+    "summary": "Mexico Demo XT-lite",
+    "status": "To Do",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 26",
+    "dueDate": "2026-05-08",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-106",
+    "summary": "Shoba-Dubai-4",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 25",
+    "dueDate": "2026-04-27",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-105",
+    "summary": "Shoba-Dubai-3",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 24",
+    "dueDate": "2026-04-26",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-104",
+    "summary": "Shoba-Dubai-2",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 23",
+    "dueDate": "2026-04-25",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-103",
+    "summary": "Shobha-Dubai-1",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 22",
+    "dueDate": "2026-04-24",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-102",
+    "summary": "HUL Haldia-2",
+    "status": "MRS Raised",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 19",
+    "dueDate": "2026-05-15",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-101",
+    "summary": "HUL Haldia-1",
+    "status": "Validation",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 18",
+    "dueDate": "2026-05-15",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-99",
+    "summary": "Bosch Bidadi ",
+    "status": "Validation",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 16",
+    "dueDate": "2026-04-29",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-98",
+    "summary": "Shoba-Dubai-5",
+    "status": "To Do",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 25",
+    "dueDate": "2026-04-22",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-97",
+    "summary": "Shoba-Dubai-4",
+    "status": "vehicle Bringup",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 24",
+    "dueDate": "2026-04-22",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-96",
+    "summary": "PM Buffer-3",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 21",
+    "dueDate": "2026-02-28",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-95",
+    "summary": "PM Buffer-2",
+    "status": "Validation",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 17",
+    "dueDate": "2026-02-28",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-94",
+    "summary": "PM Buffer-1",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 26",
+    "dueDate": "2026-04-22",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-93",
+    "summary": "10K Buffer-3",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10k 24",
+    "dueDate": "2026-03-31",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-92",
+    "summary": "10k Buffer-2",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 25",
+    "dueDate": "2026-03-31",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-91",
+    "summary": "10k-Buffer-1",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 23",
+    "dueDate": "2026-02-28",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-90",
+    "summary": "HUL Sumerpur",
+    "status": "Done",
+    "amrType": "Sherpa Lite",
+    "serial": "Lite 33",
+    "dueDate": "2026-02-12",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-84",
+    "summary": "Electrolux Thailand-3",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 22",
+    "dueDate": "2026-04-09",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-83",
+    "summary": "Electrolux Thailand-2",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 21",
+    "dueDate": "2026-04-09",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-82",
+    "summary": "Shoba-Dubai-3",
+    "status": "Validation",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 23",
+    "dueDate": "2026-03-28",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-81",
+    "summary": "Shoba-Dubai-2",
+    "status": "Validation",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 22",
+    "dueDate": "2026-03-28",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-80",
+    "summary": "Shoba-Dubai-1",
+    "status": "Validation",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 21",
+    "dueDate": "2026-03-28",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-78",
+    "summary": "Britannia Industries",
+    "status": "Validation",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 18",
+    "dueDate": "2026-03-31",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-77",
+    "summary": "Mahle Filters_ Manesar_ POC",
+    "status": "Rejected",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 20",
+    "dueDate": "2026-04-13",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-76",
+    "summary": "HUL-Dapada POC",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 13",
+    "dueDate": "2026-01-10",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-73",
+    "summary": "Hindustan Unilever Limited - HUL",
+    "status": "To Do",
+    "amrType": "Sherpa Lifter 500",
+    "serial": "Lifter 500",
+    "dueDate": "2026-04-13",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-68",
+    "summary": "ArcelorMittal Nippon Steel India-2",
+    "status": "Mechanical Assembly",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 20",
+    "dueDate": "2026-05-29",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-67",
+    "summary": "ArcelorMittal Nippon Steel India-1",
+    "status": "Mechanical Assembly",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 19",
+    "dueDate": "2026-05-29",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-61",
+    "summary": "BOSCH-Naganathapura",
+    "status": "Done",
+    "amrType": "Sherpa Lifter 500",
+    "serial": "Lifter 500",
+    "dueDate": "2026-01-05",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-60",
+    "summary": "Innovista Automation - Kolhapur-6",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 06",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-59",
+    "summary": "Innovista Automation - Kolhapur-5",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 05",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-58",
+    "summary": "Innovista Automation - Kolhapur-4",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 04",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-57",
+    "summary": "Innovista Automation - Kolhapur-3",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 03",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-56",
+    "summary": "Innovista Automation - Kolhapur-2",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 02",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-55",
+    "summary": "Innovista Automation - Kolhapur-1",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1k 01",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-54",
+    "summary": "L& T vadodra",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 09",
+    "dueDate": "2026-03-26",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-53",
+    "summary": "Yokohama Dahej -2",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 12",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-52",
+    "summary": "ContiTech SLP",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 03",
+    "dueDate": "2026-01-30",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-51",
+    "summary": "ContiTech SLP",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 06",
+    "dueDate": "2026-01-30",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-50",
+    "summary": "ContiTech SLP",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 07",
+    "dueDate": "2026-01-30",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-49",
+    "summary": "Daikin Thailand ",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10k 08",
+    "dueDate": "2026-03-18",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-48",
+    "summary": "Tenneco - Canada",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 04",
+    "dueDate": "2026-01-10",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-47",
+    "summary": "Tenneco - Canada",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 05",
+    "dueDate": "2026-01-10",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-46",
+    "summary": "Tenneco - Litchfield MI",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 02",
+    "dueDate": "2025-12-15",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-45",
+    "summary": "Tenneco - Litchfield MI",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 01",
+    "dueDate": "2025-12-15",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-44",
+    "summary": "HUL - Pondicherry",
+    "status": "Done",
+    "amrType": "Sherpa Lite",
+    "serial": "Lite 37",
+    "dueDate": "2025-12-22",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-43",
+    "summary": "HUL - Pondicherry",
+    "status": "Done",
+    "amrType": "Sherpa Lite",
+    "serial": "Lite 38",
+    "dueDate": "2025-12-22",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-40",
+    "summary": "Tenneco - Puebla",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 12",
+    "dueDate": "2026-01-27",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-39",
+    "summary": "Engineering",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 10",
+    "dueDate": "2026-01-09",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-37",
+    "summary": "Thailand Demo",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 08",
+    "dueDate": "2026-01-08",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-36",
+    "summary": "USA Demo",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 14",
+    "dueDate": "2026-03-19",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-33",
+    "summary": "Owens Corning -8",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 09 ",
+    "dueDate": "2025-12-25",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-32",
+    "summary": "Owens Corning -7",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 07",
+    "dueDate": "2025-12-25",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-31",
+    "summary": "Owens Corning -6",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 06",
+    "dueDate": "2025-12-25",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-30",
+    "summary": "Owens Corning -5",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 05",
+    "dueDate": "2025-12-25",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-29",
+    "summary": "Owens Corning -4",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 03",
+    "dueDate": "2025-10-30",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-28",
+    "summary": "Owens Corning -3",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 04",
+    "dueDate": "2025-10-21",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-27",
+    "summary": "Owens Corning -2",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 02",
+    "dueDate": "2025-10-30",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-26",
+    "summary": "Owens Corning -1",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 01",
+    "dueDate": "2025-10-30",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-25",
+    "summary": "Bekaert Industries -Pune",
+    "status": "Done",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 19",
+    "dueDate": "2026-01-09",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-20",
+    "summary": "Tenneco Puebla",
+    "status": "Done",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 17",
+    "dueDate": "2026-01-23",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-19",
+    "summary": "Mexico Demo",
+    "status": "Done",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT lite 17",
+    "dueDate": "2025-10-31",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-15",
+    "summary": "Daikin Compressor - Thailand",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 23 ",
+    "dueDate": "2026-02-06",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-14",
+    "summary": "Epiroc Mining- Nashik",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 20",
+    "dueDate": "2026-01-24",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-13",
+    "summary": "Bekaert Industries -Pune",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 22",
+    "dueDate": "2026-01-15",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-12",
+    "summary": "Yokohama Dahej -1",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 11",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-11",
+    "summary": "Yokohama Dahej -5",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 10",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-10",
+    "summary": "Yokohama Dahej -6",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 15",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-9",
+    "summary": "Yokohama Dahej -3",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 13",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-8",
+    "summary": "Yokohama Dahej -4",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 14",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-7",
+    "summary": "Schneider Electric_ One Campus_ Attibele",
+    "status": "Validation",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 17",
+    "dueDate": "2026-02-28",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-6",
+    "summary": "Sai Life Sciences - Hyderabad",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 21",
+    "dueDate": "2025-12-24",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-5",
+    "summary": "Turbo Energy - Pulivalam",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 19",
+    "dueDate": "2025-11-10",
+    "planMonth": "2025-11"
+  }
+];
 // ── UTILITIES ─────────────────────────────────────────────────────────────
 function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -1912,10 +3083,9 @@ function initBRF(){
 
 
 // ── TAB NAVIGATION ────────────────────────────────────────────────────────
-const TAB_NAMES = { mo:'Manufacturing Orders', so:'Sales Orders', somo:'SO–MO Linkage' };
+const TAB_NAMES = { mo:'Manufacturing Orders', so:'Sales Orders', somo:'SO–MO Linkage', sf:'Demand Forecast', bp:'Build Plan' };
 function switchTab(tab){
-  ['mo','so','somo'].forEach(t=>{
-    document.getElementById('tab-pane-'+t)||document.getElementById('tab-'+t);
+  ['mo','so','somo','sf','bp'].forEach(t=>{
     const pane=document.getElementById('tab-'+t);
     const btn=document.getElementById('tab-btn-'+t);
     if(pane) pane.classList.toggle('active',t===tab);
@@ -1923,6 +3093,7 @@ function switchTab(tab){
   });
   document.querySelector('.header-title').textContent=TAB_NAMES[tab]||tab;
   if(tab==='somo') renderSOHealthTab();
+  if(tab==='bp')   renderBuildPlan();
 }
 function renderSOHealthTab(){
   const ACTIVE_SO_ST=new Set(['Approved','Under Procurement','IQC','Electronics Assembly','Mechanical Assembly','Vehicle Bringup','Validation']);
@@ -1964,7 +3135,956 @@ function toggleTheme(){
 
 init();
 switchTab('mo');
-setTimeout(()=>{ initBRF(); }, 0);
+setTimeout(()=>{
+  initBRF();
+  dfRenderJiraSection('Customer - Replacement', 'df-repl-tbody', 'df-repl-count');
+  dfRenderJiraSection('Internal', 'df-int-tbody', 'df-int-count');
+  dfRenderExceptions();
+  sfRenderDemand();
+  // Auto-fetch from Apps Script on load
+  sfFetchGSheet();
+}, 0);
+
+// ── DEMAND FORECAST ───────────────────────────────────────────────────────
+
+const SF_AMR_PRODUCTS = new Set([
+  'Sherpa Pallet Mover','Sherpa XT','Sherpa XT Lite','Sherpa Tug V3','Sherpa Tug V3.5',
+  'Sherpa 10K','Sherpa Lite','Sherpa Lite RollerTop','Sherpa FlexTug','Sherpa FlexFork',
+  'Sherpa Lifter','Lifter 500','Sherpa Handy V2','Sherpa Edu Bot','Sherpa Mushaq'
+]);
+
+let sfOrders = []; // parsed & grouped deals
+let activeProductFilter = null; // canonical displayAmrType name, or null
+
+// ── APPS SCRIPT INTEGRATION ───────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxI-LhEuEeYeNkgRYz8RTI7zQDEIs6Yi415evkEQXLnYnrh6gl5aJXcVdrRNjhzqjKS/exec';
+
+let sfStatusMap = {}; // opportunityId → 'Pending' | 'Completed' | 'Cancelled'
+
+function sfLoadStatuses() {
+  return fetch(APPS_SCRIPT_URL + '?action=statuses')
+    .then(r => r.json())
+    .then(data => {
+      sfStatusMap = {};
+      Object.entries(data).forEach(([id, val]) => {
+        sfStatusMap[id] = val.status || val;
+      });
+    })
+    .catch(err => console.warn('Could not load statuses:', err));
+}
+
+function sfStatusChange(selectEl) {
+  const newStatus = selectEl.value;
+  const oppId     = selectEl.dataset.oppid;
+  const dealName  = selectEl.dataset.dealname;
+  const prevStatus = sfStatusMap[oppId] || 'Pending';
+
+  const note = window.prompt(`Changing status to "${newStatus}"\n\nAdd a note (reason for this change):`);
+
+  if (note === null) {
+    // User cancelled — revert dropdown
+    selectEl.value = prevStatus;
+    sfApplyStatusStyle(selectEl, prevStatus);
+    return;
+  }
+
+  sfSetStatus(oppId, dealName, newStatus, note, selectEl);
+}
+
+function sfSetStatus(opportunityId, dealName, status, note, selectEl) {
+  if (!opportunityId) return;
+  sfStatusMap[opportunityId] = status;
+  sfApplyStatusStyle(selectEl, status);
+  // Fire-and-forget POST — no-cors avoids preflight, Apps Script receives it fine
+  fetch(APPS_SCRIPT_URL, {
+    method:  'POST',
+    mode:    'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body:    JSON.stringify({ opportunityId, dealName, status, note: note || '' })
+  }).catch(err => console.warn('Status save failed:', err));
+}
+
+function sfApplyStatusStyle(sel, status) {
+  sel.className = 'sf-status-sel sf-status-' + status.toLowerCase();
+}
+
+function sfFetchGSheet() {
+  const statusEl = document.getElementById('sf-file-name');
+  if (statusEl) statusEl.textContent = '⏳ Fetching…';
+
+  const p1 = fetch(APPS_SCRIPT_URL + '?action=data').then(r => r.json());
+  const p2 = fetch(APPS_SCRIPT_URL + '?action=jira').then(r => r.json()).catch(err => {
+    console.warn('Jira fetch failed, keeping existing data:', err);
+    return { ok: false };
+  });
+  const p3 = sfLoadStatuses();
+
+  Promise.all([p1, p2, p3])
+    .then(([sfData, jiraData, _]) => {
+      if (!sfData.ok) throw new Error(sfData.error || 'SF fetch failed');
+      sfOrders = sfParse(sfData.rows);
+
+      const jiraRefreshed = jiraData.ok && Array.isArray(jiraData.orders);
+      if (jiraRefreshed) RAW_ORDERS = jiraData.orders;
+
+      sfRender();
+      dfRenderJiraSection('Customer - Replacement', 'df-repl-tbody', 'df-repl-count');
+      dfRenderJiraSection('Internal', 'df-int-tbody', 'df-int-count');
+      dfRenderExceptions();
+      if (typeof renderBRF === 'function') renderBRF();
+      if (document.getElementById('tab-bp').classList.contains('active')) renderBuildPlan();
+
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const jiraNote = jiraRefreshed ? `${RAW_ORDERS.length} DEL · ` : 'DEL cached · ';
+      if (statusEl) statusEl.textContent = `✓ ${sfData.rows.length} SF · ${jiraNote}refreshed ${now}`;
+    })
+    .catch(err => {
+      console.error('Fetch error:', err);
+      if (statusEl) statusEl.textContent = `✗ ${err.message}`;
+    });
+}
+
+function sfNormalizePO(po) {
+  if (!po) return '';
+  const s = String(po).trim();
+  // Convert scientific notation e.g. "5.0047E+12" → "5004700000000"
+  if (/^[\d.]+[eE][+-]?\d+$/.test(s)) {
+    try { return String(Math.round(parseFloat(s))); } catch(e) {}
+  }
+  return s;
+}
+
+function sfFmtDate(d) {
+  if (!d) return '';
+  if (d instanceof Date) return d.toISOString().slice(0,10);
+  const s = String(d).trim();
+  if (!s) return '';
+  // dd/mm/yyyy
+  const m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m1) return `${m1[3]}-${m1[2].padStart(2,'0')}-${m1[1].padStart(2,'0')}`;
+  // yyyy-mm-dd or ISO
+  const m2 = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (m2) return m2[1];
+  return s;
+}
+
+function sfDisplayDate(dateStr) {
+  if (!dateStr) return '';
+  const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  return dateStr;
+}
+
+function sfAddWeeks(dateStr, weeks) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return '';
+    d.setDate(d.getDate() + weeks * 7);
+    return d.toISOString().slice(0,10);
+  } catch { return ''; }
+}
+
+function sfParse(rows) {
+  // Group by Deal Name
+  const dealMap = {};
+  rows.forEach(r => {
+    const stage = r['Stage'] || '';
+    const deal  = r['Deal Name'] || '';
+    if (!deal) return;
+    if (!dealMap[deal]) {
+      dealMap[deal] = {
+        stage,
+        opportunityId: String(r['Opportunity ID'] || '').trim(),
+        account:  r['Account Name'] || r['Deal Name'] || '',
+        region:   r['Region'] || '',
+        owner:    r['Opportunity Owner'] || '',
+        poDate:   sfFmtDate(r['*PO Date']),
+        poNumber: sfNormalizePO(r['*PO Number']),
+        purchaseType: r['Purchase Type'] || '',
+        location: r['Plant Location'] || '',
+        closeDate: sfFmtDate(r['Close Date']),
+        amr:      [],
+        ancillary:[]
+      };
+    }
+    const d = dealMap[deal];
+    // Always refresh meta from latest row (last row wins for non-AMR deals)
+    if (!d.poDate && r['*PO Date'])   d.poDate   = sfFmtDate(r['*PO Date']);
+    if (!d.poNumber && r['*PO Number']) d.poNumber = sfNormalizePO(r['*PO Number']);
+    if (!d.location && r['Plant Location']) d.location = r['Plant Location'];
+
+    const product = r['Product Name'] || '';
+    // Skip AMR line items that are contract renewals (bot already deployed)
+    const typeVal = String(r['Opportunity Type'] || r['Type'] || r['type'] || '').trim().toLowerCase();
+    const renewedPO = String(r['*Renewed PO Number'] || '').trim();
+    if (SF_AMR_PRODUCTS.has(product) && (typeVal === 'renewal' || renewedPO)) return;
+    if (SF_AMR_PRODUCTS.has(product)) {
+      d.amr.push({ product, qty: Number(r['Quantity']) || 1 });
+    } else if (product) {
+      if (!d.ancillary.includes(product)) d.ancillary.push(product);
+    }
+  });
+
+  // Flatten: one entry per AMR line item per deal
+  const result = [];
+  Object.entries(dealMap).forEach(([dealName, d]) => {
+    if (!d.amr.length) return; // skip non-AMR deals
+    d.amr.forEach(amr => {
+      const dueDate = sfAddWeeks(d.poDate, 12);
+      result.push({
+        dealName, stage: d.stage, opportunityId: d.opportunityId,
+        account: d.account, region: d.region,
+        owner: d.owner, poDate: d.poDate, poNumber: d.poNumber,
+        purchaseType: d.purchaseType, location: d.location,
+        closeDate: d.closeDate, product: amr.product, qty: amr.qty,
+        dueDate, ancillary: [...d.ancillary]
+      });
+    });
+  });
+
+  // Sort: newest PO date first, entries with no PO date at the bottom
+  result.sort((a, b) => {
+    const da = a.poDate ? new Date(a.poDate) : null;
+    const db = b.poDate ? new Date(b.poDate) : null;
+    if (!da && !db) return 0;
+    if (!da) return 1;
+    if (!db) return -1;
+    return da - db;
+  });
+  return result;
+}
+
+function sfStageTag(stage) {
+  if (stage === 'Closed Won')           return `<span class="sf-stage-won">Closed Won</span>`;
+  if (stage === 'PO Awaited')           return `<span class="sf-stage-awaited">PO Awaited</span>`;
+  if (stage === 'Negotiation/Review')   return `<span class="sf-stage-neg">Negotiation</span>`;
+  if (stage === 'Proposal/Price Quote') return `<span class="sf-stage-prop">Proposal</span>`;
+  return `<span style="font-size:11px;color:var(--mut)">${stage}</span>`;
+}
+
+// ── BUILD PLAN ────────────────────────────────────────────────────────────
+function renderBuildPlan() {
+  // ── 1. COLLECT ALL ACTIVE ORDERS ──────────────────────────────────────
+  // DEL tickets: every active Jira ticket (incl. exceptions — no distinction)
+  const delActive = RAW_ORDERS.filter(o => !DF_EXCLUDED_STATUSES.has(o.status));
+
+  // SF pipeline orders not yet matched to a DEL ticket (avoid double-counting)
+  const delPoSet = new Set(
+    RAW_ORDERS.map(o => (o.poNumber||'').trim().toLowerCase())
+              .filter(p => p && p !== 'na' && !p.startsWith('not'))
+  );
+  const sfPipeline = sfOrders.filter(o => {
+    const st = (o.opportunityId && sfStatusMap[o.opportunityId]) || 'Pending';
+    if (st === 'Completed' || st === 'Cancelled') return false;
+    if (o.stage !== 'Closed Won' && o.stage !== 'PO Awaited') return false;
+    const po = (o.poNumber||'').trim().toLowerCase();
+    return !(po && delPoSet.has(po));
+  });
+
+  // Unified order list
+  const allOrders = [
+    ...delActive.map(o => ({
+      product: displayAmrType(o.amrType),
+      account: o.summary.includes('|') ? o.summary.split('|')[0].trim() : o.summary,
+      qty:     o.qty || 1,
+      dueDate: o.dueDate || null,
+      status:  o.status,
+      type:    o.typeOfSale || '',
+      ref:     o.key
+    })),
+    ...sfPipeline.map(o => ({
+      product: displayAmrType(o.product),
+      account: o.account,
+      qty:     o.qty,
+      dueDate: o.dueDate || null,
+      status:  o.stage,
+      type:    'Customer - New',
+      ref:     o.dealName
+    }))
+  ].filter(o => o.product && o.product !== '—');
+
+  // ── 2. WEEK BUCKETS ────────────────────────────────────────────────────
+  const nowMs = new Date(); nowMs.setHours(0,0,0,0);
+  const dow = nowMs.getDay();
+  const weekStart = new Date(nowMs);
+  weekStart.setDate(weekStart.getDate() - (dow === 0 ? 6 : dow - 1)); // Monday
+
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const weeks = Array.from({length:12}, (_,i) => {
+    const s = new Date(weekStart); s.setDate(s.getDate() + i*7);
+    const e = new Date(s);        e.setDate(e.getDate() + 6);
+    return { start:s, end:e, label:`${MON[s.getMonth()]} ${s.getDate()}` };
+  });
+
+  function getBucket(dueDate) {
+    if (!dueDate) return 'nodate';
+    const d = new Date(dueDate); d.setHours(0,0,0,0);
+    if (d < weekStart) return 'overdue';
+    for (let i = 0; i < weeks.length; i++)
+      if (d >= weeks[i].start && d <= weeks[i].end) return i;
+    return 'later';
+  }
+
+  function daysFromNow(dueDate) {
+    if (!dueDate) return null;
+    const d = new Date(dueDate); d.setHours(0,0,0,0);
+    return Math.round((d - nowMs) / 86400000);
+  }
+
+  // ── 3. STATS STRIP ────────────────────────────────────────────────────
+  const overdueCt  = allOrders.filter(o => { const b=getBucket(o.dueDate); return b==='overdue'; }).reduce((s,o)=>s+o.qty,0);
+  const next4wCt   = allOrders.filter(o => { const b=getBucket(o.dueDate); return typeof b==='number' && b<4; }).reduce((s,o)=>s+o.qty,0);
+  const totalUnits = allOrders.reduce((s,o)=>s+o.qty,0);
+  const noDateCt   = allOrders.filter(o=>!o.dueDate).reduce((s,o)=>s+o.qty,0);
+
+  const statCard = (label, val, color) =>
+    `<div style="background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:14px 20px;min-width:130px;">
+       <div style="font-family:'Space Mono',monospace;font-weight:700;font-size:22px;color:${color}">${val}</div>
+       <div style="font-family:'Syne',sans-serif;font-size:11px;color:var(--mut);margin-top:3px;">${label}</div>
+     </div>`;
+  document.getElementById('bp-stats').innerHTML =
+    statCard('Total Units', totalUnits, 'var(--acc)') +
+    statCard('Overdue', overdueCt, '#ef4444') +
+    statCard('Due in 4 Weeks', next4wCt, '#f97316') +
+    statCard('No Due Date', noDateCt, 'var(--mut)');
+
+  // ── 4. HEATMAP ────────────────────────────────────────────────────────
+  const productTotals = {};
+  allOrders.forEach(o => { productTotals[o.product] = (productTotals[o.product]||0) + o.qty; });
+  const products = Object.keys(productTotals).sort((a,b) => productTotals[b]-productTotals[a]);
+
+  // matrix[product][bucket] = qty
+  const matrix = {};
+  products.forEach(p => { matrix[p] = {}; });
+  allOrders.forEach(o => {
+    const b = getBucket(o.dueDate);
+    if (!matrix[o.product]) matrix[o.product] = {};
+    matrix[o.product][b] = (matrix[o.product][b]||0) + o.qty;
+  });
+
+  // Column totals
+  const colTotals = {};
+  ['overdue',...weeks.map((_,i)=>i),'later','nodate'].forEach(b => {
+    colTotals[b] = products.reduce((s,p) => s+(matrix[p][b]||0), 0);
+  });
+
+  function heatCell(qty, bucket) {
+    if (!qty) return `<td style="padding:6px 10px;text-align:center;border-right:1px solid rgba(255,255,255,.05);"><span style="color:rgba(255,255,255,.12);font-size:11px;">—</span></td>`;
+    let bg, col;
+    if (bucket === 'overdue') { bg='rgba(239,68,68,.18)'; col='#ef4444'; }
+    else if (typeof bucket === 'number' && bucket < 2) { bg='rgba(249,115,22,.18)'; col='#f97316'; }
+    else if (typeof bucket === 'number' && bucket < 4) { bg='rgba(234,179,8,.15)';  col='#eab308'; }
+    else if (bucket === 'later') { bg='rgba(99,102,241,.15)'; col='#818cf8'; }
+    else if (bucket === 'nodate') { bg='rgba(255,255,255,.06)'; col='var(--mut)'; }
+    else { bg='rgba(34,197,94,.12)'; col='#4ade80'; }
+    return `<td style="padding:6px 10px;text-align:center;border-right:1px solid rgba(255,255,255,.05);">
+      <span style="display:inline-block;min-width:26px;background:${bg};color:${col};font-family:'Space Mono',monospace;font-weight:700;font-size:12px;border-radius:4px;padding:2px 6px;">${qty}</span>
+    </td>`;
+  }
+
+  const thStyle = `padding:7px 10px;text-align:center;font-family:'Syne',sans-serif;font-weight:600;font-size:11px;border-bottom:2px solid var(--bdr);white-space:nowrap;`;
+  const heatRows = products.map(p => `
+    <tr>
+      <td style="padding:7px 14px;font-family:'Syne',sans-serif;font-weight:600;font-size:12px;color:var(--txt);border-right:1px solid var(--bdr);white-space:nowrap;">${p}</td>
+      ${heatCell(matrix[p]['overdue'], 'overdue')}
+      ${weeks.map((_,i) => heatCell(matrix[p][i], i)).join('')}
+      ${heatCell(matrix[p]['later'],  'later')}
+      ${heatCell(matrix[p]['nodate'], 'nodate')}
+      <td style="padding:7px 14px;text-align:center;font-family:'Space Mono',monospace;font-weight:700;font-size:12px;color:var(--acc);">${productTotals[p]}</td>
+    </tr>`).join('');
+
+  const totalRow = `
+    <tr style="border-top:2px solid var(--bdr);background:var(--s2);">
+      <td style="padding:8px 14px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;border-right:1px solid var(--bdr);">TOTAL</td>
+      ${heatCell(colTotals['overdue'],'overdue')}
+      ${weeks.map((_,i)=>heatCell(colTotals[i],i)).join('')}
+      ${heatCell(colTotals['later'],'later')}
+      ${heatCell(colTotals['nodate'],'nodate')}
+      <td style="padding:8px 14px;text-align:center;font-family:'Space Mono',monospace;font-weight:700;color:var(--acc);">${totalUnits}</td>
+    </tr>`;
+
+  document.getElementById('bp-heatmap').innerHTML = `
+    <table style="border-collapse:collapse;font-size:12px;background:var(--s1);border:1px solid var(--bdr);border-radius:8px;overflow:hidden;min-width:900px;">
+      <thead>
+        <tr style="background:var(--s2);">
+          <th style="${thStyle}text-align:left;border-right:1px solid var(--bdr);">Product</th>
+          <th style="${thStyle}color:#ef4444;">Overdue</th>
+          ${weeks.map((w,i) => {
+            const urg = i<2?'#f97316':i<4?'#eab308':'#4ade80';
+            return `<th style="${thStyle}color:${urg};">${w.label}</th>`;
+          }).join('')}
+          <th style="${thStyle}color:#818cf8;">Later</th>
+          <th style="${thStyle}color:var(--mut);">No Date</th>
+          <th style="${thStyle}color:var(--acc);">Total</th>
+        </tr>
+      </thead>
+      <tbody>${heatRows}${totalRow}</tbody>
+    </table>`;
+
+  // ── 5. PRIORITY QUEUE ─────────────────────────────────────────────────
+  const sorted = [...allOrders].sort((a, b) => {
+    const da = a.dueDate ? new Date(a.dueDate) : null;
+    const db = b.dueDate ? new Date(b.dueDate) : null;
+    if (!da && !db) return 0;
+    if (!da) return 1;
+    if (!db) return -1;
+    return da - db;
+  });
+
+  function urgencyBadge(dueDate) {
+    const days = daysFromNow(dueDate);
+    if (days === null) return `<span style="font-size:11px;color:var(--mut);font-family:'Space Mono',monospace;">No date</span>`;
+    if (days < 0)  return `<span style="display:inline-block;background:rgba(239,68,68,.15);color:#ef4444;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;border-radius:4px;padding:2px 7px;">⚠ ${Math.abs(days)}d overdue</span>`;
+    if (days === 0) return `<span style="display:inline-block;background:rgba(239,68,68,.15);color:#ef4444;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;border-radius:4px;padding:2px 7px;">Due today</span>`;
+    if (days <= 14) return `<span style="display:inline-block;background:rgba(249,115,22,.15);color:#f97316;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;border-radius:4px;padding:2px 7px;">${days}d left</span>`;
+    if (days <= 28) return `<span style="display:inline-block;background:rgba(234,179,8,.13);color:#eab308;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;border-radius:4px;padding:2px 7px;">${days}d left</span>`;
+    return `<span style="display:inline-block;background:rgba(34,197,94,.1);color:#4ade80;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;border-radius:4px;padding:2px 7px;">${days}d left</span>`;
+  }
+
+  function typeTag(type) {
+    if (!type) return '';
+    if (type.includes('Replacement')) return `<span style="font-size:10px;background:rgba(167,139,250,.15);color:#a78bfa;border-radius:3px;padding:1px 5px;">Repl</span>`;
+    if (type === 'Internal') return `<span style="font-size:10px;background:rgba(234,179,8,.13);color:#eab308;border-radius:3px;padding:1px 5px;">Int</span>`;
+    return `<span style="font-size:10px;background:rgba(34,197,94,.1);color:#4ade80;border-radius:3px;padding:1px 5px;">New</span>`;
+  }
+
+  const qRows = sorted.map((o, i) => {
+    const days = daysFromNow(o.dueDate);
+    const rowBg = days !== null && days < 0 ? 'rgba(239,68,68,.04)' : i%2===0?'transparent':'rgba(255,255,255,.02)';
+    return `<tr style="background:${rowBg};">
+      <td style="padding:8px 10px;text-align:center;color:var(--mut);font-family:'Space Mono',monospace;font-size:11px;border-right:1px solid rgba(255,255,255,.05);">${i+1}</td>
+      <td style="padding:8px 12px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;border-right:1px solid rgba(255,255,255,.05);">${o.product}</td>
+      <td style="padding:8px 12px;font-size:12px;border-right:1px solid rgba(255,255,255,.05);">${o.account}</td>
+      <td style="padding:8px 10px;text-align:center;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:var(--acc);border-right:1px solid rgba(255,255,255,.05);">${o.qty}</td>
+      <td style="padding:8px 12px;border-right:1px solid rgba(255,255,255,.05);">${typeTag(o.type)}</td>
+      <td style="padding:8px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--mut);border-right:1px solid rgba(255,255,255,.05);">${o.dueDate ? sfDisplayDate(o.dueDate) : '—'}</td>
+      <td style="padding:8px 12px;">${urgencyBadge(o.dueDate)}</td>
+    </tr>`;
+  }).join('');
+
+  const qTh = `padding:8px 12px;font-family:'Syne',sans-serif;font-weight:600;font-size:11px;color:var(--mut);border-bottom:2px solid var(--bdr);white-space:nowrap;`;
+  document.getElementById('bp-queue').innerHTML = `
+    <table style="border-collapse:collapse;width:100%;font-size:12px;background:var(--s1);border:1px solid var(--bdr);border-radius:8px;overflow:hidden;">
+      <thead>
+        <tr style="background:var(--s2);">
+          <th style="${qTh}text-align:center;">#</th>
+          <th style="${qTh}">Product</th>
+          <th style="${qTh}">Account</th>
+          <th style="${qTh}text-align:center;">Qty</th>
+          <th style="${qTh}">Type</th>
+          <th style="${qTh}">Due Date</th>
+          <th style="${qTh}">Urgency</th>
+        </tr>
+      </thead>
+      <tbody>${qRows || `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mut);font-family:'Space Mono',monospace;font-size:12px;">No active orders</td></tr>`}</tbody>
+    </table>`;
+}
+
+function setProductFilter(prod) {
+  activeProductFilter = (activeProductFilter === prod) ? null : prod;
+
+  // Re-render all sections that respect the filter
+  sfRender();
+  dfRenderJiraSection('Customer - Replacement', 'df-repl-tbody', 'df-repl-count');
+  dfRenderJiraSection('Internal', 'df-int-tbody', 'df-int-count');
+  dfRenderExceptions();
+
+  // Refresh summary table highlighting (re-render it in place)
+  sfRenderDemand();
+
+  // Show/hide filter banner
+  const banner = document.getElementById('product-filter-banner');
+  const label  = document.getElementById('product-filter-label');
+  if (banner) banner.style.display = activeProductFilter ? 'flex' : 'none';
+  if (label && activeProductFilter) label.textContent = activeProductFilter;
+}
+
+function sfRenderDemand(poMap) {
+  const tbody = document.getElementById('sf-demand-tbody');
+
+  // Build poMap if not passed (e.g. called on page load before sfRender)
+  if (!poMap) {
+    poMap = {};
+    RAW_ORDERS.forEach(order => {
+      const po = (order.poNumber || '').trim().toLowerCase();
+      if (po && po !== 'na' && !po.startsWith('not')) {
+        if (!poMap[po]) poMap[po] = [];
+        poMap[po].push(order);
+      }
+    });
+  }
+
+  // Customer - New counts from Salesforce (exclude if matched DEL has excluded status, or row is Completed/Cancelled)
+  const sfMap = {};
+  sfOrders.forEach(o => {
+    const rowStatus = (o.opportunityId && sfStatusMap[o.opportunityId]) || 'Pending';
+    if (rowStatus === 'Completed' || rowStatus === 'Cancelled') return;
+    const poNorm = (o.poNumber || '').trim().toLowerCase();
+    if (poNorm && (poMap[poNorm] || []).some(del => DF_EXCLUDED_STATUSES.has(del.status))) return;
+    const key = displayAmrType(o.product);
+    if (!sfMap[key]) sfMap[key] = { closedWon: 0, awaitingPO: 0 };
+    if (o.stage === 'Closed Won')      sfMap[key].closedWon  += o.qty;
+    else if (o.stage === 'PO Awaited') sfMap[key].awaitingPO += o.qty;
+  });
+
+  // Customer - Replacement & Internal counts from RAW_ORDERS (always available)
+  const replMap = {}, intMap = {};
+  RAW_ORDERS.forEach(o => {
+    const key = displayAmrType(o.amrType);
+    if (!key || key === '—' || DF_EXCLUDED_STATUSES.has(o.status)) return;
+    if (o.typeOfSale === 'Customer - Replacement') {
+      replMap[key] = (replMap[key] || 0) + (o.qty || 1);
+    } else if (o.typeOfSale === 'Internal') {
+      intMap[key] = (intMap[key] || 0) + (o.qty || 1);
+    }
+  });
+
+  // Exceptions: Customer-New DEL tickets not matched to any SF PO (same logic as dfRenderExceptions)
+  const excSfPoSet = new Set();
+  sfOrders.forEach(o => {
+    const po = (o.poNumber || '').trim().toLowerCase();
+    if (po && po !== 'na' && !po.startsWith('not')) excSfPoSet.add(po);
+  });
+  const EXC_EXCL = new Set(['Rejected','Dispatch','Commissioning','commissioning','Handover Done','Handover done']);
+  const excMap = {};
+  RAW_ORDERS.forEach(o => {
+    if (o.typeOfSale !== 'Customer - New') return;
+    if (EXC_EXCL.has(o.status)) return;
+    const po = (o.poNumber || '').trim().toLowerCase();
+    const poValid = po && po !== 'na' && !po.startsWith('not');
+    if (poValid && excSfPoSet.has(po)) return;
+    const key = displayAmrType(o.amrType);
+    if (!key || key === '—') return;
+    excMap[key] = (excMap[key] || 0) + (o.qty || 1);
+  });
+
+  // Union of all products
+  const allProds = new Set([
+    ...Object.keys(sfMap),
+    ...Object.keys(replMap),
+    ...Object.keys(intMap),
+    ...Object.keys(excMap)
+  ]);
+
+  const rows = [...allProds].map(prod => {
+    const sf   = sfMap[prod]  || { closedWon: 0, awaitingPO: 0 };
+    const repl = replMap[prod] || 0;
+    const int_ = intMap[prod]  || 0;
+    const exc  = excMap[prod]  || 0;
+    const total = sf.closedWon + sf.awaitingPO + repl + int_ + exc;
+    return { prod, closedWon: sf.closedWon, awaitingPO: sf.awaitingPO, repl, int_, exc, total };
+  }).filter(r => r.total > 0).sort((a, b) => b.total - a.total || a.prod.localeCompare(b.prod));
+
+  const totCW   = rows.reduce((s, r) => s + r.closedWon,  0);
+  const totAP   = rows.reduce((s, r) => s + r.awaitingPO, 0);
+  const totRepl = rows.reduce((s, r) => s + r.repl,       0);
+  const totInt  = rows.reduce((s, r) => s + r.int_,       0);
+  const totExc  = rows.reduce((s, r) => s + r.exc,        0);
+  const totAll  = totCW + totAP + totRepl + totInt + totExc;
+
+  const cell = (val, color) =>
+    `<td style="padding:7px 14px;text-align:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Space Mono',monospace;font-weight:700;color:${val ? color : 'var(--mut)'}">${val || '—'}</td>`;
+
+  tbody.innerHTML = rows.map((r, i) => {
+    const isActive = activeProductFilter === r.prod;
+    const rowBg = isActive ? 'rgba(59,130,246,.13)' : i%2===0 ? 'transparent' : 'rgba(255,255,255,.03)';
+    return `
+    <tr data-prod="${r.prod}" onclick="setProductFilter('${r.prod.replace(/'/g,"\\'")}')"
+        style="cursor:pointer;background:${rowBg};outline:${isActive?'1px solid rgba(59,130,246,.35)':'none'};transition:background .15s;">
+      <td style="padding:7px 16px 7px 12px;border-right:1px solid var(--bdr);font-family:'Syne',sans-serif;font-weight:600;color:${isActive?'var(--acc)':'var(--txt)'}">
+        ${isActive ? `<span style="margin-right:6px;font-size:10px;opacity:.7;">▶</span>` : ''}${r.prod}
+      </td>
+      ${cell(r.closedWon,  'var(--grn)')}
+      ${cell(r.awaitingPO, 'var(--ylw)')}
+      ${cell(r.repl,       '#a78bfa')}
+      ${cell(r.int_,       'var(--ylw)')}
+      ${cell(r.exc,        '#ffb300')}
+      <td style="padding:7px 14px;text-align:center;font-family:'Space Mono',monospace;font-weight:700;color:var(--acc)">${r.total}</td>
+    </tr>`;
+  }).join('') +
+    `<tr style="border-top:2px solid var(--bdr);background:var(--s2)">
+      <td style="padding:8px 16px 8px 12px;border-right:1px solid var(--bdr);font-family:'Syne',sans-serif;font-weight:700;color:var(--txt)">TOTAL</td>
+      <td style="padding:8px 14px;text-align:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Space Mono',monospace;font-weight:700;color:var(--grn)">${totCW}</td>
+      <td style="padding:8px 14px;text-align:center;border-right:1px solid var(--bdr);font-family:'Space Mono',monospace;font-weight:700;color:var(--ylw)">${totAP}</td>
+      <td style="padding:8px 14px;text-align:center;border-right:1px solid var(--bdr);font-family:'Space Mono',monospace;font-weight:700;color:#a78bfa">${totRepl}</td>
+      <td style="padding:8px 14px;text-align:center;border-right:1px solid var(--bdr);font-family:'Space Mono',monospace;font-weight:700;color:var(--ylw)">${totInt}</td>
+      <td style="padding:8px 14px;text-align:center;border-right:1px solid var(--bdr);font-family:'Space Mono',monospace;font-weight:700;color:#ffb300">${totExc}</td>
+      <td style="padding:8px 14px;text-align:center;font-family:'Space Mono',monospace;font-weight:700;color:var(--acc)">${totAll}</td>
+    </tr>`;
+}
+
+const DF_EXCLUDED_STATUSES = new Set([
+  'Rejected', 'Dispatch', 'Commissioning', 'commissioning',
+  'Handover', 'Handover Done', 'Handover done'
+]);
+
+function dfRenderJiraSection(typeOfSale, tbodyId, countId) {
+  const items = RAW_ORDERS.filter(o =>
+    o.typeOfSale === typeOfSale && !DF_EXCLUDED_STATUSES.has(o.status) &&
+    (!activeProductFilter || displayAmrType(o.amrType) === activeProductFilter)
+  );
+  const tbody = document.getElementById(tbodyId);
+  const countEl = document.getElementById(countId);
+  if (countEl) countEl.textContent = `${items.length} ticket${items.length !== 1 ? 's' : ''}`;
+
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--mut);font-family:'Space Mono',monospace;font-size:12px;">No tickets found</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = items.map((o, i) => {
+    const account = o.summary.includes('|') ? o.summary.split('|')[0].trim() : o.summary;
+    const statusCls = statusClass(o.status);
+    return `<tr>
+      <td style="color:var(--mut);font-family:'Space Mono',monospace;font-size:11px">${i+1}</td>
+      <td><div style="font-weight:600;font-size:12px">${account}</div>
+          <div style="font-size:10px;color:var(--mut);margin-top:1px">${o.location||''}</div></td>
+      <td style="font-family:'Syne',sans-serif;font-weight:600">${displayAmrType(o.amrType)}</td>
+      <td style="text-align:center;font-family:'Space Mono',monospace;font-weight:700">${o.qty||1}</td>
+      <td>${dueDateCell(o.dueDate)}</td>
+      <td style="font-size:11px;color:var(--mut)">${o.location||'—'}</td>
+      <td><span class="${statusCls}" style="border-radius:4px;padding:2px 8px;font-size:11px;white-space:nowrap">${o.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// Canonical display names keyed by normalizeAmrType() output.
+// "10k" and "Sherpa 10K" both normalize to "10k" → both display as "Sherpa 10K".
+const AMR_CANONICAL = {
+  '10k':            'Sherpa 10K',
+  'xt lite':        'Sherpa XT Lite',
+  'xt':             'Sherpa XT',
+  'pallet mover':   'Sherpa Pallet Mover',
+  'tug v3':         'Sherpa Tug V3',
+  'tug v3.5':       'Sherpa Tug V3.5',
+  'lite':           'Sherpa Lite',
+  'lite rollertop': 'Sherpa Lite RollerTop',
+  'flex tug':       'Sherpa Flex Tug',
+  'flex fork':      'Sherpa Flex Fork',
+  'lifter':         'Sherpa Lifter',
+  'lifter 500':     'Lifter 500',
+  'handy v2':       'Sherpa Handy V2',
+  'edu bot':        'Sherpa Edu Bot',
+  'mushaq':         'Sherpa Mushaq',
+};
+
+// Render a due date cell — shows "Delayed" badge if date < today
+const _TODAY_MS = new Date().setHours(0,0,0,0);
+function dueDateCell(dateStr, extraStyle) {
+  if (!dateStr) return `<span style="color:var(--mut)">—</span>`;
+  const ms = new Date(dateStr).setHours(0,0,0,0);
+  const fmt = sfDisplayDate(dateStr); // dd-mm-yyyy
+  if (!isNaN(ms) && ms < _TODAY_MS) {
+    return `<span style="display:inline-flex;flex-direction:column;gap:1px;">
+      <span style="font-size:10px;font-weight:700;color:#ef4444;letter-spacing:.3px;">⏰ Delayed</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;color:#ef4444;opacity:.85;">${fmt}</span>
+    </span>`;
+  }
+  return `<span style="font-family:'Space Mono',monospace;font-size:11px;${extraStyle||''}">${fmt}</span>`;
+}
+
+function displayAmrType(s) {
+  if (!s) return '—';
+  return AMR_CANONICAL[normalizeAmrType(s)] || s;
+}
+
+// Normalize AMR type names across systems (lowercased, for comparison only).
+// SF uses "Sherpa " prefix and CamelCase (e.g. "Sherpa 10K", "Sherpa FlexTug").
+// Jira uses plain names with parentheticals (e.g. "10k", "Flex Tug ( Pivot )").
+function normalizeAmrType(s) {
+  if (!s) return '';
+  return s
+    .replace(/^sherpa\s+/i, '')           // strip leading "Sherpa "
+    .replace(/\s*\([^)]*\)\s*/g, ' ')     // remove (Pivot), (Monofork), etc.
+    .replace(/flex\s*tug/i,  'flex tug')  // FlexTug → flex tug
+    .replace(/flex\s*fork/i, 'flex fork') // FlexFork → flex fork
+    .replace(/lifter\s*(?:1000|1k)\b/i, 'lifter') // Lifter 1000 → lifter (matches "Sherpa Lifter")
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function dfRenderExceptions() {
+  // Primary match: PO number
+  const sfPoSet = new Set();
+  (sfOrders || []).forEach(o => {
+    const po = (o.poNumber || '').trim().toLowerCase();
+    if (po && po !== 'na' && !po.startsWith('not')) sfPoSet.add(po);
+  });
+
+  const EXC_EXCLUDED = new Set([
+    'Rejected', 'Dispatch', 'Commissioning', 'commissioning',
+    'Handover Done', 'Handover done'
+  ]);
+
+  const items = RAW_ORDERS.filter(o => {
+    if (o.typeOfSale !== 'Customer - New') return false;
+    if (EXC_EXCLUDED.has(o.status)) return false;
+    if (activeProductFilter && displayAmrType(o.amrType) !== activeProductFilter) return false;
+    const po = (o.poNumber || '').trim().toLowerCase();
+    const poValid = po && po !== 'na' && !po.startsWith('not');
+    if (poValid && sfPoSet.has(po)) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('df-exc-tbody');
+  const countEl = document.getElementById('df-exc-count');
+  if (countEl) countEl.textContent = `${items.length} ticket${items.length !== 1 ? 's' : ''}`;
+
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--mut);font-family:'Space Mono',monospace;font-size:12px;">No exceptions found — all active tickets are matched to Salesforce</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = items.map((o, i) => {
+    const account = o.summary.includes('|') ? o.summary.split('|')[0].trim() : o.summary;
+    const po = o.poNumber && o.poNumber.toLowerCase() !== 'na' && !o.poNumber.toLowerCase().startsWith('not')
+      ? `<span style="font-family:'Space Mono',monospace;font-size:11px">${o.poNumber}</span>`
+      : `<span style="color:var(--mut);font-size:11px;font-style:italic">No PO</span>`;
+    const statusCls = statusClass(o.status);
+    return `<tr style="background:rgba(255,160,0,.04);">
+      <td style="color:var(--mut);font-family:'Space Mono',monospace;font-size:11px">${i+1}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px">${o.key}</td>
+      <td><div style="font-weight:600;font-size:12px">${account}</div></td>
+      <td style="font-family:'Syne',sans-serif;font-weight:600">${displayAmrType(o.amrType)}</td>
+      <td style="text-align:center;font-family:'Space Mono',monospace;font-weight:700">${o.qty||1}</td>
+      <td>${po}</td>
+      <td>${dueDateCell(o.dueDate)}</td>
+      <td><span class="${statusCls}" style="border-radius:4px;padding:2px 8px;font-size:11px;white-space:nowrap">${o.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function sfRender() {
+  const stageF  = document.getElementById('sf-stage-filter').value;
+  const poF     = document.getElementById('sf-po-filter').value;
+  const ticketF = document.getElementById('sf-ticket-filter').value;
+  const search  = (document.getElementById('sf-search').value || '').toLowerCase();
+
+  // Build PO→DEL order map once (shared with demand summary)
+  const sfPoMapF = {};
+  RAW_ORDERS.forEach(order => {
+    const po = (order.poNumber || '').trim().toLowerCase();
+    if (po && po !== 'na' && !po.startsWith('not')) {
+      if (!sfPoMapF[po]) sfPoMapF[po] = [];
+      sfPoMapF[po].push(order);
+    }
+  });
+
+  // Helper: true if the matched DEL ticket already has an excluded status
+  const delTicketDone = (poNorm) => {
+    if (!poNorm) return false;
+    return (sfPoMapF[poNorm] || []).some(del => DF_EXCLUDED_STATUSES.has(del.status));
+  };
+
+  const statusF = document.getElementById('sf-status-filter') ? document.getElementById('sf-status-filter').value : 'all';
+
+  let filtered = sfOrders.filter(o => {
+    if (activeProductFilter && displayAmrType(o.product) !== activeProductFilter) return false;
+    if (stageF !== 'all' && o.stage !== stageF) return false;
+    if (poF === 'with'    && !o.poNumber) return false;
+    if (poF === 'without' && o.poNumber)  return false;
+    const poNorm = (o.poNumber || '').trim().toLowerCase();
+    const hasTicket = poNorm && (sfPoMapF[poNorm] || []).length > 0;
+    if (ticketF === 'matched' && !hasTicket) return false;
+    if (ticketF === 'missing' && (hasTicket || !o.poNumber)) return false;
+    if (delTicketDone(poNorm)) return false;
+    if (search && !o.account.toLowerCase().includes(search) &&
+        !o.product.toLowerCase().includes(search) &&
+        !o.dealName.toLowerCase().includes(search)) return false;
+    // Status filter
+    const rowStatus = (o.opportunityId && sfStatusMap[o.opportunityId]) || 'Pending';
+    if (statusF !== 'all' && rowStatus !== statusF) return false;
+    return true;
+  });
+
+  // Product demand summary (respects DEL ticket status exclusion)
+  sfRenderDemand(sfPoMapF);
+
+
+  const tbody = document.getElementById('sf-tbody');
+  const table = document.getElementById('sf-table');
+  const empty = document.getElementById('sf-empty');
+
+  if (!filtered.length) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    empty.textContent = sfOrders.length ? 'No orders match the current filters.' : 'Loading data from Google Sheets…';
+    return;
+  }
+
+  table.style.display = 'table';
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map((o, i) => {
+    const rowId = `sf-anc-${i}`;
+    const ancHtml = o.ancillary.length
+      ? `<button class="sf-ancillary-toggle" onclick="sfToggleAnc('${rowId}')">▸ ${o.ancillary.length} item${o.ancillary.length>1?'s':''}</button>
+         <div class="sf-ancillary-list" id="${rowId}">${o.ancillary.map(a=>`• ${a}`).join('<br>')}</div>`
+      : `<span style="color:var(--mut);font-size:11px">—</span>`;
+    const poCell = o.poNumber
+      ? `<span style="font-family:'Space Mono',monospace;font-size:11px">${o.poNumber}</span>`
+      : `<span class="sf-no-po">Not received</span>`;
+    // Match delivery ticket by PO number (sfPoMapF has order objects)
+    const poNorm = (o.poNumber || '').trim().toLowerCase();
+    const matchedDels = poNorm ? (sfPoMapF[poNorm] || []) : [];
+    let delTicketHtml;
+    if (matchedDels.length) {
+      delTicketHtml = matchedDels.map(del => {
+        const cls = del.status ? statusClass(del.status) : '';
+        return `<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px">
+          <span style="background:rgba(0,212,255,.12);color:var(--acc);border-radius:4px;padding:2px 7px;font-size:11px;font-family:'Space Mono',monospace;white-space:nowrap">${del.key}</span>
+          ${del.status ? `<span class="${cls}" style="border-radius:4px;padding:2px 7px;font-size:10px;white-space:nowrap">${del.status}</span>` : ''}
+        </div>`;
+      }).join('');
+    } else {
+      const ticketData = encodeURIComponent(JSON.stringify({
+        summary:      `${o.account} | ${o.product} x${o.qty}`,
+        amrType:      o.product,
+        qty:          o.qty,
+        location:     o.location,
+        typeOfSale:   'Customer - New',
+        poNumber:     o.poNumber,
+        poDate:       o.poDate,
+        dueDate:      o.dueDate,
+        purchaseType: o.purchaseType,
+        account:      o.account,
+        region:       o.region,
+        dealName:     o.dealName,
+        ancillary:    o.ancillary
+      }));
+      delTicketHtml = `<button onclick="sfShowTicketDraft(this)" data-ticket="${ticketData}" style="
+        background:rgba(0,229,160,.12);color:var(--grn);border:1px solid rgba(0,229,160,.3);
+        border-radius:5px;padding:4px 10px;font-size:11px;font-family:'Syne',sans-serif;
+        font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s
+      " onmouseenter="this.style.background='rgba(0,229,160,.22)'" onmouseleave="this.style.background='rgba(0,229,160,.12)'">
+        + Create DEL Ticket
+      </button>`;
+    }
+
+    const oppId     = o.opportunityId || '';
+    const rowStatus = (oppId && sfStatusMap[oppId]) || 'Pending';
+    const statusSel = `<select class="sf-status-sel sf-status-${rowStatus.toLowerCase()}"
+      data-oppid="${oppId}"
+      data-dealname="${(o.dealName||'').replace(/"/g,'&quot;')}"
+      onchange="sfStatusChange(this)">
+      <option value="Pending"   ${rowStatus==='Pending'   ? 'selected':''}>Pending</option>
+      <option value="Completed" ${rowStatus==='Completed' ? 'selected':''}>Completed</option>
+      <option value="Cancelled" ${rowStatus==='Cancelled' ? 'selected':''}>Cancelled</option>
+    </select>`;
+
+    return `<tr>
+      <td style="color:var(--mut);font-family:'Space Mono',monospace;font-size:11px">${i+1}</td>
+      <td>${statusSel}</td>
+      <td><div style="font-weight:600;font-size:12px">${o.account}</div></td>
+      <td style="font-size:11px;color:var(--mut)">${o.region || '—'}</td>
+      <td><span style="font-family:'Syne',sans-serif;font-weight:600">${o.product}</span></td>
+      <td style="text-align:center;font-family:'Space Mono',monospace;font-weight:700">${o.qty}</td>
+      <td>${poCell}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px">${o.poDate ? sfDisplayDate(o.poDate) : '<span class="sf-no-po">—</span>'}</td>
+      <td>${dueDateCell(o.dueDate)}</td>
+      <td style="font-size:11px">${o.location||'<span style="color:var(--mut)">—</span>'}</td>
+      <td style="font-size:11px">${o.purchaseType||'—'}</td>
+      <td style="font-size:11px">${o.owner||'<span style="color:var(--mut)">—</span>'}</td>
+      <td>${sfStageTag(o.stage)}</td>
+      <td>${delTicketHtml}</td>
+      <td>${ancHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+let sfCurrentTicketDraft = null;
+
+function sfShowTicketDraft(btn) {
+  const data = JSON.parse(decodeURIComponent(btn.dataset.ticket));
+  sfCurrentTicketDraft = data;
+
+  // Compute due date display
+  const dueDisplay = data.dueDate || '(PO date not set — will calculate on ticket creation)';
+
+  document.getElementById('sf-ticket-modal-body').innerHTML = `
+    <div style="font-size:12px;color:var(--mut);font-family:'Space Mono',monospace;margin-bottom:14px">
+      Fields pre-filled from Salesforce · Remaining fields to be completed by ops team
+    </div>
+    ${sfFieldRow('Summary',      data.summary,      true)}
+    ${sfFieldRow('AMR Type',     data.amrType,      true)}
+    ${sfFieldRow('Quantity',     data.qty,          true)}
+    ${sfFieldRow('Type of Sale', data.typeOfSale,   true)}
+    ${sfFieldRow('PO Number',    data.poNumber || '—', !!data.poNumber)}
+    ${sfFieldRow('PO Date',      data.poDate    || '—', !!data.poDate)}
+    ${sfFieldRow('Due Date',     dueDisplay,        !!data.dueDate)}
+    ${sfFieldRow('Location',     data.location  || '—', !!data.location)}
+    ${sfFieldRow('Purchase Type',data.purchaseType || '—', !!data.purchaseType)}
+    ${(()=>{
+      const anc = data.ancillary && data.ancillary.length ? data.ancillary : null;
+      const descVal = anc ? `Ancillary items:\n${anc.map(a=>`• ${a}`).join('\n')}` : '(none)';
+      const descHtml = anc
+        ? `<div style="font-size:12px;color:var(--txt);font-family:'Syne',sans-serif;line-height:1.6">${anc.map(a=>`• ${a}`).join('<br>')}</div>`
+        : `<span style="font-size:12px;color:var(--mut)">—</span>`;
+      return `<div style="padding:7px 0;border-bottom:1px solid var(--bdr)">
+        <div style="display:flex;gap:10px">
+          <div style="width:130px;flex-shrink:0;font-size:11px;color:var(--mut);font-family:'Space Mono',monospace;padding-top:2px">Description</div>
+          <div style="display:flex;align-items:flex-start;gap:6px;flex:1">
+            <span style="width:6px;height:6px;border-radius:50%;background:${anc?'var(--grn)':'var(--mut)'};flex-shrink:0;display:inline-block;margin-top:4px"></span>
+            ${descHtml}
+          </div>
+        </div>
+      </div>`;
+    })()}
+    <div style="margin-top:16px;padding:10px 12px;background:var(--s2);border-radius:6px;border-left:3px solid var(--ylw)">
+      <div style="font-size:11px;color:var(--ylw);font-weight:600;margin-bottom:4px">To be filled by ops team</div>
+      <div style="font-size:11px;color:var(--mut)">Solution Engineer · SOW Status · Priority</div>
+    </div>
+  `;
+  const modal = document.getElementById('sf-ticket-modal');
+  modal.style.display = 'flex';
+}
+
+function sfFieldRow(label, value, filled) {
+  const dotColor = filled ? 'var(--grn)' : 'var(--mut)';
+  const valColor = filled ? 'var(--txt)' : 'var(--mut)';
+  return `<div style="display:flex;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr)">
+    <div style="width:130px;flex-shrink:0;font-size:11px;color:var(--mut);font-family:'Space Mono',monospace">${label}</div>
+    <div style="display:flex;align-items:center;gap:6px;flex:1">
+      <span style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0;display:inline-block"></span>
+      <span style="font-size:12px;color:${valColor};font-family:'Syne',sans-serif;font-weight:${filled?600:400}">${value}</span>
+    </div>
+  </div>`;
+}
+
+function sfCopyTicket() {
+  if (!sfCurrentTicketDraft) return;
+  const d = sfCurrentTicketDraft;
+  const ancText = (d.ancillary && d.ancillary.length)
+    ? `Ancillary items:\n${d.ancillary.map(a => `  • ${a}`).join('\n')}`
+    : '—';
+  const text = [
+    `Summary:       ${d.summary}`,
+    `AMR Type:      ${d.amrType}`,
+    `Quantity:      ${d.qty}`,
+    `Type of Sale:  ${d.typeOfSale}`,
+    `PO Number:     ${d.poNumber || '—'}`,
+    `PO Date:       ${d.poDate || '—'}`,
+    `Due Date:      ${d.dueDate || '—'}`,
+    `Location:      ${d.location || '—'}`,
+    `Purchase Type: ${d.purchaseType || '—'}`,
+    `Description:\n  ${ancText}`,
+  ].join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.querySelector('#sf-ticket-modal button');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(()=>{ btn.textContent = orig; }, 1500);
+  });
+}
+
+function sfToggleAnc(id) {
+  const el = document.getElementById(id);
+  const btn = el.previousElementSibling;
+  el.classList.toggle('open');
+  btn.textContent = btn.textContent.replace(/[▸▾]/, el.classList.contains('open') ? '▾' : '▸');
+}
 
 // ── JIRA COMMENT FEATURE ─────────────────────────────────────────────────
 
@@ -1981,13 +4101,7 @@ function saveJiraCreds(email, token){
   sessionStorage.setItem('jira_token', token);
 }
 
-// On load, ask proxy if credentials are already saved
-fetch('/api/jira/creds/check').then(r=>r.json()).then(d=>{
-  if(d.saved){
-    sessionStorage.setItem('jira_email', d.email);
-    sessionStorage.setItem('jira_token', '__saved__');
-  }
-}).catch(()=>{});
+// Jira credentials now handled via Apps Script — no local proxy needed
 
 function openCommentModal(moKey){
   document.getElementById('cm-mo-key').textContent = moKey;
