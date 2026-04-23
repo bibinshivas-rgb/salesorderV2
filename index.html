@@ -878,20 +878,14 @@
 
 <!-- TAB NAVIGATION -->
 <div class="tab-nav">
-  <div class="tab-item active" onclick="switchTab('mo')"   id="tab-btn-mo">
-    <span>Manufacturing Orders</span><span class="tab-badge">MOM</span>
-  </div>
-  <div class="tab-item"        onclick="switchTab('so')"   id="tab-btn-so">
-    <span>Sales Orders</span><span class="tab-badge">DEL</span>
-  </div>
-  <div class="tab-item"        onclick="switchTab('somo')" id="tab-btn-somo">
-    <span>SO–MO Linkage</span><span class="tab-badge">HEALTH</span>
-  </div>
-  <div class="tab-item"        onclick="switchTab('sf')"   id="tab-btn-sf">
+  <div class="tab-item active" onclick="switchTab('sf')"   id="tab-btn-sf">
     <span>Demand Forecast</span><span class="tab-badge">DF</span>
   </div>
   <div class="tab-item"        onclick="switchTab('bp')"   id="tab-btn-bp">
     <span>Build Plan</span><span class="tab-badge">BP</span>
+  </div>
+  <div class="tab-item"        onclick="switchTab('mo')"   id="tab-btn-mo">
+    <span>Manufacturing Orders</span><span class="tab-badge">MOM</span>
   </div>
 </div>
 
@@ -955,95 +949,6 @@
 </div>
 
 
-<!-- TAB PANE: SALES ORDERS -->
-<div id="tab-so" class="tab-pane">
-  <!-- ACTIVE KPI PANEL -->
-<div class="kpi-panel">
-  <div class="kpi-left">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-      <div class="kpi-label-header" style="margin-bottom:0">Active Orders</div>
-      <div class="amr-multiselect" id="amrMultiWrap">
-        <button class="amr-multi-btn" id="amrMultiBtn" onclick="toggleAMRDropdown(event)">All Types ▾</button>
-        <div class="amr-multi-panel" id="amrMultiPanel">
-          <div class="amr-multi-actions">
-            <button onclick="selectAllAMR(event)">All</button>
-            <button onclick="clearAllAMR(event)">Clear</button>
-          </div>
-          <div id="amrCheckboxList"></div>
-        </div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-num" id="kpi-orders">—</div>
-      <div class="kpi-sub">Total Orders</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-num green" id="kpi-amrs">—</div>
-      <div class="kpi-sub">Total AMRs</div>
-    </div>
-    <div class="kpi-card" style="border-color:rgba(255,77,109,0.25)">
-      <div class="kpi-num red" id="kpi-overdue">—</div>
-      <div class="kpi-sub">Overdue Units</div>
-    </div>
-  </div>
-  <div class="kpi-right">
-    <div class="kpi-chart-header">
-      <span class="kpi-chart-title">AMRs by Due Week</span>
-    </div>
-    <div class="kpi-chart-wrap">
-      <canvas id="amrChart"></canvas>
-    </div>
-  </div>
-</div>
-
-  <!-- FILTER BAR -->
-<div class="filter-bar">
-  <div class="filter-group">
-    <input type="text" id="searchInput" placeholder="🔍  Search orders…" oninput="applyFilters()">
-  </div>
-  <div class="filter-group">
-    <select id="amrFilter" onchange="applyFilters()">
-      <option value="">All AMR Types</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <select id="poFilter" onchange="applyFilters()">
-      <option value="">All PO Status</option>
-      <option value="received">PO Received</option>
-      <option value="not_received">PO Not Received</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <select id="sowFilter" onchange="applyFilters()">
-      <option value="">All SOW Status</option>
-      <option value="accepted">Done &amp; Accepted</option>
-      <option value="correction">Under Correction</option>
-      <option value="notstarted">Not Started</option>
-      <option value="none">No SOW</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <span class="filter-label">SOW deadline:</span>
-    <input type="number" id="sowThreshold" value="10" min="1" max="365" oninput="applyFilters()">
-    <span class="filter-label">days</span>
-  </div>
-  <button class="reset-btn" onclick="resetFilters()">Reset</button>
-</div>
-
-  <!-- EXCEPTIONS -->
-<div id="so-exceptions" style="padding:0 0 0 0"></div>
-  <!-- MAIN -->
-<div class="main">
-  <div id="section-active"   class="section"></div>
-  <div id="section-dispatch" class="section collapsed"></div>
-  <div id="section-comm"     class="section collapsed"></div>
-  <div id="section-handover" class="section collapsed"></div>
-  <div id="section-requests" class="section collapsed"></div>
-  <div id="section-rejected" class="section collapsed"></div>
-</div>
-</div>
-
-
 <!-- TAB PANE: BUILD PLAN -->
 <div id="tab-bp" class="tab-pane">
   <div style="padding:28px 32px 0;">
@@ -1055,34 +960,6 @@
   </div>
 </div>
 
-<!-- TAB PANE: SO-MO LINKAGE -->
-<div id="tab-somo" class="tab-pane">
-  <div class="somo-summary-bar">
-    <div class="somo-stat">
-      <div class="somo-stat-num" style="color:var(--grn)" id="somo-covered">—</div>
-      <div class="somo-stat-lbl">Fully Covered</div>
-    </div>
-    <div class="somo-stat">
-      <div class="somo-stat-num" style="color:var(--ylw)" id="somo-partial">—</div>
-      <div class="somo-stat-lbl">Partial</div>
-    </div>
-    <div class="somo-stat" style="border-color:rgba(255,77,109,0.3)">
-      <div class="somo-stat-num" style="color:var(--red)" id="somo-missing">—</div>
-      <div class="somo-stat-lbl">Missing MOs</div>
-    </div>
-    <div class="somo-stat" style="border-color:rgba(96,165,250,0.3)">
-      <div class="somo-stat-num" style="color:#60a5fa" id="somo-orphan">—</div>
-      <div class="somo-stat-lbl">Orphan MOs</div>
-    </div>
-    <div style="margin-left:auto;font-size:11px;color:var(--mut);font-family:'Space Mono',monospace" id="somo-note">
-      Active SOs only · all non-rejected statuses
-    </div>
-  </div>
-  <div class="main" style="padding-top:8px">
-    <div id="section-somo" class="section"></div>
-  </div>
-</div>
-
 <!-- DEL TICKET DRAFT MODAL -->
 <div id="sf-ticket-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--s1);border:1px solid var(--bdr);border-radius:12px;width:520px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)">
@@ -1091,11 +968,12 @@
       <button onclick="document.getElementById('sf-ticket-modal').style.display='none'" style="background:none;border:none;color:var(--mut);cursor:pointer;font-size:18px;line-height:1">✕</button>
     </div>
     <div id="sf-ticket-modal-body" style="padding:20px"></div>
-    <div style="padding:14px 20px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px">
-      <button onclick="sfCopyTicket()" style="
+    <div style="padding:14px 20px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:8px">
+      <div id="sf-ticket-result" style="flex:1;font-size:12px;font-family:'Syne',sans-serif;"></div>
+      <button id="sf-ticket-create-btn" onclick="sfCreateTicket()" style="
         background:var(--acc);color:#0a0c10;border:none;border-radius:6px;
         padding:8px 18px;font-family:'Syne',sans-serif;font-weight:600;font-size:13px;cursor:pointer
-      ">Copy to clipboard</button>
+      ">Create DEL Ticket</button>
       <button onclick="document.getElementById('sf-ticket-modal').style.display='none'" style="
         background:var(--s2);color:var(--txt);border:1px solid var(--bdr);border-radius:6px;
         padding:8px 18px;font-family:'Syne',sans-serif;font-size:13px;cursor:pointer
@@ -1194,6 +1072,14 @@
       </div>
     </div>
 
+    <!-- Demand bar chart -->
+    <div style="margin-bottom:28px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--txt);margin-bottom:12px;letter-spacing:.4px;">UNITS DUE BY WEEK</div>
+      <div style="background:var(--s1);border:1px solid var(--bdr);border-radius:8px;padding:16px 20px;">
+        <canvas id="df-demand-chart" height="90"></canvas>
+      </div>
+    </div>
+
     <!-- Product filter banner -->
     <div id="product-filter-banner" style="display:none;align-items:center;gap:10px;margin-bottom:16px;padding:9px 14px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:6px;font-family:'Syne',sans-serif;font-size:12px;color:var(--acc);">
       <span style="opacity:.7;">Filtering by:</span>
@@ -1203,9 +1089,7 @@
 
     <!-- Table -->
     <div id="sf-table-wrap" style="overflow-x:auto;margin-bottom:40px;">
-      <div id="sf-empty" style="text-align:center;padding:60px 20px;color:var(--mut);font-family:'Space Mono',monospace;font-size:13px;">
-        Upload a Salesforce export (.xlsx) to see orders here
-      </div>
+      <div id="sf-empty" style="display:none;"></div>
       <table id="sf-table" style="display:none;width:100%;border-collapse:collapse;font-size:12px;">
         <thead>
           <tr style="background:var(--s2);position:sticky;top:0;z-index:2;">
@@ -1298,8 +1182,9 @@ let RAW_ORDERS = [{"key": "DEL-1235", "summary": "Engineering Vehicle (04/26) | 
 
 // ── BUILD AMR FILTER ──────────────────────────────────────────────────────
 function buildAMRFilter() {
-  const types = [...new Set(RAW_ORDERS.map(o => o.amrType).filter(Boolean))].sort();
   const sel = document.getElementById('amrFilter');
+  if (!sel) return; // element removed along with Sales Orders tab
+  const types = [...new Set(RAW_ORDERS.map(o => o.amrType).filter(Boolean))].sort();
   types.forEach(t => {
     const opt = document.createElement('option');
     opt.value = t;
@@ -1663,7 +1548,7 @@ function buildAMRDropdown() {
   sorted.forEach(a => selectedAMRTypes.add(a));   // all selected by default
 
   const container = document.getElementById('amrCheckboxList');
-  container.innerHTML = '';
+  if (!container) return; // element removed along with Sales Orders tab
   sorted.forEach(amr => {
     const label = document.createElement('label');
     label.className = 'amr-checkbox-item';
@@ -1796,6 +1681,7 @@ function renderExceptions(filtered, thresh) {
 
 // ── APPLY FILTERS ─────────────────────────────────────────────────────────
 function applyFilters() {
+  if (!document.getElementById('sowThreshold')) return; // Sales Orders tab removed
   const thresh   = parseInt(document.getElementById('sowThreshold').value) || 10;
   const filtered = getFiltered();
   currentFilteredActive = filtered.filter(o =>
@@ -3013,6 +2899,7 @@ function renderSOHealthRow(so){
 }
 
 function renderSOHealth(){
+  if (!document.getElementById('section-somo')) return; // SO-MO tab removed
   const ACTIVE_SO_ST=new Set(['Approved','Under Procurement','IQC','Electronics Assembly','Mechanical Assembly','Vehicle Bringup','Validation']);
   const activeSOs=RAW_ORDERS.filter(s=>ACTIVE_SO_ST.has(s.status)&&s.status!=='Rejected');
   const ok   =activeSOs.filter(s=>(SO_MO_MAP[s.key]||[]).length>=(parseInt(s.qty)||0)&&s.qty);
@@ -3083,17 +2970,16 @@ function initBRF(){
 
 
 // ── TAB NAVIGATION ────────────────────────────────────────────────────────
-const TAB_NAMES = { mo:'Manufacturing Orders', so:'Sales Orders', somo:'SO–MO Linkage', sf:'Demand Forecast', bp:'Build Plan' };
+const TAB_NAMES = { mo:'Manufacturing Orders', sf:'Demand Forecast', bp:'Build Plan' };
 function switchTab(tab){
-  ['mo','so','somo','sf','bp'].forEach(t=>{
+  ['mo','sf','bp'].forEach(t=>{
     const pane=document.getElementById('tab-'+t);
     const btn=document.getElementById('tab-btn-'+t);
     if(pane) pane.classList.toggle('active',t===tab);
     if(btn)  btn.classList.toggle('active',t===tab);
   });
   document.querySelector('.header-title').textContent=TAB_NAMES[tab]||tab;
-  if(tab==='somo') renderSOHealthTab();
-  if(tab==='bp')   renderBuildPlan();
+  if(tab==='bp') renderBuildPlan();
 }
 function renderSOHealthTab(){
   const ACTIVE_SO_ST=new Set(['Approved','Under Procurement','IQC','Electronics Assembly','Mechanical Assembly','Vehicle Bringup','Validation']);
@@ -3134,12 +3020,13 @@ function toggleTheme(){
 })();
 
 init();
-switchTab('mo');
+switchTab('sf');
 setTimeout(()=>{
   initBRF();
   dfRenderJiraSection('Customer - Replacement', 'df-repl-tbody', 'df-repl-count');
   dfRenderJiraSection('Internal', 'df-int-tbody', 'df-int-count');
   dfRenderExceptions();
+  renderDemandChart();
   sfRenderDemand();
   // Auto-fetch from Apps Script on load
   sfFetchGSheet();
@@ -3231,6 +3118,7 @@ function sfFetchGSheet() {
       dfRenderJiraSection('Customer - Replacement', 'df-repl-tbody', 'df-repl-count');
       dfRenderJiraSection('Internal', 'df-int-tbody', 'df-int-count');
       dfRenderExceptions();
+      renderDemandChart();
       if (typeof renderBRF === 'function') renderBRF();
       if (document.getElementById('tab-bp').classList.contains('active')) renderBuildPlan();
 
@@ -3256,13 +3144,27 @@ function sfNormalizePO(po) {
 
 function sfFmtDate(d) {
   if (!d) return '';
-  if (d instanceof Date) return d.toISOString().slice(0,10);
+  // Helper: format a Date using LOCAL timezone (avoids UTC shift stripping a day)
+  function localYMD(dt) {
+    return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  }
+  if (d instanceof Date) return localYMD(d);
   const s = String(d).trim();
   if (!s) return '';
-  // dd/mm/yyyy
+  // ISO datetime string sent by Apps Script (e.g. "2026-12-01T18:30:00.000Z")
+  // Must parse with new Date() and use local methods — slicing UTC would lose a day in IST
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return localYMD(new Date(s));
+  // Slash date — auto-detect DD/MM vs MM/DD by which number exceeds 12
   const m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m1) return `${m1[3]}-${m1[2].padStart(2,'0')}-${m1[1].padStart(2,'0')}`;
-  // yyyy-mm-dd or ISO
+  if (m1) {
+    const a = parseInt(m1[1]), b = parseInt(m1[2]);
+    let dd, mm;
+    if (a > 12)      { dd = a; mm = b; }  // first > 12 → must be DD/MM
+    else if (b > 12) { dd = b; mm = a; }  // second > 12 → must be MM/DD
+    else             { dd = a; mm = b; }  // ambiguous → default DD/MM (Indian)
+    return `${m1[3]}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+  }
+  // yyyy-mm-dd plain date string
   const m2 = s.match(/^(\d{4}-\d{2}-\d{2})/);
   if (m2) return m2[1];
   return s;
@@ -3581,6 +3483,160 @@ function renderBuildPlan() {
     </table>`;
 }
 
+// ── DEMAND BAR CHART ─────────────────────────────────────────────────────
+
+const DEMAND_CHART_COLORS = {
+  'Sherpa 10K':           '#7b61ff',
+  'Sherpa Pallet Mover':  '#00d4ff',
+  'Sherpa XT Lite':       '#00e5a0',
+  'Sherpa XT':            '#f5c518',
+  'Sherpa Lite':          '#ff8c42',
+  'Sherpa Flex Tug':      '#60a5fa',
+  'Sherpa Flex Fork':     '#e879f9',
+  'Sherpa Lifter':        '#f472b6',
+  'Lifter 500':           '#a78bfa',
+  'Sherpa Tug V3':        '#fb923c',
+  'Sherpa Tug V3.5':      '#34d399',
+};
+function demandChartColor(name) { return DEMAND_CHART_COLORS[name] || '#94a3b8'; }
+
+let _demandChart = null;
+
+function renderDemandChart() {
+  const canvas = document.getElementById('df-demand-chart');
+  if (!canvas) return;
+
+  // Week buckets — same logic as Build Plan
+  const now = new Date(); now.setHours(0,0,0,0);
+  const dow = now.getDay();
+  const weekStart = new Date(now);
+  weekStart.setDate(weekStart.getDate() - (dow === 0 ? 6 : dow - 1));
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const weeks = Array.from({length:14}, (_,i) => {
+    const s = new Date(weekStart); s.setDate(s.getDate() + i*7);
+    const e = new Date(s); e.setDate(e.getDate() + 6);
+    return { start:s, end:e, label:`${MON[s.getMonth()]} ${s.getDate()}` };
+  });
+
+  function getWeekIdx(dueDate) {
+    if (!dueDate) return 0; // no due date → current week (same as overdue)
+    const d = new Date(dueDate); d.setHours(0,0,0,0);
+    if (d < weekStart) return 0; // past due → current week
+    for (let i = 0; i < weeks.length; i++)
+      if (d >= weeks[i].start && d <= weeks[i].end) return i;
+    return null; // beyond 14 weeks — skip
+  }
+
+  // Collect all active DEL orders (same source as tables)
+  const EXC = new Set(['Rejected','Dispatch','Commissioning','commissioning','Handover Done','Handover done']);
+  const orders = RAW_ORDERS.filter(o => !EXC.has(o.status));
+
+  // Apply product filter
+  const filtered = activeProductFilter
+    ? orders.filter(o => displayAmrType(o.amrType) === activeProductFilter)
+    : orders;
+
+  // Unique AMR types (sorted by total desc)
+  const amrTotals = {};
+  filtered.forEach(o => {
+    const a = displayAmrType(o.amrType);
+    if (a && a !== '—') amrTotals[a] = (amrTotals[a] || 0) + (o.qty || 1);
+  });
+  const amrTypes = Object.keys(amrTotals).sort((a,b) => amrTotals[b] - amrTotals[a]);
+
+  // Build per-week account breakdown for tooltips
+  // weekData[weekIdx][amrType] = [{account, qty}]
+  const weekData = Array.from({length: weeks.length}, () => ({}));
+  filtered.forEach(o => {
+    const wi = getWeekIdx(o.dueDate);
+    if (wi === null || wi >= weeks.length) return;
+    const amr = displayAmrType(o.amrType);
+    if (!amr || amr === '—') return;
+    if (!weekData[wi][amr]) weekData[wi][amr] = [];
+    const account = o.summary && o.summary.includes('|')
+      ? o.summary.split('|')[0].trim() : (o.summary || o.account || '?');
+    const existing = weekData[wi][amr].find(e => e.account === account);
+    if (existing) existing.qty += (o.qty || 1);
+    else weekData[wi][amr].push({ account, qty: o.qty || 1 });
+  });
+
+  // Build datasets — one per AMR type
+  const datasets = amrTypes.map(amr => {
+    const data = weeks.map((_, wi) => {
+      return (weekData[wi][amr] || []).reduce((s, e) => s + e.qty, 0);
+    });
+    const color = demandChartColor(amr);
+    return {
+      label: amr,
+      data,
+      backgroundColor: color + 'cc',
+      borderColor: color,
+      borderWidth: 1,
+      borderRadius: 3,
+    };
+  });
+
+  const labels = weeks.map((w, i) => i === 0 ? `${w.label} ★` : w.label);
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const mutColor  = isDark ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.4)';
+  const gridColor = isDark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.07)';
+  const txtColor  = isDark ? 'rgba(255,255,255,.7)'  : 'rgba(0,0,0,.7)';
+
+  if (_demandChart) _demandChart.destroy();
+  _demandChart = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { color: txtColor, font: { family: 'Syne', size: 11 }, boxWidth: 12, padding: 16 }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            title: (items) => {
+              const i = items[0].dataIndex;
+              return i === 0 ? `${weeks[i].label} ★  (incl. overdue & no date)` : weeks[i].label;
+            },
+            label: (item) => {
+              if (!item.parsed.y) return null;
+              const wi = item.dataIndex;
+              const amr = item.dataset.label;
+              const entries = (weekData[wi] && weekData[wi][amr]) || [];
+              const lines = [`${amr}`];
+              entries.forEach(e => lines.push(`  ${e.account}: ${e.qty}`));
+              return lines;
+            },
+            labelColor: (item) => ({
+              borderColor: item.dataset.borderColor,
+              backgroundColor: item.dataset.backgroundColor,
+              borderRadius: 3,
+            }),
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: { color: txtColor, font: { family: 'Space Mono', size: 10 } },
+          grid: { color: gridColor }
+        },
+        y: {
+          stacked: true,
+          ticks: { color: txtColor, font: { family: 'Space Mono', size: 10 }, stepSize: 1 },
+          grid: { color: gridColor },
+          title: { display: true, text: 'Units', color: mutColor, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
 function setProductFilter(prod) {
   activeProductFilter = (activeProductFilter === prod) ? null : prod;
 
@@ -3589,6 +3645,7 @@ function setProductFilter(prod) {
   dfRenderJiraSection('Customer - Replacement', 'df-repl-tbody', 'df-repl-count');
   dfRenderJiraSection('Internal', 'df-int-tbody', 'df-int-count');
   dfRenderExceptions();
+  renderDemandChart();
 
   // Refresh summary table highlighting (re-render it in place)
   sfRenderDemand();
@@ -3640,7 +3697,7 @@ function sfRenderDemand(poMap) {
     }
   });
 
-  // Exceptions: Customer-New DEL tickets not matched to any SF PO (same logic as dfRenderExceptions)
+  // Exceptions: Customer-New DEL tickets not matched to any SF PO
   const excSfPoSet = new Set();
   sfOrders.forEach(o => {
     const po = (o.poNumber || '').trim().toLowerCase();
@@ -3806,7 +3863,7 @@ function normalizeAmrType(s) {
 }
 
 function dfRenderExceptions() {
-  // Primary match: PO number
+  // Match by PO number
   const sfPoSet = new Set();
   (sfOrders || []).forEach(o => {
     const po = (o.poNumber || '').trim().toLowerCase();
@@ -3926,7 +3983,7 @@ function sfRender() {
     const poCell = o.poNumber
       ? `<span style="font-family:'Space Mono',monospace;font-size:11px">${o.poNumber}</span>`
       : `<span class="sf-no-po">Not received</span>`;
-    // Match delivery ticket by PO number (sfPoMapF has order objects)
+    // Match delivery ticket by PO number
     const poNorm = (o.poNumber || '').trim().toLowerCase();
     const matchedDels = poNorm ? (sfPoMapF[poNorm] || []) : [];
     let delTicketHtml;
@@ -4018,17 +4075,15 @@ function sfShowTicketDraft(btn) {
     ${sfFieldRow('Purchase Type',data.purchaseType || '—', !!data.purchaseType)}
     ${(()=>{
       const anc = data.ancillary && data.ancillary.length ? data.ancillary : null;
-      const descVal = anc ? `Ancillary items:\n${anc.map(a=>`• ${a}`).join('\n')}` : '(none)';
-      const descHtml = anc
-        ? `<div style="font-size:12px;color:var(--txt);font-family:'Syne',sans-serif;line-height:1.6">${anc.map(a=>`• ${a}`).join('<br>')}</div>`
-        : `<span style="font-size:12px;color:var(--mut)">—</span>`;
+      const descVal = anc ? `Ancillary items:\n${anc.map(a=>`• ${a}`).join('\n')}` : '';
       return `<div style="padding:7px 0;border-bottom:1px solid var(--bdr)">
-        <div style="display:flex;gap:10px">
-          <div style="width:130px;flex-shrink:0;font-size:11px;color:var(--mut);font-family:'Space Mono',monospace;padding-top:2px">Description</div>
-          <div style="display:flex;align-items:flex-start;gap:6px;flex:1">
-            <span style="width:6px;height:6px;border-radius:50%;background:${anc?'var(--grn)':'var(--mut)'};flex-shrink:0;display:inline-block;margin-top:4px"></span>
-            ${descHtml}
-          </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="width:130px;flex-shrink:0;font-size:11px;color:var(--mut);font-family:'Space Mono',monospace;padding-top:6px">Description</div>
+          <textarea id="sf-ticket-desc" rows="4" style="
+            flex:1;background:var(--s2);border:1px solid var(--bdr);border-radius:5px;
+            color:var(--txt);font-family:'Syne',sans-serif;font-size:12px;line-height:1.6;
+            padding:7px 10px;resize:vertical;outline:none;
+          " placeholder="Add description…">${descVal}</textarea>
         </div>
       </div>`;
     })()}
@@ -4053,29 +4108,59 @@ function sfFieldRow(label, value, filled) {
   </div>`;
 }
 
-function sfCopyTicket() {
+function sfCreateTicket() {
   if (!sfCurrentTicketDraft) return;
   const d = sfCurrentTicketDraft;
-  const ancText = (d.ancillary && d.ancillary.length)
-    ? `Ancillary items:\n${d.ancillary.map(a => `  • ${a}`).join('\n')}`
-    : '—';
-  const text = [
-    `Summary:       ${d.summary}`,
-    `AMR Type:      ${d.amrType}`,
-    `Quantity:      ${d.qty}`,
-    `Type of Sale:  ${d.typeOfSale}`,
-    `PO Number:     ${d.poNumber || '—'}`,
-    `PO Date:       ${d.poDate || '—'}`,
-    `Due Date:      ${d.dueDate || '—'}`,
-    `Location:      ${d.location || '—'}`,
-    `Purchase Type: ${d.purchaseType || '—'}`,
-    `Description:\n  ${ancText}`,
-  ].join('\n');
-  navigator.clipboard.writeText(text).then(()=>{
-    const btn = document.querySelector('#sf-ticket-modal button');
-    const orig = btn.textContent;
-    btn.textContent = 'Copied!';
-    setTimeout(()=>{ btn.textContent = orig; }, 1500);
+  const descEl = document.getElementById('sf-ticket-desc');
+  const desc = descEl ? descEl.value.trim() : '';
+
+  const btn = document.getElementById('sf-ticket-create-btn');
+  const resultEl = document.getElementById('sf-ticket-result');
+  btn.disabled = true;
+  btn.textContent = '⏳ Creating…';
+  resultEl.textContent = '';
+
+  const payload = {
+    action:      'createDEL',
+    summary:     d.summary,
+    amrType:     d.amrType,
+    qty:         d.qty,
+    typeOfSale:  d.typeOfSale,
+    poNumber:    d.poNumber  || '',
+    poDate:      d.poDate    || '',
+    dueDate:     d.dueDate   || '',
+    location:    d.location  || '',
+    purchaseType:d.purchaseType || '',
+    description: desc
+  };
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(res => {
+    btn.disabled = false;
+    if (res.ok && res.key) {
+      btn.textContent = '✓ Created';
+      btn.style.background = 'var(--grn)';
+      resultEl.innerHTML = `<span style="color:var(--grn);font-weight:600;">
+        <a href="https://atimotors.atlassian.net/browse/${res.key}" target="_blank"
+           style="color:var(--grn);text-decoration:none;font-family:'Space Mono',monospace">
+          ${res.key}
+        </a> created successfully
+      </span>`;
+    } else {
+      btn.textContent = 'Create DEL Ticket';
+      resultEl.innerHTML = `<span style="color:#ef4444;">Error: ${res.error || 'Unknown error'}</span>`;
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.textContent = 'Create DEL Ticket';
+    resultEl.innerHTML = `<span style="color:#ef4444;">Request failed: ${err.message}</span>`;
   });
 }
 
