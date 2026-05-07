@@ -986,9 +986,9 @@
     <div style="padding:16px 20px;border-bottom:1px solid var(--bdr);">
       <div style="font-size:11px;font-family:'Space Mono',monospace;color:var(--mut);margin-bottom:8px;">Email Body Preview</div>
       <div id="sf-email-body-preview" style="
-        background:var(--s2);border:1px solid var(--bdr);border-radius:6px;
-        padding:14px;font-size:12px;font-family:'Syne',sans-serif;color:var(--txt);
-        max-height:340px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;
+        background:#ffffff;border:1px solid var(--bdr);border-radius:6px;
+        padding:14px;font-size:12px;color:#111827;
+        max-height:360px;overflow-y:auto;line-height:1.6;
       "></div>
     </div>
     <div style="padding:14px 20px;display:flex;align-items:center;gap:8px;">
@@ -3546,90 +3546,79 @@ function sfDraftEmail() {
     return;
   }
 
-  const today    = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-  const stageEl  = document.getElementById('sf-stage-filter');
+  const today      = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  const stageEl    = document.getElementById('sf-stage-filter');
   const stageLabel = stageEl ? stageEl.options[stageEl.selectedIndex].text : 'All Stages';
+  const totalUnits = orders.reduce((s, o) => s + o.qty, 0);
 
-  // Build plain-text table
-  const col = (s, w) => String(s ?? '—').padEnd(w).slice(0, w);
-  const divider = '─'.repeat(110);
+  const td  = (text, align='left', bold=false) =>
+    `<td style="padding:8px 12px;border:1px solid #d1d5db;text-align:${align};${bold?'font-weight:600;':''}white-space:nowrap;">${text ?? '—'}</td>`;
+  const th  = (text, align='left') =>
+    `<th style="padding:8px 12px;border:1px solid #9ca3af;background:#1e3a5f;color:#ffffff;text-align:${align};white-space:nowrap;font-weight:600;">${text}</th>`;
 
-  const rows = orders.map((o, i) => {
-    const poDate  = o.poDate   ? sfDisplayDate(o.poDate)   : '—';
-    const dueDate = o.dueDate  ? sfDisplayDate(o.dueDate)  : '—';
-    const close   = o.closeDate? sfDisplayDate(o.closeDate): '—';
-    return [
-      col(i + 1, 3),
-      col(o.account, 28),
-      col(o.product, 22),
-      col(o.qty, 4),
-      col(o.poNumber || '—', 18),
-      col(poDate,  12),
-      col(dueDate, 12),
-      col(close,   12),
-      col(o.stage, 18),
-    ].join(' │ ');
-  });
+  const tableRows = orders.map((o, i) => `<tr style="background:${i%2===0?'#ffffff':'#f9fafb'}">
+    ${td(i+1, 'center')}
+    ${td(o.account, 'left', true)}
+    ${td(o.product)}
+    ${td(o.qty, 'center')}
+    ${td(o.poNumber || '—')}
+    ${td(o.poDate    ? sfDisplayDate(o.poDate)    : '—')}
+    ${td(o.dueDate   ? sfDisplayDate(o.dueDate)   : '—')}
+    ${td(o.closeDate ? sfDisplayDate(o.closeDate) : '—')}
+    ${td(o.stage)}
+  </tr>`).join('');
 
-  const header = [
-    col('#',       3),
-    col('Account', 28),
-    col('AMR Type',22),
-    col('Qty',      4),
-    col('PO Number',18),
-    col('PO Date',  12),
-    col('Due Date', 12),
-    col('Close Date',12),
-    col('Stage',   18),
-  ].join(' │ ');
+  const html = `<div style="font-family:Arial,sans-serif;font-size:14px;color:#111827;max-width:900px;">
+    <p>Hi Team,</p>
+    <p>Please review the Salesforce opportunities listed below (<strong>${stageLabel}</strong> &middot; as of ${today}) and ensure all details are accurate and up to date.</p>
+    <p><strong>Key items to verify:</strong></p>
+    <ul>
+      <li><strong>PO Number &amp; PO Date</strong> &mdash; confirm these match the actual received PO</li>
+      <li><strong>Due Date</strong> &mdash; confirm this aligns with committed delivery timelines</li>
+      <li><strong>Close Date</strong> &mdash; update if the expected close date has changed</li>
+      <li><strong>Stage</strong> &mdash; move to the correct stage if the opportunity has progressed</li>
+    </ul>
+    <table style="border-collapse:collapse;width:100%;font-size:13px;margin:16px 0;">
+      <thead><tr>
+        ${th('#','center')}${th('Account')}${th('AMR Type')}${th('Qty','center')}
+        ${th('PO Number')}${th('PO Date')}${th('Due Date')}${th('Close Date')}${th('Stage')}
+      </tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    <p style="color:#6b7280;font-size:12px;"><strong>Total:</strong> ${orders.length} order${orders.length!==1?'s':''} &middot; ${totalUnits} unit${totalUnits!==1?'s':''}</p>
+    <p>Please reply with any corrections or confirm if everything looks correct.</p>
+    <p>Thank you,<br>Operations Team</p>
+  </div>`;
 
-  const body = [
-    `Hi Team,`,
-    ``,
-    `Please review the Salesforce opportunities listed below (${stageLabel} · as of ${today}) and ensure all details are accurate and up to date.`,
-    ``,
-    `Key items to verify:`,
-    `  • PO Number and PO Date — confirm these match the actual received PO`,
-    `  • Due Date — confirm this aligns with committed delivery timelines`,
-    `  • Close Date — update if the expected close date has changed`,
-    `  • Stage — move to the correct stage if the opportunity has progressed`,
-    ``,
-    divider,
-    header,
-    divider,
-    ...rows,
-    divider,
-    ``,
-    `Total: ${orders.length} order${orders.length !== 1 ? 's' : ''} · ${orders.reduce((s,o)=>s+o.qty,0)} units`,
-    ``,
-    `Please reply with any corrections or confirm if everything looks correct.`,
-    ``,
-    `Thank you,`,
-    `Operations Team`,
-  ].join('\n');
-
-  // Pre-fill modal
   const subject = `[Action Required] Salesforce Order Review — ${stageLabel} · ${today}`;
   document.getElementById('sf-email-subject').value = subject;
-  document.getElementById('sf-email-body-preview').textContent = body;
+  document.getElementById('sf-email-body-preview').innerHTML = html;
   document.getElementById('sf-email-result').textContent = '';
-
   document.getElementById('sf-email-modal').style.display = 'flex';
 }
 
 function sfEmailCopyBody() {
-  const body = document.getElementById('sf-email-body-preview').textContent;
-  navigator.clipboard.writeText(body).then(() => {
+  const el = document.getElementById('sf-email-body-preview');
+  // Copy as rich HTML so it pastes as a formatted table in email clients
+  const blob = new Blob([el.innerHTML], { type: 'text/html' });
+  const item = new ClipboardItem({ 'text/html': blob });
+  navigator.clipboard.write([item]).then(() => {
     const r = document.getElementById('sf-email-result');
-    r.innerHTML = '<span style="color:var(--grn);">✓ Copied to clipboard</span>';
-    setTimeout(() => { r.textContent = ''; }, 2000);
+    r.innerHTML = '<span style="color:var(--grn);">✓ Copied — paste directly into your email</span>';
+    setTimeout(() => { r.textContent = ''; }, 2500);
+  }).catch(() => {
+    // Fallback: copy plain text
+    navigator.clipboard.writeText(el.innerText).then(() => {
+      document.getElementById('sf-email-result').innerHTML =
+        '<span style="color:var(--ylw);">Copied as plain text (browser blocked rich copy)</span>';
+    });
   });
 }
 
 function sfEmailOpenMailto() {
   const to      = document.getElementById('sf-email-to').value.trim();
   const subject = encodeURIComponent(document.getElementById('sf-email-subject').value);
-  const body    = encodeURIComponent(document.getElementById('sf-email-body-preview').textContent);
+  const body    = encodeURIComponent(document.getElementById('sf-email-body-preview').innerText);
   window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
 }
 
