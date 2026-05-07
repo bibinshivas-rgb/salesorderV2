@@ -960,6 +960,51 @@
   </div>
 </div>
 
+<!-- EMAIL DRAFT MODAL -->
+<div id="sf-email-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--s1);border:1px solid var(--bdr);border-radius:12px;width:720px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div style="padding:18px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--txt)">✉ Draft Review Email</div>
+      <button onclick="document.getElementById('sf-email-modal').style.display='none'" style="background:none;border:none;color:var(--mut);cursor:pointer;font-size:18px;line-height:1">✕</button>
+    </div>
+    <div style="padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:11px;font-family:'Space Mono',monospace;color:var(--mut);width:60px;flex-shrink:0;">To</span>
+        <input id="sf-email-to" type="text" placeholder="sales@atimotors.com, …" style="
+          flex:1;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);
+          padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Syne',sans-serif;outline:none;
+        ">
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:11px;font-family:'Space Mono',monospace;color:var(--mut);width:60px;flex-shrink:0;">Subject</span>
+        <input id="sf-email-subject" type="text" style="
+          flex:1;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);
+          padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Syne',sans-serif;outline:none;
+        ">
+      </div>
+    </div>
+    <div style="padding:16px 20px;border-bottom:1px solid var(--bdr);">
+      <div style="font-size:11px;font-family:'Space Mono',monospace;color:var(--mut);margin-bottom:8px;">Email Body Preview</div>
+      <div id="sf-email-body-preview" style="
+        background:var(--s2);border:1px solid var(--bdr);border-radius:6px;
+        padding:14px;font-size:12px;font-family:'Syne',sans-serif;color:var(--txt);
+        max-height:340px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;
+      "></div>
+    </div>
+    <div style="padding:14px 20px;display:flex;align-items:center;gap:8px;">
+      <div id="sf-email-result" style="flex:1;font-size:12px;font-family:'Syne',sans-serif;"></div>
+      <button onclick="sfEmailCopyBody()" style="
+        background:var(--s2);color:var(--txt);border:1px solid var(--bdr);border-radius:6px;
+        padding:8px 16px;font-family:'Syne',sans-serif;font-size:13px;cursor:pointer;
+      ">Copy Body</button>
+      <button onclick="sfEmailOpenMailto()" style="
+        background:var(--acc);color:#0a0c10;border:none;border-radius:6px;
+        padding:8px 18px;font-family:'Syne',sans-serif;font-weight:600;font-size:13px;cursor:pointer;
+      ">Open in Mail App</button>
+    </div>
+  </div>
+</div>
+
 <!-- DEL TICKET DRAFT MODAL -->
 <div id="sf-ticket-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--s1);border:1px solid var(--bdr);border-radius:12px;width:520px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)">
@@ -994,6 +1039,14 @@
         font-weight:600;font-size:13px;cursor:pointer;border:none;transition:opacity .15s;white-space:nowrap;
       " onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">
         ↻ Refresh Data
+      </button>
+      <button onclick="sfDraftEmail()" style="
+        display:inline-flex;align-items:center;gap:6px;padding:7px 16px;
+        background:transparent;color:var(--txt);border:1px solid var(--bdr);border-radius:6px;
+        font-family:'Syne',sans-serif;font-weight:600;font-size:13px;cursor:pointer;
+        transition:background .15s;white-space:nowrap;
+      " onmouseenter="this.style.background='var(--s2)'" onmouseleave="this.style.background='transparent'">
+        ✉ Draft Review Email
       </button>
       <div id="sf-file-name" style="font-size:12px;font-family:'Space Mono',monospace;color:var(--mut)">No data loaded</div>
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -1105,6 +1158,7 @@
             <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Location</th>
             <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Purchase Type</th>
             <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Owner</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Close Date</th>
             <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Stage</th>
             <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Delivery Ticket</th>
             <th style="padding:8px 10px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);white-space:nowrap;">Ancillary</th>
@@ -3041,6 +3095,7 @@ const SF_AMR_PRODUCTS = new Set([
 ]);
 
 let sfOrders = []; // parsed & grouped deals
+let sfCurrentFiltered = []; // currently visible SF orders (updated by sfRender)
 let activeProductFilter = null; // canonical displayAmrType name, or null
 
 // ── APPS SCRIPT INTEGRATION ───────────────────────────────────────────────
@@ -3481,6 +3536,101 @@ function renderBuildPlan() {
       </thead>
       <tbody>${qRows || `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mut);font-family:'Space Mono',monospace;font-size:12px;">No active orders</td></tr>`}</tbody>
     </table>`;
+}
+
+// ── EMAIL DRAFT ───────────────────────────────────────────────────────────
+function sfDraftEmail() {
+  const orders = sfCurrentFiltered;
+  if (!orders.length) {
+    alert('No orders currently visible — apply filters or refresh data first.');
+    return;
+  }
+
+  const today    = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  const stageEl  = document.getElementById('sf-stage-filter');
+  const stageLabel = stageEl ? stageEl.options[stageEl.selectedIndex].text : 'All Stages';
+
+  // Build plain-text table
+  const col = (s, w) => String(s ?? '—').padEnd(w).slice(0, w);
+  const divider = '─'.repeat(110);
+
+  const rows = orders.map((o, i) => {
+    const poDate  = o.poDate   ? sfDisplayDate(o.poDate)   : '—';
+    const dueDate = o.dueDate  ? sfDisplayDate(o.dueDate)  : '—';
+    const close   = o.closeDate? sfDisplayDate(o.closeDate): '—';
+    return [
+      col(i + 1, 3),
+      col(o.account, 28),
+      col(o.product, 22),
+      col(o.qty, 4),
+      col(o.poNumber || '—', 18),
+      col(poDate,  12),
+      col(dueDate, 12),
+      col(close,   12),
+      col(o.stage, 18),
+    ].join(' │ ');
+  });
+
+  const header = [
+    col('#',       3),
+    col('Account', 28),
+    col('AMR Type',22),
+    col('Qty',      4),
+    col('PO Number',18),
+    col('PO Date',  12),
+    col('Due Date', 12),
+    col('Close Date',12),
+    col('Stage',   18),
+  ].join(' │ ');
+
+  const body = [
+    `Hi Team,`,
+    ``,
+    `Please review the Salesforce opportunities listed below (${stageLabel} · as of ${today}) and ensure all details are accurate and up to date.`,
+    ``,
+    `Key items to verify:`,
+    `  • PO Number and PO Date — confirm these match the actual received PO`,
+    `  • Due Date — confirm this aligns with committed delivery timelines`,
+    `  • Close Date — update if the expected close date has changed`,
+    `  • Stage — move to the correct stage if the opportunity has progressed`,
+    ``,
+    divider,
+    header,
+    divider,
+    ...rows,
+    divider,
+    ``,
+    `Total: ${orders.length} order${orders.length !== 1 ? 's' : ''} · ${orders.reduce((s,o)=>s+o.qty,0)} units`,
+    ``,
+    `Please reply with any corrections or confirm if everything looks correct.`,
+    ``,
+    `Thank you,`,
+    `Operations Team`,
+  ].join('\n');
+
+  // Pre-fill modal
+  const subject = `[Action Required] Salesforce Order Review — ${stageLabel} · ${today}`;
+  document.getElementById('sf-email-subject').value = subject;
+  document.getElementById('sf-email-body-preview').textContent = body;
+  document.getElementById('sf-email-result').textContent = '';
+
+  document.getElementById('sf-email-modal').style.display = 'flex';
+}
+
+function sfEmailCopyBody() {
+  const body = document.getElementById('sf-email-body-preview').textContent;
+  navigator.clipboard.writeText(body).then(() => {
+    const r = document.getElementById('sf-email-result');
+    r.innerHTML = '<span style="color:var(--grn);">✓ Copied to clipboard</span>';
+    setTimeout(() => { r.textContent = ''; }, 2000);
+  });
+}
+
+function sfEmailOpenMailto() {
+  const to      = document.getElementById('sf-email-to').value.trim();
+  const subject = encodeURIComponent(document.getElementById('sf-email-subject').value);
+  const body    = encodeURIComponent(document.getElementById('sf-email-body-preview').textContent);
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
 }
 
 // ── DEMAND BAR CHART ─────────────────────────────────────────────────────
@@ -3956,6 +4106,8 @@ function sfRender() {
     return true;
   });
 
+  sfCurrentFiltered = filtered; // expose for email draft
+
   // Product demand summary (respects DEL ticket status exclusion)
   sfRenderDemand(sfPoMapF);
 
@@ -4044,6 +4196,7 @@ function sfRender() {
       <td style="font-size:11px">${o.location||'<span style="color:var(--mut)">—</span>'}</td>
       <td style="font-size:11px">${o.purchaseType||'—'}</td>
       <td style="font-size:11px">${o.owner||'<span style="color:var(--mut)">—</span>'}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px">${o.closeDate ? sfDisplayDate(o.closeDate) : '<span style="color:var(--mut)">—</span>'}</td>
       <td>${sfStageTag(o.stage)}</td>
       <td>${delTicketHtml}</td>
       <td>${ancHtml}</td>
@@ -4060,19 +4213,40 @@ function sfShowTicketDraft(btn) {
   // Compute due date display
   const dueDisplay = data.dueDate || '(PO date not set — will calculate on ticket creation)';
 
+  const sectionHdr = (label, color='var(--acc)') =>
+    `<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:${color};
+       letter-spacing:.5px;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--bdr)">
+       ${label}</div>`;
+
   document.getElementById('sf-ticket-modal-body').innerHTML = `
-    <div style="font-size:12px;color:var(--mut);font-family:'Space Mono',monospace;margin-bottom:14px">
-      Fields pre-filled from Salesforce · Remaining fields to be completed by ops team
-    </div>
-    ${sfFieldRow('Summary',      data.summary,      true)}
-    ${sfFieldRow('AMR Type',     data.amrType,      true)}
-    ${sfFieldRow('Quantity',     data.qty,          true)}
-    ${sfFieldRow('Type of Sale', data.typeOfSale,   true)}
-    ${sfFieldRow('PO Number',    data.poNumber || '—', !!data.poNumber)}
-    ${sfFieldRow('PO Date',      data.poDate    || '—', !!data.poDate)}
-    ${sfFieldRow('Due Date',     dueDisplay,        !!data.dueDate)}
-    ${sfFieldRow('Location',     data.location  || '—', !!data.location)}
-    ${sfFieldRow('Purchase Type',data.purchaseType || '—', !!data.purchaseType)}
+    ${sectionHdr('MANDATORY FIELDS', 'var(--acc)')}
+    ${sfFieldRow('Summary ★',      data.summary,           true)}
+    ${sfFieldRow('AMR Type ★',     data.amrType,           !!data.amrType)}
+    ${sfFieldRow('Quantity ★',     data.qty,               true)}
+    ${sfFieldRow('Type of Sale ★', 'Customer - New',       true)}
+    ${data.dueDate
+      ? sfFieldRow('Due Date ★', dueDisplay, true)
+      : `<div style="padding:7px 0;border-bottom:1px solid var(--bdr)">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="width:130px;flex-shrink:0;font-size:11px;color:var(--mut);font-family:'Space Mono',monospace">
+              Due Date ★</div>
+            <div style="display:flex;align-items:center;gap:8px;flex:1">
+              <span style="width:6px;height:6px;border-radius:50%;background:#ef4444;flex-shrink:0;display:inline-block"></span>
+              <input type="date" id="sf-ticket-due" required style="
+                background:var(--s2);border:1px solid #ef4444;border-radius:5px;
+                color:var(--txt);font-family:'Space Mono',monospace;font-size:12px;
+                padding:5px 10px;outline:none;cursor:pointer;
+              " placeholder="DD/MM/YYYY">
+              <span style="font-size:11px;color:#ef4444;">Required — PO not yet received</span>
+            </div>
+          </div>
+        </div>`
+    }
+
+    ${sectionHdr('OPTIONAL FIELDS (populated if available)', 'var(--mut)')}
+    ${sfFieldRow('PO Number',  data.poNumber || '—',       !!data.poNumber)}
+    ${sfFieldRow('PO Date',    data.poDate   || '—',       !!data.poDate)}
+    ${sfFieldRow('Location',   data.location || '—',       !!data.location)}
     ${(()=>{
       const anc = data.ancillary && data.ancillary.length ? data.ancillary : null;
       const descVal = anc ? `Ancillary items:\n${anc.map(a=>`• ${a}`).join('\n')}` : '';
@@ -4120,18 +4294,22 @@ function sfCreateTicket() {
   btn.textContent = '⏳ Creating…';
   resultEl.textContent = '';
 
+  // Build description: user text + location if available
+  let fullDesc = desc;
+  if (d.location && !fullDesc.toLowerCase().includes(d.location.toLowerCase()))
+    fullDesc = fullDesc ? `${fullDesc}\n\nLocation: ${d.location}` : `Location: ${d.location}`;
+
   const payload = {
-    action:      'createDEL',
-    summary:     d.summary,
-    amrType:     d.amrType,
-    qty:         d.qty,
-    typeOfSale:  d.typeOfSale,
-    poNumber:    d.poNumber  || '',
-    poDate:      d.poDate    || '',
-    dueDate:     d.dueDate   || '',
-    location:    d.location  || '',
-    purchaseType:d.purchaseType || '',
-    description: desc
+    action:     'createDEL',
+    summary:    d.summary,
+    amrType:    d.amrType,          // e.g. "Sherpa 10K" — must match Jira option exactly
+    qty:        d.qty,
+    typeOfSale: 'Customer - New',   // always Customer - New for SF opportunities
+    dueDate:    d.dueDate   || '',
+    poNumber:   d.poNumber  || '',
+    poDate:     d.poDate    || '',
+    location:   d.location  || '',
+    description: fullDesc
   };
 
   fetch(APPS_SCRIPT_URL, {
