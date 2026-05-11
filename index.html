@@ -4288,13 +4288,24 @@ function sfCreateTicket() {
   if (d.location && !fullDesc.toLowerCase().includes(d.location.toLowerCase()))
     fullDesc = fullDesc ? `${fullDesc}\n\nLocation: ${d.location}` : `Location: ${d.location}`;
 
+  // Due date: use pre-filled value OR what the user manually entered in the date picker
+  const manualDueDate = document.getElementById('sf-ticket-due');
+  const resolvedDueDate = d.dueDate || (manualDueDate ? manualDueDate.value : '') || '';
+
+  if (!resolvedDueDate) {
+    btn.disabled = false;
+    btn.textContent = 'Create DEL Ticket';
+    resultEl.innerHTML = `<span style="color:#ef4444;">Due Date is required — please select a date.</span>`;
+    return;
+  }
+
   const payload = {
     action:     'createDEL',
     summary:    d.summary,
-    amrType:    d.amrType,          // e.g. "Sherpa 10K" — must match Jira option exactly
+    amrType:    d.amrType,
     qty:        d.qty,
-    typeOfSale: 'Customer - New',   // always Customer - New for SF opportunities
-    dueDate:    d.dueDate   || '',
+    typeOfSale: 'Customer - New',
+    dueDate:    resolvedDueDate,
     poNumber:   d.poNumber  || '',
     poDate:     d.poDate    || '',
     location:   d.location  || '',
