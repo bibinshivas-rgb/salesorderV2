@@ -697,7 +697,7 @@
           <thead>
             <tr style="background:var(--s2);">
               <th rowspan="2" style="padding:8px 16px 8px 12px;text-align:left;color:var(--mut);font-family:'Syne',sans-serif;font-weight:600;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;">Product</th>
-              <th colspan="2" style="padding:6px 20px;text-align:center;color:var(--grn);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;">Customer — New</th>
+              <th colspan="5" style="padding:6px 20px;text-align:center;color:var(--grn);font-family:'Syne',sans-serif;font-weight:600;border-bottom:1px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;">Customer — New</th>
               <th rowspan="2" style="padding:8px 20px;text-align:center;color:#a78bfa;font-family:'Syne',sans-serif;font-weight:600;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;">Replacement</th>
               <th rowspan="2" style="padding:8px 20px;text-align:center;color:var(--ylw);font-family:'Syne',sans-serif;font-weight:600;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;">Internal</th>
               <th rowspan="2" style="padding:8px 20px;text-align:center;color:#ffb300;font-family:'Syne',sans-serif;font-weight:600;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;">⚠ Exceptions</th>
@@ -705,7 +705,10 @@
             </tr>
             <tr style="background:var(--s2);">
               <th style="padding:5px 14px;text-align:center;color:var(--grn);font-family:'Syne',sans-serif;font-weight:500;font-size:11px;border-bottom:2px solid var(--bdr);border-right:1px solid rgba(255,255,255,.07);white-space:nowrap;opacity:.85;">Closed Won</th>
-              <th style="padding:5px 14px;text-align:center;color:var(--ylw);font-family:'Syne',sans-serif;font-weight:500;font-size:11px;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;opacity:.85;">Awaiting PO</th>
+              <th style="padding:5px 14px;text-align:center;color:var(--ylw);font-family:'Syne',sans-serif;font-weight:500;font-size:11px;border-bottom:2px solid var(--bdr);border-right:1px solid rgba(255,255,255,.07);white-space:nowrap;opacity:.85;">Awaiting PO</th>
+              <th style="padding:5px 14px;text-align:center;color:#fb923c;font-family:'Syne',sans-serif;font-weight:500;font-size:11px;border-bottom:2px solid var(--bdr);border-right:1px solid rgba(255,255,255,.07);white-space:nowrap;opacity:.85;">Negotiation/Review</th>
+              <th style="padding:5px 14px;text-align:center;color:#22d3ee;font-family:'Syne',sans-serif;font-weight:500;font-size:11px;border-bottom:2px solid var(--bdr);border-right:1px solid rgba(255,255,255,.07);white-space:nowrap;opacity:.85;">Proposal/Price Quote</th>
+              <th style="padding:5px 14px;text-align:center;color:#c084fc;font-family:'Syne',sans-serif;font-weight:500;font-size:11px;border-bottom:2px solid var(--bdr);border-right:1px solid var(--bdr);white-space:nowrap;opacity:.85;">Qualification</th>
             </tr>
           </thead>
           <tbody id="sf-demand-tbody"></tbody>
@@ -820,7 +823,2227 @@
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────
-let RAW_ORDERS = [{"key": "DEL-1235", "summary": "Engineering Vehicle (04/26) | Pallet Mover", "status": "Dispatch", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-07-17"}, {"key": "DEL-1226", "summary": "Engineering Vehicle (04/26) | 10K", "status": "Dispatch", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-07-17"}, {"key": "DEL-1217", "summary": "Siemens Goa | Lifter 500", "status": "Approved", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-07-17"}, {"key": "DEL-1199", "summary": "HUL Dapada | Lifter 500", "status": "Approved", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-07-17"}, {"key": "DEL-1189", "summary": "Amazon, USA | Pallet Mover", "status": "Approved", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "2D-20895522", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-04-23"}, {"key": "DEL-1180", "summary": "Tenneco Litchfield 10K", "status": "Approved", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-06-26"}, {"key": "DEL-1171", "summary": "Saft 10K", "status": "Approved", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-06-19"}, {"key": "DEL-1133", "summary": "Innovista Lifter || 1 No", "status": "Approved", "priority": "Medium", "amrType": "Lifter 1000", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "05 K 160", "poDate": "2025-10-18", "sowStatus": "Done and accepted ", "solutionEngineer": "Pratik Pathak", "dueDate": "2026-02-28"}, {"key": "DEL-1116", "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright)", "status": "Approved", "priority": "Medium", "amrType": "Pallet Mover", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "G400268124", "poDate": "2026-03-25", "sowStatus": "Done, Under correction", "solutionEngineer": "Navneet Tripathi", "dueDate": "2026-06-30"}, {"key": "DEL-1115", "summary": "Saft America - Valdosta | Sherpa XT Lite x1 (RaaS)", "status": "Rejected", "priority": "Medium", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "735", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-06-30"}, {"key": "DEL-916", "summary": "Test ticket", "status": "Dispatch", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "2346732467", "poDate": "", "sowStatus": "", "solutionEngineer": "Rohit Unnithan", "dueDate": ""}, {"key": "DEL-901", "summary": "Sobha Dubai - 4 PM [PO Not Yet Received]", "status": "Approved", "priority": "Medium", "amrType": "Pallet Mover", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "Not Received", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-892", "summary": "Yokohama 10K 4 nos ", "status": "Approved", "priority": "Medium", "amrType": "10k", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "4500032656", "poDate": "2026-03-03", "sowStatus": "Done, Under correction", "solutionEngineer": "Navneet Tripathi", "dueDate": "2026-06-03"}, {"key": "DEL-883", "summary": "Goodyear Haryana - Sherpa 10K", "status": "Vehicle Bringup", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "RPM-HR/202/2025-26", "poDate": "2026-02-19", "sowStatus": "Done and accepted ", "solutionEngineer": "Balaji Jayakumar", "dueDate": "2026-05-19"}, {"key": "DEL-874", "summary": "Bekaert Sherpa FlexTug", "status": "Approved", "priority": "Medium", "amrType": "Flex Tug ( Pivot )", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "G400262374", "poDate": "2026-02-25", "sowStatus": "Done, Under correction", "solutionEngineer": "Navneet Tripathi", "dueDate": ""}, {"key": "DEL-850", "summary": "HUL Haldia 2 PMs POC for 3 Months", "status": "Vehicle Bringup", "priority": "Medium", "amrType": "Pallet Mover", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PO17461321", "poDate": "2026-02-23", "sowStatus": "Done, Under correction", "solutionEngineer": "Navneet Tripathi", "dueDate": "2026-05-15"}, {"key": "DEL-841", "summary": "Pallet Mover (1 Nos) - Bosch Bidadi", "status": "Validation", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "PO0087566444", "poDate": "2026-03-11", "sowStatus": "Done and accepted ", "solutionEngineer": "Suvrangshu Sen", "dueDate": "2026-05-13"}, {"key": "DEL-825", "summary": "Bosch NNP Swapping of spare v3 AMR with new XT lite.", "status": "Dispatch", "priority": "High", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "NA", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-03-06"}, {"key": "DEL-817", "summary": "CEAT Halol Spare AMR(V3.5)", "status": "Dispatch", "priority": "High", "amrType": "Tug V3", "qty": 1, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-02-28"}, {"key": "DEL-799", "summary": "HUL Sumerpur - POC (Sherpa Lite)", "status": "Dispatch", "priority": "Medium", "amrType": "Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "2026-01-13", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-30"}, {"key": "DEL-791", "summary": "Auto Unhitch for Orchid", "status": "Rejected", "priority": "Medium", "amrType": "Others", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-783", "summary": "Orchid Technology Ahmedabad (Johnson Control)", "status": "Rejected", "priority": "High", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-31"}, {"key": "DEL-774", "summary": "Yazaki - Lifter 500 POC (Mecha Base) [PO not available]", "status": "Rejected", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-03-18"}, {"key": "DEL-766", "summary": "Bosch NNP (Phase 2) | Lifter 500", "status": "Approved", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "Not Received", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2026-03-20"}, {"key": "DEL-758", "summary": "Sobha Dubai (5 XT Lite) - PO Not Received", "status": "Validation", "priority": "Medium", "amrType": "XT Lite", "qty": 5, "location": "", "typeOfSale": "Customer - New", "poNumber": "Not Received", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-750", "summary": "Daikin Thailand 10K 1 nos", "status": "Dispatch", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "PMF3-TTFL2602-016", "poDate": "2026-02-24", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-03-17"}, {"key": "DEL-742", "summary": "Schneider Electric Dubai - 1 PM + AtiEye", "status": "Rejected", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "MSA Signed", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-734", "summary": "Daikin Thailand XT 1nos", "status": "Dispatch", "priority": "High", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "PMF3-TTFL-2511-019", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-726", "summary": "Electrolux 10K replacement", "status": "Mechanical Assembly", "priority": "Medium", "amrType": "10k", "qty": 3, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "NA", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-03-27"}, {"key": "DEL-718", "summary": "L&T Vadodara Sherpa 10K", "status": "Dispatch", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "01L021972", "poDate": "2026-01-17", "sowStatus": "Done and accepted ", "solutionEngineer": "", "dueDate": "2026-03-20"}, {"key": "DEL-702", "summary": "Arcelor Mittal 2 Nos - 10K", "status": "IQC", "priority": "Medium", "amrType": "10k", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "5300060859", "poDate": "2026-03-04", "sowStatus": "", "solutionEngineer": "Balaji Jayakumar", "dueDate": "2026-05-10"}, {"key": "DEL-694", "summary": "HUL Dapada Pallet Mover POC", "status": "Dispatch", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-15"}, {"key": "DEL-685", "summary": "Epiroc Mining 1 XT", "status": "Dispatch", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-677", "summary": "Flex Tug Engineering vehicle", "status": "Approved", "priority": "Medium", "amrType": "Flex Tug ( Pivot )", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "NA", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-31"}, {"key": "DEL-669", "summary": "Flex Fork Engineering vehicle", "status": "Approved", "priority": "Medium", "amrType": "Flex Fork (Monofork)", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "NA", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-31"}, {"key": "DEL-638", "summary": "Yokohama 10K 6 nos", "status": "Dispatch", "priority": "High", "amrType": "10k", "qty": 6, "location": "", "typeOfSale": "Customer - New", "poNumber": "4500031990", "poDate": "2025-11-13", "sowStatus": "Done and accepted ", "solutionEngineer": "Navneet Tripathi", "dueDate": "2026-03-20"}, {"key": "DEL-630", "summary": "We took back the Lite AMR from ARTPARK for refurbisment.Please start the process and let me know which are the prarts needs to be changed.", "status": "Request", "priority": "Medium", "amrType": "Lite", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-18"}, {"key": "DEL-620", "summary": "Bekaert XT and XT-lite", "status": "Dispatch", "priority": "High", "amrType": "", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "G400242441", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2026-01-15"}, {"key": "DEL-612", "summary": "Tenneco Puebla - 1 Pallet Mover", "status": "Dispatch", "priority": "Medium", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "2464-4502042076", "poDate": "2025-09-29", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-02-16"}, {"key": "DEL-604", "summary": "Tenneco Puebla - 1 XT Lite", "status": "Dispatch", "priority": "Medium", "amrType": "Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-15"}, {"key": "DEL-596", "summary": "HUL Pondicherry 2 Lites Replacement", "status": "Dispatch", "priority": "Medium", "amrType": "Lite", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PO17092483", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-31"}, {"key": "DEL-588", "summary": "Bosch Trolley 7 nos", "status": "Dispatch", "priority": "High", "amrType": "Others", "qty": 7, "location": "", "typeOfSale": "", "poNumber": "0087541575", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-579", "summary": "Schneider Electric Attibelle Lifter integration(Fall Check)", "status": "Request", "priority": "Medium", "amrType": "Tug V3.5", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "4057701834632", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-31"}, {"key": "DEL-551", "summary": "Innovista Lifter || 5 Nos", "status": "Dispatch", "priority": "Medium", "amrType": "Lifter 1000", "qty": 5, "location": "", "typeOfSale": "Customer - New", "poNumber": "05 K 160", "poDate": "2025-10-18", "sowStatus": "Done and accepted ", "solutionEngineer": "Pratik Pathak", "dueDate": "2026-02-28"}, {"key": "DEL-541", "summary": "Valeo Ati Eye + Tug v3", "status": "Dispatch", "priority": "Medium", "amrType": "", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-533", "summary": "Turbo Energy Sherpa XT 1 no", "status": "Handover Done", "priority": "High", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "680049103", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-10"}, {"key": "DEL-516", "summary": "Sai Life Science Sherpa XT ", "status": "Dispatch", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "2461268", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-22"}, {"key": "DEL-508", "summary": "Contitech Mexico Sherpa 10K 3 quantity ", "status": "Dispatch", "priority": "Medium", "amrType": "10k", "qty": 3, "location": "", "typeOfSale": "Customer - New", "poNumber": "45760326", "poDate": "2025-09-29", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-02-16"}, {"key": "DEL-500", "summary": "Lifter 500 - Bosch Nagnathapura", "status": "Handover Done", "priority": "Medium", "amrType": "Lifter 500", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "0087539215", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-18"}, {"key": "DEL-492", "summary": "TVSM Hosur Tug V3", "status": "Rejected", "priority": "Medium", "amrType": "Tug V3", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-18"}, {"key": "DEL-476", "summary": "Auto-unhitch (15 Nos)", "status": "Request", "priority": "Medium", "amrType": "", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-15"}, {"key": "DEL-467", "summary": "Siemens Goa", "status": "Request", "priority": "Medium", "amrType": "", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-459", "summary": "Schneider Attibele One Campus Pivot", "status": "Under Procurement", "priority": "Medium", "amrType": "Flex Tug ( Pivot )", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "‍5004701907467‎", "poDate": "2025-09-19", "sowStatus": "Done and accepted ", "solutionEngineer": "Paras Miglani", "dueDate": "2025-12-12"}, {"key": "DEL-451", "summary": "Schneider Attibele One Campus Sherpa 10K", "status": "Validation", "priority": "Medium", "amrType": "10k", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "5004701907467", "poDate": "2025-09-19", "sowStatus": "", "solutionEngineer": "Paras Miglani", "dueDate": "2026-02-27"}, {"key": "DEL-412", "summary": "Ceat Halol Batch 2 - 4 Sherpa Tug v3", "status": "commissioning", "priority": "Medium", "amrType": "Tug V3", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-26"}, {"key": "DEL-404", "summary": "Autonomy-Amazon use Case test", "status": "Dispatch", "priority": "Low", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "NA", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-396", "summary": "Thailand Demo Sherpa XT Lite", "status": "Handover Done", "priority": "Medium", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-388", "summary": "Thailand Demo Sherpa XT", "status": "Handover Done", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-379", "summary": "Ati Eye || Daimler Chennai", "status": "Request", "priority": "Medium", "amrType": "Others", "qty": 1, "location": "", "typeOfSale": "", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-10"}, {"key": "DEL-356", "summary": "Tenneco Canada", "status": "commissioning", "priority": "Medium", "amrType": "10k", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "4502031696", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2026-01-30"}, {"key": "DEL-327", "summary": "Electrolux", "status": "Handover Done", "priority": "Medium", "amrType": "XT", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PMF3-ETL2506-041", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-30"}, {"key": "DEL-229", "summary": "Sanmina, Chennai", "status": "commissioning", "priority": "Medium", "amrType": "Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "PK70P1341271", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-15"}, {"key": "DEL-221", "summary": "Sanmina, Chennai", "status": "commissioning", "priority": "Medium", "amrType": "Lite", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PK70P1341187, PK70P1341271", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-15"}, {"key": "DEL-213", "summary": "Meril Life Science ", "status": "commissioning", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "9107002378", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-12-15"}, {"key": "DEL-198", "summary": "Royal Enfield Vallam 3 XT Lites", "status": "Rejected", "priority": "Medium", "amrType": "XT Lite", "qty": 3, "location": "", "typeOfSale": "Customer - Replacement", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-24"}, {"key": "DEL-188", "summary": "Denso", "status": "commissioning", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "ORN-00000655-40028", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-10-24"}, {"key": "DEL-180", "summary": "AutoLiv PalletMover 2 nos", "status": "Dispatch", "priority": "Highest", "amrType": "Pallet Mover", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "PO100324", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-10"}, {"key": "DEL-172", "summary": "Ceat Halol 1 Sherpa XT", "status": "Handover Done", "priority": "Medium", "amrType": "XT", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-11"}, {"key": "DEL-164", "summary": "Ceat Halol Batch 1 3 Sherpa Tug v3", "status": "Handover Done", "priority": "Medium", "amrType": "Tug V3", "qty": 3, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-11"}, {"key": "DEL-156", "summary": "Thailand Demo Pallet Mover", "status": "Dispatch", "priority": "Highest", "amrType": "Pallet Mover", "qty": 1, "location": "", "typeOfSale": "Internal", "poNumber": "NA", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-148", "summary": "Tenneco Pueabla", "status": "commissioning", "priority": "Medium", "amrType": "XT Lite", "qty": 1, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": ""}, {"key": "DEL-140", "summary": "Owens Corning Pallet Mover Batch 2 - 4 nos", "status": "Dispatch", "priority": "Highest", "amrType": "Pallet Mover", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2025-11-30"}, {"key": "DEL-132", "summary": "Owens Corning Pallet Mover Batch 1 - 4 nos", "status": "Dispatch", "priority": "Highest", "amrType": "Pallet Mover", "qty": 4, "location": "", "typeOfSale": "Customer - New", "poNumber": "", "poDate": "", "sowStatus": "Not Started", "solutionEngineer": "", "dueDate": "2025-11-21"}, {"key": "DEL-124", "summary": "Samsung Monofork. 2 Nos", "status": "commissioning", "priority": "Medium", "amrType": "Flex Fork (Monofork)", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "2112444414", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-09-23"}, {"key": "DEL-108", "summary": "Tenneco Litchfield Sherpa 10K 2nos", "status": "Handover Done", "priority": "Medium", "amrType": "10k", "qty": 2, "location": "", "typeOfSale": "Customer - New", "poNumber": "4502031696", "poDate": "", "sowStatus": "", "solutionEngineer": "", "dueDate": "2025-11-28"}];
+let RAW_ORDERS = [
+  {
+    "key": "DEL-1389",
+    "summary": "HAL | Lifter 1000",
+    "status": "Request",
+    "priority": "Medium",
+    "amrType": "Lifter 1000",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-1380",
+    "summary": "HAL | XT Lite x6",
+    "status": "Request",
+    "priority": "Medium",
+    "amrType": "Sherpa XT Lite",
+    "qty": 6,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-1371",
+    "summary": "HUL Sumerpur | Sherpa Lite",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Lite",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PO17717184",
+    "poDate": "2026-05-19",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-05-22"
+  },
+  {
+    "key": "DEL-1362",
+    "summary": "AutoLiv : XT Lite | Sherpa XT Lite x1",
+    "status": "Validation",
+    "priority": "Medium",
+    "amrType": "Sherpa XT Lite",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "IN221540",
+    "poDate": "2026-05-11",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-08-03"
+  },
+  {
+    "key": "DEL-1344",
+    "summary": "Saint Gobain | Sherpa 10K x1",
+    "status": "Electronics Assembly",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "4200009863",
+    "poDate": "2026-05-05",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-07-31"
+  },
+  {
+    "key": "DEL-1335",
+    "summary": "Britannia Industries | Sherpa XT lite",
+    "status": "Validation",
+    "priority": "Medium",
+    "amrType": "Sherpa XT Lite",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-05-29"
+  },
+  {
+    "key": "DEL-1325",
+    "summary": "Dayanand Sagar college-Bangalore | Sherpa Edu Bot x1",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Edu Bot",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "RAI-006",
+    "poDate": "2026-02-12",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-05-07"
+  },
+  {
+    "key": "DEL-1316",
+    "summary": "Mexico Demo -Sherpa 10K",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-05-12"
+  },
+  {
+    "key": "DEL-1307",
+    "summary": "Mexico Demo - XT Lite  ",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Sherpa XT Lite",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-05-08"
+  },
+  {
+    "key": "DEL-1298",
+    "summary": "Sherpa 10K Buffer - C",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-1289",
+    "summary": "Sherpa 10K Buffer - B",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-1280",
+    "summary": "Sherpa 10K Buffer - A",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-1271",
+    "summary": "Pallet Mover Buffer - C",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-1262",
+    "summary": "Pallet Mover Buffer - B",
+    "status": "IQC",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-1253",
+    "summary": "Pallet Mover Buffer - A",
+    "status": "Mechanical Assembly",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-1235",
+    "summary": "Engineering Vehicle (04/26) | Pallet Mover",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-07-17"
+  },
+  {
+    "key": "DEL-1226",
+    "summary": "Engineering Vehicle (04/26) | 10K",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-07-17"
+  },
+  {
+    "key": "DEL-1217",
+    "summary": "Siemens Goa | Lifter 500",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Lifter 500",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - Replacement",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-07-17"
+  },
+  {
+    "key": "DEL-1199",
+    "summary": "HUL Dapada | Lifter 500",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Lifter 500",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - Replacement",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-07-17"
+  },
+  {
+    "key": "DEL-1189",
+    "summary": "Amazon, USA | Pallet Mover",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "Seattle, USA",
+    "typeOfSale": "Customer - New",
+    "poNumber": "2D-20895522",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-04-23"
+  },
+  {
+    "key": "DEL-1180",
+    "summary": "Tenneco Litchfield 10K",
+    "status": "Under Procurement",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - Replacement",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-26"
+  },
+  {
+    "key": "DEL-1171",
+    "summary": "Saft 10K",
+    "status": "Under Procurement",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-19"
+  },
+  {
+    "key": "DEL-1133",
+    "summary": "Innovista Lifter || 1 No",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Lifter 1000",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "05 K 160",
+    "poDate": "2025-10-18",
+    "sowStatus": "",
+    "solutionEngineer": "Pratik Pathak",
+    "dueDate": "2026-02-28"
+  },
+  {
+    "key": "DEL-1116",
+    "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright)",
+    "status": "Under Procurement",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 4,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "G400268124",
+    "poDate": "2026-03-25",
+    "sowStatus": "",
+    "solutionEngineer": "Navneet Tripathi",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-1115",
+    "summary": "Saft America - Valdosta | Sherpa XT Lite x1 (RaaS)",
+    "status": "Rejected",
+    "priority": "Medium",
+    "amrType": "Sherpa XT Lite",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - Replacement",
+    "poNumber": "735",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-901",
+    "summary": "Sobha Dubai - 4 PM [PO Not Yet Received]",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 4,
+    "location": "Dubai",
+    "typeOfSale": "Customer - New",
+    "poNumber": "Not Received",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-892",
+    "summary": "Yokohama 10K 4 nos ",
+    "status": "Under Procurement",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 4,
+    "location": "Dahej",
+    "typeOfSale": "Customer - New",
+    "poNumber": "4500032656",
+    "poDate": "2026-03-03",
+    "sowStatus": "",
+    "solutionEngineer": "Navneet Tripathi",
+    "dueDate": "2026-06-03"
+  },
+  {
+    "key": "DEL-883",
+    "summary": "Goodyear Haryana - Sherpa 10K",
+    "status": "Rejected",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "Ballabgarh , Haryana",
+    "typeOfSale": "Customer - New",
+    "poNumber": "RPM-HR/202/2025-26",
+    "poDate": "2026-02-19",
+    "sowStatus": "",
+    "solutionEngineer": "Balaji Jayakumar",
+    "dueDate": "2026-05-19"
+  },
+  {
+    "key": "DEL-874",
+    "summary": "Bekaert Sherpa FlexTug",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Sherpa FlexTug",
+    "qty": 1,
+    "location": "Bekaert",
+    "typeOfSale": "Customer - New",
+    "poNumber": "G400262374",
+    "poDate": "2026-02-25",
+    "sowStatus": "",
+    "solutionEngineer": "Navneet Tripathi",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-850",
+    "summary": "HUL Haldia 2 PMs POC for 3 Months",
+    "status": "Validation",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 2,
+    "location": "HUL Haldia",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PO17461321",
+    "poDate": "2026-02-23",
+    "sowStatus": "",
+    "solutionEngineer": "Navneet Tripathi",
+    "dueDate": "2026-05-15"
+  },
+  {
+    "key": "DEL-841",
+    "summary": "Pallet Mover (1 Nos) - Bosch Bidadi",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "Bosch Bidadi",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PO0087566444",
+    "poDate": "2026-03-11",
+    "sowStatus": "",
+    "solutionEngineer": "Suvrangshu Sen",
+    "dueDate": "2026-05-13"
+  },
+  {
+    "key": "DEL-825",
+    "summary": "Bosch NNP Swapping of spare v3 AMR with new XT lite.",
+    "status": "Dispatch",
+    "priority": "High",
+    "amrType": "Sherpa XT Lite",
+    "qty": 1,
+    "location": "Bosch Nagnathapura",
+    "typeOfSale": "Customer - Replacement",
+    "poNumber": "NA",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-03-06"
+  },
+  {
+    "key": "DEL-817",
+    "summary": "CEAT Halol Spare AMR(V3.5)",
+    "status": "Dispatch",
+    "priority": "High",
+    "amrType": "Sherpa Tug V3",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - Replacement",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-02-28"
+  },
+  {
+    "key": "DEL-799",
+    "summary": "HUL Sumerpur - POC (Sherpa Lite)",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Lite",
+    "qty": 1,
+    "location": "Sumerpur",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "2026-01-13",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-01-30"
+  },
+  {
+    "key": "DEL-791",
+    "summary": "Auto Unhitch for Orchid",
+    "status": "Rejected",
+    "priority": "Medium",
+    "amrType": "Others",
+    "qty": 1,
+    "location": "Ahmedabad , Gujarat",
+    "typeOfSale": "",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-783",
+    "summary": "Orchid Technology Ahmedabad (Johnson Control)",
+    "status": "Rejected",
+    "priority": "High",
+    "amrType": "Sherpa XT Lite",
+    "qty": 1,
+    "location": "Ahmedabad, Gujarat",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-01-31"
+  },
+  {
+    "key": "DEL-774",
+    "summary": "Yazaki - Lifter 500 POC (Mecha Base) [PO not available]",
+    "status": "Rejected",
+    "priority": "Medium",
+    "amrType": "Lifter 500",
+    "qty": 1,
+    "location": "India",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-03-18"
+  },
+  {
+    "key": "DEL-766",
+    "summary": "Bosch NNP (Phase 2) | Lifter 500",
+    "status": "Approved",
+    "priority": "Medium",
+    "amrType": "Lifter 500",
+    "qty": 1,
+    "location": "Bosch Nagnathapura",
+    "typeOfSale": "Customer - New",
+    "poNumber": "Not Received",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-06-30"
+  },
+  {
+    "key": "DEL-758",
+    "summary": "Sobha Dubai (5 XT Lite) - PO Not Received",
+    "status": "Validation",
+    "priority": "Medium",
+    "amrType": "Sherpa XT Lite",
+    "qty": 5,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "Not Received",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-750",
+    "summary": "Daikin Thailand 10K 1 nos",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "Thailand",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PMF3-TTFL2602-016",
+    "poDate": "2026-02-24",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-03-17"
+  },
+  {
+    "key": "DEL-742",
+    "summary": "Schneider Electric Dubai - 1 PM + AtiEye",
+    "status": "Rejected",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "Dubai",
+    "typeOfSale": "Customer - New",
+    "poNumber": "MSA Signed",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-734",
+    "summary": "Daikin Thailand XT 1nos",
+    "status": "Dispatch",
+    "priority": "High",
+    "amrType": "Sherpa XT",
+    "qty": 1,
+    "location": "Thailand",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PMF3-TTFL-2511-019",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-726",
+    "summary": "Electrolux 10K replacement",
+    "status": "Mechanical Assembly",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 2,
+    "location": "Thailand",
+    "typeOfSale": "Customer - Replacement",
+    "poNumber": "NA",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-03-27"
+  },
+  {
+    "key": "DEL-718",
+    "summary": "L&T Vadodara Sherpa 10K",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "Vadodara",
+    "typeOfSale": "Customer - New",
+    "poNumber": "01L021972",
+    "poDate": "2026-01-17",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-03-20"
+  },
+  {
+    "key": "DEL-702",
+    "summary": "Arcelor Mittal 2 Nos - 10K",
+    "status": "Validation",
+    "priority": "Medium",
+    "amrType": "Sherpa 10K",
+    "qty": 2,
+    "location": "Hazira",
+    "typeOfSale": "Customer - New",
+    "poNumber": "5300060859",
+    "poDate": "2026-03-04",
+    "sowStatus": "",
+    "solutionEngineer": "Balaji Jayakumar",
+    "dueDate": "2026-05-10"
+  },
+  {
+    "key": "DEL-694",
+    "summary": "HUL Dapada Pallet Mover POC",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "Dapada",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-01-15"
+  },
+  {
+    "key": "DEL-685",
+    "summary": "Epiroc Mining 1 XT",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa XT",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-677",
+    "summary": "Flex Tug Engineering vehicle",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa FlexTug",
+    "qty": 1,
+    "location": "Engineering Ati Motors",
+    "typeOfSale": "Internal",
+    "poNumber": "NA",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-12-31"
+  },
+  {
+    "key": "DEL-669",
+    "summary": "Flex Fork Engineering vehicle",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Flex Fork (Monofork)",
+    "qty": 1,
+    "location": "Engineering Ati Motors",
+    "typeOfSale": "Internal",
+    "poNumber": "NA",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-12-31"
+  },
+  {
+    "key": "DEL-638",
+    "summary": "Yokohama 10K 6 nos",
+    "status": "Dispatch",
+    "priority": "High",
+    "amrType": "Sherpa 10K",
+    "qty": 6,
+    "location": "Dahej",
+    "typeOfSale": "Customer - New",
+    "poNumber": "4500031990",
+    "poDate": "2025-11-13",
+    "sowStatus": "",
+    "solutionEngineer": "Navneet Tripathi",
+    "dueDate": "2026-03-20"
+  },
+  {
+    "key": "DEL-630",
+    "summary": "We took back the Lite AMR from ARTPARK for refurbisment.Please start the process and let me know which are the prarts needs to be changed.",
+    "status": "Request",
+    "priority": "Medium",
+    "amrType": "Sherpa Lite",
+    "qty": 1,
+    "location": "Art park bangalore",
+    "typeOfSale": "",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-18"
+  },
+  {
+    "key": "DEL-620",
+    "summary": "Bekaert XT and XT-lite",
+    "status": "Dispatch",
+    "priority": "High",
+    "amrType": "",
+    "qty": 2,
+    "location": "Pune",
+    "typeOfSale": "Customer - New",
+    "poNumber": "G400242441",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-01-15"
+  },
+  {
+    "key": "DEL-612",
+    "summary": "Tenneco Puebla - 1 Pallet Mover",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "Puebla Mexico",
+    "typeOfSale": "Customer - New",
+    "poNumber": "2464-4502042076",
+    "poDate": "2025-09-29",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-02-16"
+  },
+  {
+    "key": "DEL-604",
+    "summary": "Tenneco Puebla - 1 XT Lite",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Lite",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-01-15"
+  },
+  {
+    "key": "DEL-596",
+    "summary": "HUL Pondicherry 2 Lites Replacement",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Sherpa Lite",
+    "qty": 2,
+    "location": "Pondicherry",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PO17092483",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-12-31"
+  },
+  {
+    "key": "DEL-588",
+    "summary": "Bosch Trolley 7 nos",
+    "status": "Dispatch",
+    "priority": "High",
+    "amrType": "Others",
+    "qty": 7,
+    "location": "Bosch Nagnathpura.",
+    "typeOfSale": "",
+    "poNumber": "0087541575",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-30"
+  },
+  {
+    "key": "DEL-579",
+    "summary": "Schneider Electric Attibelle Lifter integration(Fall Check)",
+    "status": "Request",
+    "priority": "Medium",
+    "amrType": "SherpaTug V3.5",
+    "qty": 1,
+    "location": "Attibelle",
+    "typeOfSale": "",
+    "poNumber": "4057701834632",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-10-31"
+  },
+  {
+    "key": "DEL-551",
+    "summary": "Innovista Lifter || 5 Nos",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "Lifter 1000",
+    "qty": 5,
+    "location": "",
+    "typeOfSale": "Customer - New",
+    "poNumber": "05 K 160",
+    "poDate": "2025-10-18",
+    "sowStatus": "",
+    "solutionEngineer": "Pratik Pathak",
+    "dueDate": "2026-02-28"
+  },
+  {
+    "key": "DEL-541",
+    "summary": "Valeo Ati Eye + Tug v3",
+    "status": "Dispatch",
+    "priority": "Medium",
+    "amrType": "",
+    "qty": "",
+    "location": "",
+    "typeOfSale": "",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-533",
+    "summary": "Turbo Energy Sherpa XT 1 no",
+    "status": "Handover Done",
+    "priority": "High",
+    "amrType": "Sherpa XT",
+    "qty": 1,
+    "location": "pulivalam ",
+    "typeOfSale": "Customer - New",
+    "poNumber": "680049103",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-10"
+  },
+  {
+    "key": "DEL-516",
+    "summary": "Sai Life Science Sherpa XT ",
+    "status": "Dispatch",
+    "priority": "",
+    "amrType": "Sherpa XT",
+    "qty": 1,
+    "location": "Bidar",
+    "typeOfSale": "Customer - New",
+    "poNumber": "2461268",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-12-22"
+  },
+  {
+    "key": "DEL-508",
+    "summary": "Contitech Mexico Sherpa 10K 3 quantity ",
+    "status": "Dispatch",
+    "priority": "",
+    "amrType": "Sherpa 10K",
+    "qty": 3,
+    "location": "Mexico ",
+    "typeOfSale": "Customer - New",
+    "poNumber": "45760326",
+    "poDate": "2025-09-29",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-02-16"
+  },
+  {
+    "key": "DEL-500",
+    "summary": "Lifter 500 - Bosch Nagnathapura",
+    "status": "Handover Done",
+    "priority": "",
+    "amrType": "Lifter 500",
+    "qty": 1,
+    "location": "Bengaluru",
+    "typeOfSale": "Customer - New",
+    "poNumber": "0087539215",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-12-18"
+  },
+  {
+    "key": "DEL-492",
+    "summary": "TVSM Hosur Tug V3",
+    "status": "Rejected",
+    "priority": "",
+    "amrType": "Sherpa Tug V3",
+    "qty": 1,
+    "location": "Hosur",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-10-18"
+  },
+  {
+    "key": "DEL-476",
+    "summary": "Auto-unhitch (15 Nos)",
+    "status": "Request",
+    "priority": "",
+    "amrType": "",
+    "qty": "",
+    "location": "Various",
+    "typeOfSale": "",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-10-15"
+  },
+  {
+    "key": "DEL-467",
+    "summary": "Siemens Goa",
+    "status": "Rejected",
+    "priority": "",
+    "amrType": "",
+    "qty": 2,
+    "location": "Goa",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-459",
+    "summary": "Schneider Attibele One Campus Pivot",
+    "status": "Under Procurement",
+    "priority": "",
+    "amrType": "Sherpa FlexTug",
+    "qty": 1,
+    "location": "Attibele",
+    "typeOfSale": "Customer - New",
+    "poNumber": "5004701907467",
+    "poDate": "2025-09-19",
+    "sowStatus": "",
+    "solutionEngineer": "Paras Miglani",
+    "dueDate": "2025-12-12"
+  },
+  {
+    "key": "DEL-451",
+    "summary": "Schneider Attibele One Campus Sherpa 10K",
+    "status": "Validation",
+    "priority": "",
+    "amrType": "Sherpa 10K",
+    "qty": 1,
+    "location": "Attibele",
+    "typeOfSale": "Customer - New",
+    "poNumber": "5004701907467",
+    "poDate": "2025-09-19",
+    "sowStatus": "",
+    "solutionEngineer": "Paras Miglani",
+    "dueDate": "2026-02-27"
+  },
+  {
+    "key": "DEL-412",
+    "summary": "Ceat Halol Batch 2 - 4 Sherpa Tug v3",
+    "status": "commissioning",
+    "priority": "",
+    "amrType": "Sherpa Tug V3",
+    "qty": 4,
+    "location": "Ceat Halol",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-09-26"
+  },
+  {
+    "key": "DEL-404",
+    "summary": "Autonomy-Amazon use Case test",
+    "status": "Dispatch",
+    "priority": "Low",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "Mexico",
+    "typeOfSale": "Internal",
+    "poNumber": "NA",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-30"
+  },
+  {
+    "key": "DEL-396",
+    "summary": "Thailand Demo Sherpa XT Lite",
+    "status": "Handover Done",
+    "priority": "",
+    "amrType": "Sherpa XT Lite",
+    "qty": 1,
+    "location": "Thailand",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-30"
+  },
+  {
+    "key": "DEL-388",
+    "summary": "Thailand Demo Sherpa XT",
+    "status": "Handover Done",
+    "priority": "",
+    "amrType": "Sherpa XT",
+    "qty": 1,
+    "location": "Thailand",
+    "typeOfSale": "Internal",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-30"
+  },
+  {
+    "key": "DEL-379",
+    "summary": "Ati Eye || Daimler Chennai",
+    "status": "Request",
+    "priority": "",
+    "amrType": "Others",
+    "qty": 1,
+    "location": "Chennai",
+    "typeOfSale": "",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-10-10"
+  },
+  {
+    "key": "DEL-356",
+    "summary": "Tenneco Canada",
+    "status": "commissioning",
+    "priority": "",
+    "amrType": "Sherpa 10K",
+    "qty": 2,
+    "location": "Canada",
+    "typeOfSale": "Customer - New",
+    "poNumber": "4502031696",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2026-01-30"
+  },
+  {
+    "key": "DEL-327",
+    "summary": "Electrolux",
+    "status": "Handover Done",
+    "priority": "",
+    "amrType": "Sherpa XT",
+    "qty": 2,
+    "location": "Thailand",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PMF3-ETL2506-041",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-10-30"
+  },
+  {
+    "key": "DEL-229",
+    "summary": "Sanmina, Chennai",
+    "status": "commissioning",
+    "priority": "",
+    "amrType": "Sherpa Lite",
+    "qty": 1,
+    "location": "SEZ unit, Orgadam, Sriperumbudur, Chennai",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PK70P1341271",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-09-15"
+  },
+  {
+    "key": "DEL-221",
+    "summary": "Sanmina, Chennai",
+    "status": "commissioning",
+    "priority": "",
+    "amrType": "Sherpa Lite",
+    "qty": 2,
+    "location": "SEZ unit, Orgadam, Sriperumbudur, Chennai",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PK70P1341187, PK70P1341271",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-09-15"
+  },
+  {
+    "key": "DEL-213",
+    "summary": "Meril Life Science ",
+    "status": "commissioning",
+    "priority": "",
+    "amrType": "Sherpa XT",
+    "qty": 1,
+    "location": "Vapi, Gujrat",
+    "typeOfSale": "Customer - New",
+    "poNumber": "9107002378",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-12-15"
+  },
+  {
+    "key": "DEL-198",
+    "summary": "Royal Enfield Vallam 3 XT Lites",
+    "status": "Rejected",
+    "priority": "",
+    "amrType": "Sherpa XT Lite",
+    "qty": 3,
+    "location": "Vallam",
+    "typeOfSale": "Customer - Replacement",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-10-24"
+  },
+  {
+    "key": "DEL-188",
+    "summary": "Denso",
+    "status": "commissioning",
+    "priority": "",
+    "amrType": "Sherpa XT",
+    "qty": 1,
+    "location": "Nelamangla, Bangalore",
+    "typeOfSale": "Customer - New",
+    "poNumber": "ORN-00000655-40028",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-10-24"
+  },
+  {
+    "key": "DEL-180",
+    "summary": "AutoLiv PalletMover 2 nos",
+    "status": "Dispatch",
+    "priority": "Highest",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 2,
+    "location": "Bangalore",
+    "typeOfSale": "Customer - New",
+    "poNumber": "PO100324",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-10"
+  },
+  {
+    "key": "DEL-172",
+    "summary": "Ceat Halol 1 Sherpa XT",
+    "status": "Handover Done",
+    "priority": "",
+    "amrType": "Sherpa XT",
+    "qty": 1,
+    "location": "Halol, Gujarat",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-09-11"
+  },
+  {
+    "key": "DEL-164",
+    "summary": "Ceat Halol Batch 1 3 Sherpa Tug v3",
+    "status": "Handover Done",
+    "priority": "",
+    "amrType": "Sherpa Tug V3",
+    "qty": 3,
+    "location": "Ceat Halol",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-09-11"
+  },
+  {
+    "key": "DEL-156",
+    "summary": "Thailand Demo Pallet Mover",
+    "status": "Dispatch",
+    "priority": "Highest",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 1,
+    "location": "",
+    "typeOfSale": "Internal",
+    "poNumber": "NA",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-30"
+  },
+  {
+    "key": "DEL-148",
+    "summary": "Tenneco Pueabla",
+    "status": "commissioning",
+    "priority": "",
+    "amrType": "Sherpa XT Lite",
+    "qty": 1,
+    "location": "Mexico",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": ""
+  },
+  {
+    "key": "DEL-140",
+    "summary": "Owens Corning Pallet Mover Batch 2 - 4 nos",
+    "status": "Dispatch",
+    "priority": "Highest",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 4,
+    "location": "Taloja",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-30"
+  },
+  {
+    "key": "DEL-132",
+    "summary": "Owens Corning Pallet Mover Batch 1 - 4 nos",
+    "status": "Dispatch",
+    "priority": "Highest",
+    "amrType": "Sherpa Pallet Mover",
+    "qty": 4,
+    "location": "Taloja",
+    "typeOfSale": "Customer - New",
+    "poNumber": "",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-21"
+  },
+  {
+    "key": "DEL-124",
+    "summary": "Samsung Monofork. 2 Nos",
+    "status": "commissioning",
+    "priority": "",
+    "amrType": "Flex Fork (Monofork)",
+    "qty": 2,
+    "location": "Kanchipuram",
+    "typeOfSale": "Customer - New",
+    "poNumber": "2112444414",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-09-23"
+  },
+  {
+    "key": "DEL-108",
+    "summary": "Tenneco Litchfield Sherpa 10K 2nos",
+    "status": "Handover Done",
+    "priority": "",
+    "amrType": "Sherpa 10K",
+    "qty": 2,
+    "location": "Litchfield",
+    "typeOfSale": "Customer - New",
+    "poNumber": "4502031696",
+    "poDate": "",
+    "sowStatus": "",
+    "solutionEngineer": "",
+    "dueDate": "2025-11-28"
+  }
+];
+let RAW_MOS = [
+  {
+    "key": "MOM-230",
+    "summary": "Dayanand Sagar college-Bangalore | Sherpa Edu Bot x1 \u2014 1 of 1.0",
+    "status": "Done",
+    "amrType": "",
+    "serial": "",
+    "dueDate": "2026-05-07",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-229",
+    "summary": "HUL Sumerpur | Sherpa Lite \u2014 1 of 1.0",
+    "status": "Done",
+    "amrType": "Sherpa Lite",
+    "serial": "Lite 30",
+    "dueDate": "2026-05-22",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-228",
+    "summary": "AutoLiv : XT Lite | Sherpa XT Lite x1 \u2014 1 of 1.0",
+    "status": "Done",
+    "amrType": "Sherpa Tug V3.5",
+    "serial": "Tug 177",
+    "dueDate": "2026-07-24",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-216",
+    "summary": "Bosch NNP (Phase 2) | Lifter 500 \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "Sherpa Lifter 500",
+    "serial": "",
+    "dueDate": "2026-03-20",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-215",
+    "summary": "Siemens Goa | Lifter 500 \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "Sherpa Lifter 500",
+    "serial": "",
+    "dueDate": "2026-07-17",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-214",
+    "summary": "HUL Dapada | Lifter 500 \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "Sherpa Lifter 500",
+    "serial": "",
+    "dueDate": "2026-07-17",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-213",
+    "summary": "Engineering Vehicle (04/26) | Pallet Mover \u2014 1 of 1.0",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 24",
+    "dueDate": "2026-04-15",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-212",
+    "summary": "Engineering Vehicle (04/26) | 10K \u2014 1 of 1.0",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 16",
+    "dueDate": "2026-04-15",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-211",
+    "summary": "Amazon, USA | Pallet Mover \u2014 1 of 1.0",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 2.2 01",
+    "dueDate": "2026-04-23",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-210",
+    "summary": "Saft 10K \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10k 30",
+    "dueDate": "2026-06-19",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-208",
+    "summary": "Tenneco Litchfield 10K \u2014 1 of 1.0",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10k 31",
+    "dueDate": "2026-06-26",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-202",
+    "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) \u2014 2 of 4.0",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "242-00123",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-201",
+    "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) \u2014 3 of 4.0",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 23",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-200",
+    "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) \u2014 4 of 4.0",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 22",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-199",
+    "summary": "Bekaert Industries Pune | Sherpa Pallet Mover x4 (Outright) \u2014 1 of 4.0",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 21",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-06"
+  },
+  {
+    "key": "MOM-125",
+    "summary": "Mexico Demo",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 15",
+    "dueDate": "2026-03-27",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-123",
+    "summary": "Electrolux Thailand-1",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 18",
+    "dueDate": "2026-04-15",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-121",
+    "summary": "Bekaert",
+    "status": "To Do",
+    "amrType": "Sherpa Pivot",
+    "serial": "Pivot 03",
+    "dueDate": "2026-04-20",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-119",
+    "summary": "Yokohoma Dahej-10",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 29",
+    "dueDate": "2026-06-05",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-118",
+    "summary": "Yokohoma Dahej-8",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 28",
+    "dueDate": "2026-03-05",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-117",
+    "summary": "Yokohoma Dahej-9",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 27",
+    "dueDate": "2026-03-06",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-116",
+    "summary": "Yokohoma Dahej-7",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 26",
+    "dueDate": "2026-03-04",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-112",
+    "summary": "Validation (Paul)",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 11",
+    "dueDate": "2025-12-01",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-111",
+    "summary": "Goodyear ",
+    "status": "Rejected",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 17",
+    "dueDate": "2026-03-20",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-110",
+    "summary": "Bosch NNpura Spare",
+    "status": "Done",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT lite 06",
+    "dueDate": "2026-03-06",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-109",
+    "summary": "Ceat Halol Spare AMR",
+    "status": "Done",
+    "amrType": "Sherpa Tug",
+    "serial": "Tug 88",
+    "dueDate": "2026-03-13",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-108",
+    "summary": "Mexico Demo 10 K",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 25",
+    "dueDate": "2026-05-12",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-107",
+    "summary": "Mexico Demo XT-lite",
+    "status": "To Do",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 26",
+    "dueDate": "2026-05-08",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-102",
+    "summary": "HUL Haldia-2",
+    "status": "PDI",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 17",
+    "dueDate": "2026-05-15",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-101",
+    "summary": "HUL Haldia-1",
+    "status": "PDI",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 18",
+    "dueDate": "2026-05-15",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-99",
+    "summary": "Bosch Bidadi ",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 16",
+    "dueDate": "2026-04-29",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-98",
+    "summary": "Shoba-Dubai-5",
+    "status": "To Do",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 25",
+    "dueDate": "2026-04-22",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-97",
+    "summary": "Shoba-Dubai-4",
+    "status": "Validation",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 24",
+    "dueDate": "2026-04-22",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-96",
+    "summary": "PM Buffer-3",
+    "status": "To Do",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 25",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-95",
+    "summary": "PM Buffer-2",
+    "status": "Mechanical Assembly",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 20",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-94",
+    "summary": "PM Buffer-1",
+    "status": "vehicle Bringup",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 19",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-93",
+    "summary": "10K Buffer-3",
+    "status": "MRS Raised",
+    "amrType": "Sherpa 10K",
+    "serial": "10k 23",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-92",
+    "summary": "10k Buffer-2",
+    "status": "To Do",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 24",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-91",
+    "summary": "10k Buffer-1",
+    "status": "MRS Raised",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 22",
+    "dueDate": "2026-06-30",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-90",
+    "summary": "HUL Sumerpur",
+    "status": "Done",
+    "amrType": "Sherpa Lite",
+    "serial": "Lite 33",
+    "dueDate": "2026-02-12",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-83",
+    "summary": "Electrolux Thailand-2",
+    "status": "In Progress",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 21",
+    "dueDate": "2026-04-09",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-82",
+    "summary": "Shoba-Dubai-3",
+    "status": "Validation",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 23",
+    "dueDate": "2026-03-28",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-81",
+    "summary": "Shoba-Dubai-2",
+    "status": "Validation",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 22",
+    "dueDate": "2026-03-28",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-80",
+    "summary": "Shoba-Dubai-1",
+    "status": "Validation",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 21",
+    "dueDate": "2026-03-28",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-78",
+    "summary": "Britannia Industries",
+    "status": "Validation",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 18",
+    "dueDate": "2026-03-31",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-77",
+    "summary": "Mahle Filters_ Manesar_ POC",
+    "status": "Rejected",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "",
+    "dueDate": "2026-04-13",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-76",
+    "summary": "HUL-Dapada POC",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 13",
+    "dueDate": "2026-01-10",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-73",
+    "summary": "Hindustan Unilever Limited - HUL",
+    "status": "Validation",
+    "amrType": "Sherpa Lifter 500",
+    "serial": "Lifter 500",
+    "dueDate": "2026-04-13",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-68",
+    "summary": "ArcelorMittal Nippon Steel India-2",
+    "status": "Dispatch",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 20",
+    "dueDate": "2026-05-29",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-67",
+    "summary": "ArcelorMittal Nippon Steel India-1",
+    "status": "Dispatch",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 19",
+    "dueDate": "2026-05-29",
+    "planMonth": "2026-04"
+  },
+  {
+    "key": "MOM-61",
+    "summary": "BOSCH-Naganathapura",
+    "status": "Done",
+    "amrType": "Sherpa Lifter 500",
+    "serial": "Lifter 500",
+    "dueDate": "2026-01-05",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-60",
+    "summary": "Innovista Automation - Kolhapur-6",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 06",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-59",
+    "summary": "Innovista Automation - Kolhapur-5",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 05",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-58",
+    "summary": "Innovista Automation - Kolhapur-4",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 04",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-57",
+    "summary": "Innovista Automation - Kolhapur-3",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 03",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-56",
+    "summary": "Innovista Automation - Kolhapur-2",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1K 02",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-55",
+    "summary": "Innovista Automation - Kolhapur-1",
+    "status": "Done",
+    "amrType": "Sherpa Lifter",
+    "serial": "Lifter 1k 01",
+    "dueDate": "2026-02-25",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-54",
+    "summary": "L& T vadodra",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 09",
+    "dueDate": "2026-03-26",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-53",
+    "summary": "Yokohama Dahej -2",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 12",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-52",
+    "summary": "ContiTech SLP",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 03",
+    "dueDate": "2026-01-30",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-51",
+    "summary": "ContiTech SLP",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 06",
+    "dueDate": "2026-01-30",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-50",
+    "summary": "ContiTech SLP",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 07",
+    "dueDate": "2026-01-30",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-49",
+    "summary": "Daikin Thailand ",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10k 08",
+    "dueDate": "2026-03-18",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-48",
+    "summary": "Tenneco - Canada",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 04",
+    "dueDate": "2026-01-10",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-47",
+    "summary": "Tenneco - Canada",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 05",
+    "dueDate": "2026-01-10",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-46",
+    "summary": "Tenneco - Litchfield MI",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 02",
+    "dueDate": "2025-12-15",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-45",
+    "summary": "Tenneco - Litchfield MI",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 01",
+    "dueDate": "2025-12-15",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-44",
+    "summary": "HUL - Pondicherry",
+    "status": "Done",
+    "amrType": "Sherpa Lite",
+    "serial": "Lite 37",
+    "dueDate": "2025-12-22",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-43",
+    "summary": "HUL - Pondicherry",
+    "status": "Done",
+    "amrType": "Sherpa Lite",
+    "serial": "Lite 38",
+    "dueDate": "2025-12-22",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-40",
+    "summary": "Tenneco - Puebla",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 12",
+    "dueDate": "2026-01-27",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-39",
+    "summary": "Engineering",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 10",
+    "dueDate": "2026-01-09",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-37",
+    "summary": "Thailand Demo",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 08",
+    "dueDate": "2026-01-08",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-36",
+    "summary": "USA Demo",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 14",
+    "dueDate": "2026-03-19",
+    "planMonth": "2026-03"
+  },
+  {
+    "key": "MOM-33",
+    "summary": "Owens Corning -8",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 09 ",
+    "dueDate": "2025-12-25",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-32",
+    "summary": "Owens Corning -7",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 07",
+    "dueDate": "2025-12-25",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-31",
+    "summary": "Owens Corning -6",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 06",
+    "dueDate": "2025-12-25",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-30",
+    "summary": "Owens Corning -5",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 05",
+    "dueDate": "2025-12-25",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-29",
+    "summary": "Owens Corning -4",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 03",
+    "dueDate": "2025-10-30",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-28",
+    "summary": "Owens Corning -3",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 04",
+    "dueDate": "2025-10-21",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-27",
+    "summary": "Owens Corning -2",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 02",
+    "dueDate": "2025-10-30",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-26",
+    "summary": "Owens Corning -1",
+    "status": "Done",
+    "amrType": "Sherpa Pallet Mover",
+    "serial": "PM 01",
+    "dueDate": "2025-10-30",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-25",
+    "summary": "Bekaert Industries -Pune",
+    "status": "Done",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 19",
+    "dueDate": "2026-01-09",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-20",
+    "summary": "Tenneco Puebla",
+    "status": "Done",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT Lite 17",
+    "dueDate": "2026-01-23",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-19",
+    "summary": "Mexico Demo",
+    "status": "Done",
+    "amrType": "Sherpa XT Lite",
+    "serial": "XT lite 17",
+    "dueDate": "2025-10-31",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-15",
+    "summary": "Daikin Compressor - Thailand",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 23 ",
+    "dueDate": "2026-02-06",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-14",
+    "summary": "Epiroc Mining- Nashik",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 20",
+    "dueDate": "2026-01-24",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-13",
+    "summary": "Bekaert Industries -Pune",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 22",
+    "dueDate": "2026-01-15",
+    "planMonth": "2026-01"
+  },
+  {
+    "key": "MOM-12",
+    "summary": "Yokohama Dahej -1",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 11",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-11",
+    "summary": "Yokohama Dahej -5",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 10",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-10",
+    "summary": "Yokohama Dahej -6",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 15",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-9",
+    "summary": "Yokohama Dahej -3",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 13",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-8",
+    "summary": "Yokohama Dahej -4",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 14",
+    "dueDate": "2026-02-27",
+    "planMonth": "2026-02"
+  },
+  {
+    "key": "MOM-7",
+    "summary": "MSIL & Saint gobain POC",
+    "status": "Done",
+    "amrType": "Sherpa 10K",
+    "serial": "10K 17",
+    "dueDate": "2026-04-30",
+    "planMonth": "2026-05"
+  },
+  {
+    "key": "MOM-6",
+    "summary": "Sai Life Sciences - Hyderabad",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 21",
+    "dueDate": "2025-12-24",
+    "planMonth": "2025-12"
+  },
+  {
+    "key": "MOM-5",
+    "summary": "Turbo Energy - Pulivalam",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 19",
+    "dueDate": "2025-11-10",
+    "planMonth": "2025-11"
+  },
+  {
+    "key": "MOM-4",
+    "summary": "Thailand Demo",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 01",
+    "dueDate": "2025-11-05",
+    "planMonth": "2025-10"
+  },
+  {
+    "key": "MOM-3",
+    "summary": "Denso Kirloskar - Bangalore",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 16",
+    "dueDate": "2025-10-25",
+    "planMonth": "2025-10"
+  },
+  {
+    "key": "MOM-2",
+    "summary": "Meri Life Science - Vapi",
+    "status": "Done",
+    "amrType": "Sherpa XT",
+    "serial": "XT 11",
+    "dueDate": "2025-10-31",
+    "planMonth": "2025-10"
+  }
+];
 
 function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -1404,9 +3627,12 @@ function sfRenderDemand(poMap) {
     const poNorm = (o.poNumber || '').trim().toLowerCase();
     if (poNorm && (poMap[poNorm] || []).some(del => DF_EXCLUDED_STATUSES.has(del.status))) return;
     const key = displayAmrType(o.product);
-    if (!sfMap[key]) sfMap[key] = { closedWon: 0, awaitingPO: 0 };
-    if (o.stage === 'Closed Won')      sfMap[key].closedWon  += o.qty;
-    else if (o.stage === 'PO Awaited') sfMap[key].awaitingPO += o.qty;
+    if (!sfMap[key]) sfMap[key] = { closedWon: 0, awaitingPO: 0, negotiation: 0, proposal: 0, qualification: 0 };
+    if (o.stage === 'Closed Won')                sfMap[key].closedWon    += o.qty;
+    else if (o.stage === 'PO Awaited')           sfMap[key].awaitingPO   += o.qty;
+    else if (o.stage === 'Negotiation/Review')   sfMap[key].negotiation  += o.qty;
+    else if (o.stage === 'Proposal/Price Quote') sfMap[key].proposal     += o.qty;
+    else if (o.stage === 'Qualification')        sfMap[key].qualification += o.qty;
   });
 
   // Customer - Replacement & Internal counts from RAW_ORDERS (always available)
@@ -1449,20 +3675,23 @@ function sfRenderDemand(poMap) {
   ]);
 
   const rows = [...allProds].map(prod => {
-    const sf   = sfMap[prod]  || { closedWon: 0, awaitingPO: 0 };
+    const sf   = sfMap[prod]  || { closedWon: 0, awaitingPO: 0, negotiation: 0, proposal: 0, qualification: 0 };
     const repl = replMap[prod] || 0;
     const int_ = intMap[prod]  || 0;
     const exc  = excMap[prod]  || 0;
-    const total = sf.closedWon + sf.awaitingPO + repl + int_ + exc;
-    return { prod, closedWon: sf.closedWon, awaitingPO: sf.awaitingPO, repl, int_, exc, total };
+    const total = sf.closedWon + sf.awaitingPO + sf.negotiation + sf.proposal + sf.qualification + repl + int_ + exc;
+    return { prod, closedWon: sf.closedWon, awaitingPO: sf.awaitingPO, negotiation: sf.negotiation, proposal: sf.proposal, qualification: sf.qualification, repl, int_, exc, total };
   }).filter(r => r.total > 0).sort((a, b) => b.total - a.total || a.prod.localeCompare(b.prod));
 
-  const totCW   = rows.reduce((s, r) => s + r.closedWon,  0);
-  const totAP   = rows.reduce((s, r) => s + r.awaitingPO, 0);
-  const totRepl = rows.reduce((s, r) => s + r.repl,       0);
-  const totInt  = rows.reduce((s, r) => s + r.int_,       0);
-  const totExc  = rows.reduce((s, r) => s + r.exc,        0);
-  const totAll  = totCW + totAP + totRepl + totInt + totExc;
+  const totCW   = rows.reduce((s, r) => s + r.closedWon,    0);
+  const totAP   = rows.reduce((s, r) => s + r.awaitingPO,   0);
+  const totNeg  = rows.reduce((s, r) => s + r.negotiation,  0);
+  const totPro  = rows.reduce((s, r) => s + r.proposal,     0);
+  const totQual = rows.reduce((s, r) => s + r.qualification,0);
+  const totRepl = rows.reduce((s, r) => s + r.repl,         0);
+  const totInt  = rows.reduce((s, r) => s + r.int_,         0);
+  const totExc  = rows.reduce((s, r) => s + r.exc,          0);
+  const totAll  = totCW + totAP + totNeg + totPro + totQual + totRepl + totInt + totExc;
 
   const cell = (val, color) =>
     `<td style="padding:7px 14px;text-align:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Space Mono',monospace;font-weight:700;color:${val ? color : 'var(--mut)'}">${val || '—'}</td>`;
@@ -1476,9 +3705,12 @@ function sfRenderDemand(poMap) {
       <td style="padding:7px 16px 7px 12px;border-right:1px solid var(--bdr);font-family:'Syne',sans-serif;font-weight:600;color:${isActive?'var(--acc)':'var(--txt)'}">
         ${isActive ? `<span style="margin-right:6px;font-size:10px;opacity:.7;">▶</span>` : ''}${r.prod}
       </td>
-      ${cell(r.closedWon,  'var(--grn)')}
-      ${cell(r.awaitingPO, 'var(--ylw)')}
-      ${cell(r.repl,       '#a78bfa')}
+      ${cell(r.closedWon,    'var(--grn)')}
+      ${cell(r.awaitingPO,  'var(--ylw)')}
+      ${cell(r.negotiation, '#fb923c')}
+      ${cell(r.proposal,    '#22d3ee')}
+      ${cell(r.qualification,'#c084fc')}
+      ${cell(r.repl,        '#a78bfa')}
       ${cell(r.int_,       'var(--ylw)')}
       ${cell(r.exc,        '#ffb300')}
       <td style="padding:7px 14px;text-align:center;font-family:'Space Mono',monospace;font-weight:700;color:var(--acc)">${r.total}</td>
@@ -1487,7 +3719,10 @@ function sfRenderDemand(poMap) {
     `<tr style="border-top:2px solid var(--bdr);background:var(--s2)">
       <td style="padding:8px 16px 8px 12px;border-right:1px solid var(--bdr);font-family:'Syne',sans-serif;font-weight:700;color:var(--txt)">TOTAL</td>
       <td style="padding:8px 14px;text-align:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Space Mono',monospace;font-weight:700;color:var(--grn)">${totCW}</td>
-      <td style="padding:8px 14px;text-align:center;border-right:1px solid var(--bdr);font-family:'Space Mono',monospace;font-weight:700;color:var(--ylw)">${totAP}</td>
+      <td style="padding:8px 14px;text-align:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Space Mono',monospace;font-weight:700;color:var(--ylw)">${totAP}</td>
+      <td style="padding:8px 14px;text-align:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Space Mono',monospace;font-weight:700;color:#fb923c">${totNeg}</td>
+      <td style="padding:8px 14px;text-align:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Space Mono',monospace;font-weight:700;color:#22d3ee">${totPro}</td>
+      <td style="padding:8px 14px;text-align:center;border-right:1px solid var(--bdr);font-family:'Space Mono',monospace;font-weight:700;color:#c084fc">${totQual}</td>
       <td style="padding:8px 14px;text-align:center;border-right:1px solid var(--bdr);font-family:'Space Mono',monospace;font-weight:700;color:#a78bfa">${totRepl}</td>
       <td style="padding:8px 14px;text-align:center;border-right:1px solid var(--bdr);font-family:'Space Mono',monospace;font-weight:700;color:var(--ylw)">${totInt}</td>
       <td style="padding:8px 14px;text-align:center;border-right:1px solid var(--bdr);font-family:'Space Mono',monospace;font-weight:700;color:#ffb300">${totExc}</td>
