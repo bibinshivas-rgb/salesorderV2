@@ -615,6 +615,29 @@
   </div>
 </div>
 
+<!-- LINK EXISTING DEL TICKET MODAL -->
+<div id="sf-link-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--s1);border:1px solid var(--bdr);border-radius:12px;width:760px;max-width:95vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--txt)">Link existing DEL ticket</div>
+        <div id="sf-link-opp" style="font-size:11px;color:var(--mut);font-family:'Space Mono',monospace;margin-top:3px"></div>
+      </div>
+      <button onclick="sfCloseLinkModal()" style="background:none;border:none;color:var(--mut);cursor:pointer;font-size:18px;line-height:1">✕</button>
+    </div>
+    <div style="padding:12px 20px;border-bottom:1px solid var(--bdr);display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <input id="sf-link-search" type="text" placeholder="Search DEL key / account / AMR…" oninput="sfRenderLinkList()" style="
+        flex:1;min-width:200px;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);
+        padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Syne',sans-serif;outline:none">
+      <label style="font-size:11px;color:var(--mut);display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input id="sf-link-all" type="checkbox" onchange="sfRenderLinkList()"> Include finished &amp; already-matched tickets
+      </label>
+    </div>
+    <div id="sf-link-list" style="overflow-y:auto;padding:4px 20px 12px;flex:1"></div>
+    <div id="sf-link-result" style="padding:10px 20px;border-top:1px solid var(--bdr);font-size:12px;min-height:38px"></div>
+  </div>
+</div>
+
 <!-- TAB PANE: DEMAND FORECAST -->
 <div id="tab-sf" class="tab-pane active">
   <div class="main" style="padding-top:16px">
@@ -3130,6 +3153,38 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxI-LhEuEeYeNkg
 
 let sfStatusMap = {}; // opportunityId → 'Pending' | 'Completed' | 'Cancelled'
 
+// ── OPPORTUNITY ↔ DEL TICKET LINKS ────────────────────────────────────────
+// PO number is the automatic match. Manual links (opportunityId → [DEL keys]) cover tickets
+// raised before the PO existed, POs that differ between SF and Jira, and opps with no PO.
+let sfLinkMap = {};
+function sfLoadLinks() {
+  return fetch(APPS_SCRIPT_URL + '?action=links')
+    .then(r => r.json())
+    .then(d => {
+      const m = (d && d.links) || d || {};
+      const clean = {};
+      Object.entries(m).forEach(([id, v]) => { if (Array.isArray(v)) clean[id] = v; });
+      sfLinkMap = clean;
+    })
+    .catch(err => console.warn('Could not load DEL links:', err));
+}
+function sfLinkedKeys() {
+  const out = new Set();
+  Object.values(sfLinkMap).forEach(a => a.forEach(k => out.add(k)));
+  return out;
+}
+// All DEL tickets for an opportunity: PO matches plus manual links (deduped).
+function sfDelsFor(o, poMap) {
+  const out = [], seen = new Set();
+  const po = (o.poNumber || '').trim().toLowerCase();
+  ((po && poMap && poMap[po]) || []).forEach(d => { if (!seen.has(d.key)) { seen.add(d.key); out.push(d); } });
+  ((o.opportunityId && sfLinkMap[o.opportunityId]) || []).forEach(k => {
+    const d = RAW_ORDERS.find(x => x.key === k);
+    if (d && !seen.has(k)) { seen.add(k); out.push(d); }
+  });
+  return out;
+}
+
 function sfLoadStatuses() {
   return fetch(APPS_SCRIPT_URL + '?action=statuses')
     .then(r => r.json())
@@ -3186,7 +3241,7 @@ function sfFetchGSheet() {
     console.warn('Jira fetch failed, keeping existing data:', err);
     return { ok: false };
   });
-  const p3 = sfLoadStatuses();
+  const p3 = Promise.all([sfLoadStatuses(), sfLoadLinks()]);
 
   Promise.all([p1, p2, p3])
     .then(([sfData, jiraData, _]) => {
@@ -3624,8 +3679,7 @@ function sfRenderDemand(poMap) {
   sfOrders.forEach(o => {
     const rowStatus = (o.opportunityId && sfStatusMap[o.opportunityId]) || 'Pending';
     if (rowStatus === 'Completed' || rowStatus === 'Cancelled') return;
-    const poNorm = (o.poNumber || '').trim().toLowerCase();
-    if (poNorm && (poMap[poNorm] || []).some(del => DF_EXCLUDED_STATUSES.has(del.status))) return;
+    if (sfDelsFor(o, poMap).some(del => DF_EXCLUDED_STATUSES.has(del.status))) return;
     const key = displayAmrType(o.product);
     if (!sfMap[key]) sfMap[key] = { closedWon: 0, awaitingPO: 0, negotiation: 0, proposal: 0, qualification: 0 };
     if (o.stage === 'Closed Won')                sfMap[key].closedWon    += o.qty;
@@ -3658,6 +3712,7 @@ function sfRenderDemand(poMap) {
   RAW_ORDERS.forEach(o => {
     if (o.typeOfSale !== 'Customer - New') return;
     if (EXC_EXCL.has(o.status)) return;
+    if (sfLinkedKeys().has(o.key)) return;
     const po = (o.poNumber || '').trim().toLowerCase();
     const poValid = po && po !== 'na' && !po.startsWith('not');
     if (poValid && excSfPoSet.has(po)) return;
@@ -3838,6 +3893,7 @@ function dfRenderExceptions() {
     if (o.typeOfSale !== 'Customer - New') return false;
     if (EXC_EXCLUDED.has(o.status)) return false;
     if (activeProductFilter && displayAmrType(o.amrType) !== activeProductFilter) return false;
+    if (sfLinkedKeys().has(o.key)) return false;
     const po = (o.poNumber || '').trim().toLowerCase();
     const poValid = po && po !== 'na' && !po.startsWith('not');
     if (poValid && sfPoSet.has(po)) return false;
@@ -3889,10 +3945,7 @@ function sfRender() {
   });
 
   // Helper: true if the matched DEL ticket already has an excluded status
-  const delTicketDone = (poNorm) => {
-    if (!poNorm) return false;
-    return (sfPoMapF[poNorm] || []).some(del => DF_EXCLUDED_STATUSES.has(del.status));
-  };
+  const delTicketDone = (o) => sfDelsFor(o, sfPoMapF).some(del => DF_EXCLUDED_STATUSES.has(del.status));
 
   const statusF = document.getElementById('sf-status-filter') ? document.getElementById('sf-status-filter').value : 'all';
 
@@ -3902,10 +3955,10 @@ function sfRender() {
     if (poF === 'with'    && !o.poNumber) return false;
     if (poF === 'without' && o.poNumber)  return false;
     const poNorm = (o.poNumber || '').trim().toLowerCase();
-    const hasTicket = poNorm && (sfPoMapF[poNorm] || []).length > 0;
+    const hasTicket = sfDelsFor(o, sfPoMapF).length > 0;
     if (ticketF === 'matched' && !hasTicket) return false;
     if (ticketF === 'missing' && (hasTicket || !o.poNumber)) return false;
-    if (delTicketDone(poNorm)) return false;
+    if (delTicketDone(o)) return false;
     if (search && !o.account.toLowerCase().includes(search) &&
         !o.product.toLowerCase().includes(search) &&
         !o.dealName.toLowerCase().includes(search)) return false;
@@ -3946,7 +3999,7 @@ function sfRender() {
       : `<span class="sf-no-po">Not received</span>`;
     // Match delivery ticket by PO number
     const poNorm = (o.poNumber || '').trim().toLowerCase();
-    const matchedDels = poNorm ? (sfPoMapF[poNorm] || []) : [];
+    const matchedDels = sfDelsFor(o, sfPoMapF);
     let delTicketHtml;
     if (matchedDels.length) {
       delTicketHtml = matchedDels.map(del => {
@@ -3970,6 +4023,7 @@ function sfRender() {
         account:      o.account,
         region:       o.region,
         dealName:     o.dealName,
+        opportunityId: o.opportunityId,
         ancillary:    o.ancillary
       }));
       delTicketHtml = `<button onclick="sfShowTicketDraft(this)" data-ticket="${ticketData}" style="
@@ -3978,7 +4032,12 @@ function sfRender() {
         font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s
       " onmouseenter="this.style.background='rgba(0,229,160,.22)'" onmouseleave="this.style.background='rgba(0,229,160,.12)'">
         + Create DEL Ticket
-      </button>`;
+      </button>
+      <button onclick="sfOpenLinkModal(${i})" style="
+        margin-top:4px;background:rgba(79,142,247,.12);color:var(--acc);border:1px solid rgba(79,142,247,.3);
+        border-radius:5px;padding:4px 10px;font-size:11px;font-family:'Syne',sans-serif;
+        font-weight:600;cursor:pointer;white-space:nowrap;display:block
+      ">🔗 Link existing</button>`;
     }
 
     const oppId     = o.opportunityId || '';
@@ -4129,7 +4188,9 @@ function sfCreateTicket() {
     poNumber:   d.poNumber  || '',
     poDate:     d.poDate    || '',
     location:   d.location  || '',
-    description: fullDesc
+    description: fullDesc,
+    opportunityId: d.opportunityId || '',
+    dealName: d.dealName || ''
   };
 
   fetch(APPS_SCRIPT_URL, {
@@ -4144,6 +4205,12 @@ function sfCreateTicket() {
     if (res.ok && res.key) {
       btn.textContent = '✓ Created';
       btn.style.background = 'var(--grn)';
+      if (d.opportunityId) {
+        sfLinkMap[d.opportunityId] = [...(sfLinkMap[d.opportunityId] || []), res.key];
+        RAW_ORDERS.unshift({ key: res.key, summary: d.summary, status: 'Request', amrType: d.amrType, qty: d.qty,
+          location: d.location || '', typeOfSale: 'Customer - New', poNumber: d.poNumber || '', poDate: d.poDate || '', dueDate: resolvedDueDate });
+        sfRender(); dfRenderExceptions();
+      }
       resultEl.innerHTML = `<span style="color:var(--grn);font-weight:600;">
         <a href="https://ati-motors.atlassian.net/browse/${res.key}" target="_blank"
            style="color:var(--grn);text-decoration:none;font-family:'Space Mono',monospace">
@@ -4160,6 +4227,96 @@ function sfCreateTicket() {
     btn.textContent = 'Create DEL Ticket';
     resultEl.innerHTML = `<span style="color:#ef4444;">Request failed: ${err.message}</span>`;
   });
+}
+
+// ── LINK EXISTING DEL TICKET ──────────────────────────────────────────────
+let sfLinkTarget = null;
+
+function sfOpenLinkModal(idx) {
+  const o = sfCurrentFiltered[idx];
+  if (!o) return;
+  sfLinkTarget = o;
+  document.getElementById('sf-link-opp').textContent =
+    `${o.account} · ${o.product} x${o.qty} · PO ${o.poNumber || '—'}`;
+  document.getElementById('sf-link-search').value = '';
+  document.getElementById('sf-link-all').checked = false;
+  document.getElementById('sf-link-result').textContent = '';
+  sfRenderLinkList();
+  document.getElementById('sf-link-modal').style.display = 'flex';
+}
+function sfCloseLinkModal() {
+  document.getElementById('sf-link-modal').style.display = 'none';
+  sfLinkTarget = null;
+}
+
+// Rough similarity so the likeliest ticket is on top: PO, AMR type, qty, account words.
+function sfLinkScore(o, del) {
+  let s = 0;
+  const po = (o.poNumber || '').trim().toLowerCase(), dpo = (del.poNumber || '').trim().toLowerCase();
+  if (po && dpo && po === dpo) s += 10;
+  if (normalizeAmrType(o.product) === normalizeAmrType(del.amrType)) s += 3;
+  if (Number(o.qty) === Number(del.qty)) s += 2;
+  const words = (o.account + ' ' + o.dealName).toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length >= 4);
+  const hay = (del.summary + ' ' + (del.location || '')).toLowerCase();
+  words.forEach(w => { if (hay.includes(w)) s += 2; });
+  return s;
+}
+
+function sfRenderLinkList() {
+  const o = sfLinkTarget; if (!o) return;
+  const q = (document.getElementById('sf-link-search').value || '').toLowerCase();
+  const showAll = document.getElementById('sf-link-all').checked;
+  const linked = sfLinkedKeys();
+  const poSet = new Set();
+  sfOrders.forEach(x => { const p = (x.poNumber || '').trim().toLowerCase(); if (p && p !== 'na' && !p.startsWith('not')) poSet.add(p); });
+  let cands = RAW_ORDERS.filter(d => d.typeOfSale === 'Customer - New' && d.status !== 'Rejected');
+  if (!showAll) {
+    cands = cands.filter(d => {
+      if (DF_EXCLUDED_STATUSES.has(d.status)) return false;
+      if (linked.has(d.key)) return false;
+      const p = (d.poNumber || '').trim().toLowerCase();
+      return !(p && poSet.has(p));            // already matched to some SF opportunity by PO
+    });
+  }
+  if (q) cands = cands.filter(d => (d.key + ' ' + d.summary + ' ' + (d.amrType || '') + ' ' + (d.location || '')).toLowerCase().includes(q));
+  cands = cands.map(d => ({ d, sc: sfLinkScore(o, d) })).sort((a, b) => b.sc - a.sc).slice(0, 40);
+
+  const box = document.getElementById('sf-link-list');
+  if (!cands.length) { box.innerHTML = `<div style="padding:24px;text-align:center;color:var(--mut);font-size:12px">No matching DEL tickets.</div>`; return; }
+  box.innerHTML = cands.map(({ d, sc }) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--txt)">
+          <a href="https://ati-motors.atlassian.net/browse/${d.key}" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:none;font-family:'Space Mono',monospace">${d.key}</a>
+          &nbsp;${escHtml(d.summary)}
+        </div>
+        <div style="font-size:11px;color:var(--mut);margin-top:2px">
+          ${escHtml(displayAmrType(d.amrType))} · qty ${d.qty || '—'} · PO ${escHtml(d.poNumber || '—')} · ${escHtml(d.status)}${sc >= 7 ? ' · <span style="color:var(--grn)">likely match</span>' : ''}
+        </div>
+      </div>
+      <button onclick="sfLinkDel('${d.key}')" style="background:var(--acc);color:#0a0c10;border:none;border-radius:6px;padding:6px 14px;font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer">Link</button>
+    </div>`).join('');
+}
+
+function sfLinkDel(delKey) {
+  const o = sfLinkTarget; if (!o) return;
+  const res = document.getElementById('sf-link-result');
+  if (!o.opportunityId) { res.innerHTML = `<span style="color:#ef4444">This opportunity has no Opportunity ID in the sheet, so it can't be linked.</span>`; return; }
+  res.textContent = '⏳ Linking…';
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'linkDEL', key: delKey, opportunityId: o.opportunityId, dealName: o.dealName,
+                           poNumber: o.poNumber || '', poDate: o.poDate || '' })
+  })
+  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error(r.error || 'Link failed');
+    sfLinkMap[o.opportunityId] = [...(sfLinkMap[o.opportunityId] || []), delKey];
+    sfCloseLinkModal();
+    sfRender(); dfRenderExceptions(); dfRenderJiraSection('Customer - Replacement','df-repl-tbody','df-repl-count');
+    renderDemandChart();
+  })
+  .catch(err => { res.innerHTML = `<span style="color:#ef4444">Could not link: ${escHtml(err.message)}</span>`; });
 }
 
 function sfToggleAnc(id) {
