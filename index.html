@@ -3191,7 +3191,10 @@ function sfLoadStatuses() {
     .then(data => {
       sfStatusMap = {};
       Object.entries(data).forEach(([id, val]) => {
-        sfStatusMap[id] = val.status || val;
+        // A cleared status is saved as "" — never fall back to the raw record object,
+        // which is truthy and made the row vanish under the default "Pending" filter.
+        const s = (val && typeof val === 'object') ? val.status : val;
+        sfStatusMap[id] = (typeof s === 'string' && s.trim()) ? s.trim() : 'Pending';
       });
     })
     .catch(err => console.warn('Could not load statuses:', err));
@@ -3355,7 +3358,9 @@ function sfParse(rows) {
     // Skip AMR line items that are contract renewals (bot already deployed)
     const typeVal = String(r['Opportunity Type'] || r['Type'] || r['type'] || '').trim().toLowerCase();
     const renewedPO = String(r['*Renewed PO Number'] || '').trim();
-    if (SF_AMR_PRODUCTS.has(product) && (typeVal === 'renewal' || renewedPO)) return;
+    // An Outright Purchase renewal (e.g. RaaS converted to CAPEX) is a new bot sale, so keep it.
+    const isOutright = String(r['Purchase Type'] || '').trim().toLowerCase() === 'outright purchase';
+    if (SF_AMR_PRODUCTS.has(product) && !isOutright && (typeVal === 'renewal' || renewedPO)) return;
     if (SF_AMR_PRODUCTS.has(product)) {
       d.amr.push({ product, qty: Number(r['Quantity']) || 1 });
     } else if (product) {
